@@ -25,22 +25,30 @@ for border-color of buttons in self.set_btn_qss()*/
 
 #lbl_status {
     color:  #024664;
+    margin-left: 10px;
 }
 
 
 #lbl_title {
     color:  #024664;
+    font-family: "Tahoma";
     font-weight: bold;
-    font-size: 18pt;
+    font-size: 13pt;
 }
 
 #btn_logo {
     margin-top: -3px;
 }
 
-/*#body_menu {
-    max-width: 190px;
-}*/
+
+
+#body_menu {
+    max-width: 60px;
+}
+
+#header_left {
+    max-width: 60px;
+}
 
 /*#menu_top {
     min-width: 60px;
