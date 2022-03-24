@@ -9,6 +9,7 @@ from PyQt5.QtCore import (
     QEasingCurve,
     QPropertyAnimation,
     pyqtProperty,
+    QCoreApplication,
 )
 
 from PyQt5.QtGui import (
@@ -41,7 +42,6 @@ images_dir = os.path.join(pkg_dir,"data","images")
 class MyCheckBox(QCheckBox):
     def __init__(self):
         super().__init__()
-        self.setStyleSheet("spacing: 200px;")
         self.setFixedSize(30,18)
         self.setCursor(Qt.PointingHandCursor)
         self.bg_color = '#aaa'
@@ -153,9 +153,9 @@ class MainWindow(QMainWindow):
         with open(os.path.join(pkg_dir,'gui.qss')) as qss:
             qss = qss.read()
             if sys.platform == 'darwin':
-                qss = "\nQFrame { font-family: 'Arial';\n font-size: 14pt;}\n" + qss
+                qss = "\nQFrame { font-family: 'Tahoma';\n font-size: 14pt;}\n" + qss
             else:
-                qss = "\nQFrame { font-family: 'Arial';\n font-size: 11pt;}\n" + qss
+                qss = "\nQFrame { font-family: 'Tahoma';\n font-size: 11pt;}\n" + qss
         self.setStyleSheet(qss)
 
         #### HEADER ####
@@ -174,8 +174,8 @@ class MainWindow(QMainWindow):
 
         #header: right
         header_right = QFrame()
-        header_right.setSizePolicy(QSizePolicy(QSizePolicy.MinimumExpanding,\
-                                            QSizePolicy.MinimumExpanding))
+        header_right.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,\
+                                            QSizePolicy.Expanding))
         header_right.setObjectName("header_right")
         lyo_header_right = QHBoxLayout()
         btn_logo = QPushButton()
@@ -249,6 +249,7 @@ class MainWindow(QMainWindow):
         lyo_menu_bottom.setAlignment(Qt.AlignBottom)
         lyo_menu_bottom.setSpacing(10)
         lyo_menu_bottom.setContentsMargins(10,10,0,10)
+        lyo_menu_top.addStretch(1)
         menu_top.setLayout(lyo_menu_top)
         menu_bottom.setLayout(lyo_menu_bottom)
         lyo_body_menu = QVBoxLayout()
@@ -461,6 +462,10 @@ class MainWindow(QMainWindow):
         btn_sac2ncf.clicked.connect(lambda: self.body_main.setCurrentIndex(3))
         btn_ncf2egf.clicked.connect(lambda: self.body_main.setCurrentIndex(4))
         btn_menu.clicked.connect(self.toggle_menu)
+
+        # fix failing to update self on Mac!
+        QCoreApplication.processEvents()
+        self.toggle_menu()
 
 
     def set_btn_qss(self, btn_obj, btn_obj_name,\
