@@ -1,11 +1,12 @@
+
 import os
 import sys 
 
 from PyQt5.QtCore import (
-    Qt
+    Qt,
 )
 
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtGui import QPixmap, QColor
 
 from PyQt5.QtWidgets import (
     QMainWindow,
@@ -18,6 +19,8 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
     QGridLayout,
+    QGraphicsDropShadowEffect,
+    QSizePolicy,
 )
 
 pkg_dir, _ = os.path.split(__file__)
@@ -28,18 +31,44 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setMinimumSize(800, 600)
 
+        # global vars
+        global btn_menu
+        global btn_minimize
+        global btn_maximize
+        global btn_close
+        global btn_setting
+        global btn_download
+        global btn_mseed2sac
+        global btn_sac2ncf
+        global btn_ncf2egf
+        global btn_terminal
+        global btn_save
+        global btn_discard
+        global btn_revert
+        global body_menu
+
+        # load external stylesheet file
+        with open(os.path.join(pkg_dir,'gui.qss')) as qss:
+            qss = qss.read()
+            if sys.platform == 'darwin':
+                qss = "\nQFrame { font-family: 'Arial';\n font-size: 14pt;}\n" + qss
+            else:
+                qss = "\nQFrame { font-family: 'Arial';\n font-size: 11pt;}\n" + qss
+        self.setStyleSheet(qss)
+
         #### HEADER ####
         # header: left
         header_left = QFrame()
         header_left.setObjectName("header_left")
         lyo_header_left = QHBoxLayout()
-        global btn_menu
         btn_menu = QPushButton()
         btn_menu.setObjectName("btn_menu")
-        lbl_menu = QLabel("menu")
+        lbl_menu = QLabel("Menu")
         lyo_header_left.addWidget(btn_menu)
         lyo_header_left.addWidget(lbl_menu)
         lyo_header_left.setAlignment(Qt.AlignLeft)
+        lyo_header_left.setSpacing(10)
+        lyo_header_left.setContentsMargins(10,10,0,10)
         header_left.setLayout(lyo_header_left)
 
         #header: center
@@ -49,17 +78,19 @@ class MainWindow(QMainWindow):
         btn_logo = QPushButton()
         btn_logo.setEnabled(False)
         btn_logo.setObjectName("btn_logo")
+        lbl_title = QLabel("Ambient Noise Seismology (ANS)")
+        lbl_title.setObjectName("lbl_title")
         lyo_header_center.addWidget(btn_logo)
+        lyo_header_center.addWidget(lbl_title)
         lyo_header_center.setAlignment(Qt.AlignCenter)
+        lyo_header_center.setSpacing(5)
+        lyo_header_center.setContentsMargins(10,10,0,10)
         header_center.setLayout(lyo_header_center)
 
         # header: right
         header_right = QFrame()
         header_right.setObjectName("header_right")
         lyo_header_right = QHBoxLayout()
-        global btn_minimize
-        global btn_maximize
-        global btn_close
         btn_minimize = QPushButton()
         btn_minimize.setObjectName("btn_minimize")
         btn_maximize = QPushButton()
@@ -87,16 +118,12 @@ class MainWindow(QMainWindow):
         # body: menu
         body_menu = QFrame()
         body_menu.setObjectName("body_menu")
+        # body_menu.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,\
+        #                                     QSizePolicy.Preferred))
         menu_top = QFrame()
         menu_top.setObjectName("menu_top")
         menu_bottom = QFrame()
         menu_bottom.setObjectName("menu_bottom")
-        global btn_setting
-        global btn_download
-        global btn_mseed2sac
-        global btn_sac2ncf
-        global btn_ncf2egf
-        global btn_terminal
         btn_setting = QPushButton()
         btn_setting.setObjectName("btn_setting")
         btn_download = QPushButton()
@@ -107,13 +134,17 @@ class MainWindow(QMainWindow):
         btn_sac2ncf.setObjectName("btn_sac2ncf")
         btn_ncf2egf = QPushButton()
         btn_ncf2egf.setObjectName("btn_ncf2egf")
-        lbl_setting = QLabel("setting")
-        lbl_download = QLabel("download")
-        lbl_mseed2sac = QLabel("mseed2sac")
-        lbl_sac2ncf = QLabel("sac2ncf")
-        lbl_ncf2egf = QLabel("ncf2egf")
-        btn_terminal = QPushButton("terminal")
-        lbl_terminal = QLabel("terminal")
+        lbl_setting = QLabel("Setting")
+        lbl_download = QLabel("Data Acquisition")
+        lbl_mseed2sac = QLabel("Mseed to SAC")
+        lbl_sac2ncf = QLabel("SAC to NCF")
+        lbl_ncf2egf = QLabel("NCF to EGF")
+        btn_terminal = QPushButton()
+        btn_terminal.setObjectName("btn_terminal")
+        lbl_terminal = QLabel("Show/Hide\nTerminal")
+        btn_about = QPushButton()
+        btn_about.setObjectName("btn_about")
+        lbl_about = QLabel("About")
         lyo_menu_top = QGridLayout()
         lyo_menu_top.addWidget(btn_setting, 0,0)
         lyo_menu_top.addWidget(btn_download, 1,0)
@@ -126,10 +157,16 @@ class MainWindow(QMainWindow):
         lyo_menu_top.addWidget(lbl_sac2ncf, 3,1)
         lyo_menu_top.addWidget(lbl_ncf2egf, 4,1)
         lyo_menu_top.setAlignment(Qt.AlignTop)
-        lyo_menu_bottom = QHBoxLayout()
-        lyo_menu_bottom.addWidget(btn_terminal)
-        lyo_menu_bottom.addWidget(lbl_terminal)
+        lyo_menu_top.setSpacing(10)
+        lyo_menu_top.setContentsMargins(10,10,10,0)
+        lyo_menu_bottom = QGridLayout()
+        lyo_menu_bottom.addWidget(btn_terminal, 0,0)
+        lyo_menu_bottom.addWidget(lbl_terminal, 0,1)
+        lyo_menu_bottom.addWidget(btn_about, 1,0)
+        lyo_menu_bottom.addWidget(lbl_about, 1,1)
         lyo_menu_bottom.setAlignment(Qt.AlignBottom)
+        lyo_menu_bottom.setSpacing(10)
+        lyo_menu_bottom.setContentsMargins(10,10,0,10)
         menu_top.setLayout(lyo_menu_top)
         menu_bottom.setLayout(lyo_menu_bottom)
         lyo_body_menu = QVBoxLayout()
@@ -138,9 +175,12 @@ class MainWindow(QMainWindow):
         lyo_body_menu.setSpacing(0)
         lyo_body_menu.setContentsMargins(0,0,0,0)
         body_menu.setLayout(lyo_body_menu)
+
         # body: main
         body_main = QFrame()
         body_main.setObjectName("body_main")
+        body_main.setSizePolicy(QSizePolicy(QSizePolicy.MinimumExpanding,\
+                                            QSizePolicy.MinimumExpanding))
         lyo_body_main = QVBoxLayout()
         body_main.setLayout(lyo_body_main)
 
@@ -157,6 +197,38 @@ class MainWindow(QMainWindow):
         #### FOOTER ####
         footer = QFrame()
         footer.setObjectName("footer")
+        footer_left = QFrame()
+        footer_left.setObjectName("footer_left")
+        footer_right = QFrame()
+        footer_right.setObjectName("footer_right")
+        lyo_footer = QHBoxLayout()
+
+        # footer_left
+        lyo_footer_left = QHBoxLayout()
+        lbl_status = QLabel('Status info here ...')
+        lbl_status.setObjectName("lbl_status")
+        lyo_footer_left.addWidget(lbl_status)
+        lyo_footer_left.setAlignment(Qt.AlignLeft)
+        footer_left.setLayout(lyo_footer_left)
+
+        # footer_right
+        lyo_footer_right = QHBoxLayout()
+        btn_save = QPushButton()
+        btn_save.setObjectName("btn_save")
+        btn_discard = QPushButton()
+        btn_discard.setObjectName("btn_discard")
+        btn_revert = QPushButton()
+        btn_revert.setObjectName("btn_revert")
+        lyo_footer_right.addWidget(btn_revert)
+        lyo_footer_right.addWidget(btn_discard)
+        lyo_footer_right.addWidget(btn_save)
+        lyo_footer_right.setAlignment(Qt.AlignRight)
+        footer_right.setLayout(lyo_footer_right)
+        lyo_footer.addWidget(footer_left)
+        lyo_footer.addWidget(footer_right)
+        lyo_footer.setSpacing(0)
+        lyo_footer.setContentsMargins(0,0,0,0)
+        footer.setLayout(lyo_footer)
 
         #### MAIN ####
         lyo_main = QVBoxLayout()
@@ -239,28 +311,74 @@ class MainWindow(QMainWindow):
             icon_ncf2egf = icon_ncf2egf.replace('\\','/')
             icon_ncf2egf_hover = icon_ncf2egf_hover.replace('\\','/')
 
-        self.set_btn_qss(btn_logo, "btn_logo", 50, icon_logo, icon_logo)
-        self.set_btn_qss(btn_close, "btn_close", 20, icon_close, icon_close_hover)
-        self.set_btn_qss(btn_maximize, "btn_maximize", 20, icon_maximize, icon_maximize_hover)
-        self.set_btn_qss(btn_minimize, "btn_minimize", 20, icon_minimize, icon_minimize_hover)
-        self.set_btn_qss(btn_menu, "btn_menu", 40, icon_menu, icon_menu_hover)
-        self.set_btn_qss(btn_setting, "btn_setting", 40, icon_setting, icon_setting_hover)
-        self.set_btn_qss(btn_download, "btn_download", 40, icon_download, icon_download_hover)
-        self.set_btn_qss(btn_mseed2sac, "btn_mseed2sac", 40, icon_mseed2sac, icon_mseed2sac_hover)
-        self.set_btn_qss(btn_sac2ncf, "btn_sac2ncf", 40, icon_sac2ncf, icon_sac2ncf_hover)
-        self.set_btn_qss(btn_ncf2egf, "btn_ncf2egf", 40, icon_ncf2egf, icon_ncf2egf_hover)
+        # terminal
+        icon_terminal = os.path.join(images_dir,"terminal.svg")
+        icon_terminal_hover = os.path.join(images_dir,"terminal_hover.svg")
+        if sys.platform == "win32":
+            icon_terminal = icon_terminal.replace('\\','/')
+            icon_terminal_hover = icon_terminal_hover.replace('\\','/')
 
-        # load external stylesheet file
-        with open(os.path.join(pkg_dir,'gui.qss')) as qss:
-            qss = qss.read()
-            if sys.platform == 'darwin':
-                qss = qss + "QMainWindow{font-family: 'Arial'; font-size: 11pt;}"
-            else:
-                qss = qss + "QMainWindow{font-family: 'Arial'; font-size: 14pt;}"
+        # about
+        icon_about = os.path.join(images_dir,"about.svg")
+        icon_about_hover = os.path.join(images_dir,"about_hover.svg")
+        if sys.platform == "win32":
+            icon_about = icon_about.replace('\\','/')
+            icon_about_hover = icon_about_hover.replace('\\','/')
 
-        self.setStyleSheet(qss)
+        # save
+        icon_save = os.path.join(images_dir,"save.svg")
+        icon_save_hover = os.path.join(images_dir,"save_hover.svg")
+        if sys.platform == "win32":
+            icon_save = icon_save.replace('\\','/')
+            icon_save_hover = icon_save_hover.replace('\\','/')
 
-    def set_btn_qss(self, btn_obj, btn_obj_name, btn_size, icon_file, icon_hover_file):
+        # discard
+        icon_discard = os.path.join(images_dir,"discard.svg")
+        icon_discard_hover = os.path.join(images_dir,"discard_hover.svg")
+        if sys.platform == "win32":
+            icon_discard = icon_discard.replace('\\','/')
+            icon_discard_hover = icon_discard_hover.replace('\\','/')
+
+        # revert
+        icon_revert = os.path.join(images_dir,"revert.svg")
+        icon_revert_hover = os.path.join(images_dir,"revert_hover.svg")
+        if sys.platform == "win32":
+            icon_revert = icon_revert.replace('\\','/')
+            icon_revert_hover = icon_revert_hover.replace('\\','/')
+
+        self.set_btn_qss(btn_logo, "btn_logo", (50, 50), icon_logo, icon_logo, 3,'#DDDDF9')
+        self.set_btn_qss(btn_close, "btn_close", (20,20), icon_close, icon_close_hover, 3,'#DDDDF9')
+        self.set_btn_qss(btn_maximize, "btn_maximize", (20,20), icon_maximize, icon_maximize_hover, 3,'#DDDDF9')
+        self.set_btn_qss(btn_minimize, "btn_minimize", (20,20), icon_minimize, icon_minimize_hover, 3,'#DDDDF9')
+        self.set_btn_qss(btn_menu, "btn_menu", (40,40), icon_menu, icon_menu_hover, 3,'#DDDDF9')
+        self.set_btn_qss(btn_setting, "btn_setting", (40,40), icon_setting, icon_setting_hover, 3,'#DDDDF9')
+        self.set_btn_qss(btn_download, "btn_download", (40,40), icon_download, icon_download_hover, 3,'#DDDDF9')
+        self.set_btn_qss(btn_mseed2sac, "btn_mseed2sac", (40,40), icon_mseed2sac, icon_mseed2sac_hover, 3,'#DDDDF9')
+        self.set_btn_qss(btn_sac2ncf, "btn_sac2ncf", (40,40), icon_sac2ncf, icon_sac2ncf_hover, 3,'#DDDDF9')
+        self.set_btn_qss(btn_ncf2egf, "btn_ncf2egf", (40,40), icon_ncf2egf, icon_ncf2egf_hover, 3,'#DDDDF9')
+        self.set_btn_qss(btn_terminal, "btn_terminal", (40,40), icon_terminal, icon_terminal_hover, 3,'#DDDDF9')
+        self.set_btn_qss(btn_about, "btn_about", (40,40), icon_about, icon_about_hover, 3,'#DDDDF9')
+        self.set_btn_qss(btn_revert, "btn_revert", (167,35), icon_revert, icon_revert_hover,2,'#DDDDF9')
+        self.set_btn_qss(btn_discard, "btn_discard", (167,35), icon_discard, icon_discard_hover,2,'#DDDDF9')
+        self.set_btn_qss(btn_save, "btn_save", (167,35), icon_save, icon_save_hover,2,'#DDDDF9')
+
+        # remove title bar
+        # self.setWindowFlags(Qt.FramelessWindowHint)
+
+        self.setAttribute(Qt.WA_TranslucentBackground)
+
+        self.shadow = QGraphicsDropShadowEffect(self)
+        self.shadow.setBlurRadius(50)
+        self.shadow.setXOffset(0)
+        self.shadow.setYOffset(0)
+        self.shadow.setColor(QColor(256,0,0))
+
+        self.setGraphicsEffect(self.shadow)
+
+
+    def set_btn_qss(self, btn_obj, btn_obj_name,\
+                    btn_size, icon_file, icon_hover_file,\
+                    icon_clicked_border_size, icon_clicked_border_color):
         qss_code = '''
             #%s {
                 min-width: %dpx;
@@ -276,8 +394,9 @@ class MainWindow(QMainWindow):
             }
 
             #%s:pressed {
-                border: 2px solid #DDDDF9;
+                border: %dpx solid %s;
             }
-        ''' %(btn_obj_name, btn_size, btn_size, btn_size, btn_size,\
-              icon_file, btn_obj_name, icon_hover_file, btn_obj_name)
+        ''' %(btn_obj_name, btn_size[0], btn_size[0], btn_size[1], btn_size[1],\
+              icon_file, btn_obj_name, icon_hover_file, btn_obj_name,\
+              icon_clicked_border_size, icon_clicked_border_color)
         btn_obj.setStyleSheet(qss_code)

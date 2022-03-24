@@ -5,34 +5,47 @@ QFrame{
 }
 
 
-#header *, #body_menu *, #footer {
+#header *, #body_menu *, #footer * {
 /*    make sure that same color is set 
 for border-color of buttons in self.set_btn_qss()*/
     background-color: #DDDDF9; 
 }
 
-#header, #footer  {
-    min-height: 60px;
-    max-height: 60px;
+#header, #footer {
+    max-height: 55px;
+    min-height: 55px;
 }
 
 
-#btn_logo {
-    margin-top: -5px;
-}
 
 #body_menu QLabel, #header_left QLabel {
-    min-height: 40px;
-    max-height: 40px;
-    min-width: 100px;
-    max-width: 100px;
-    margin-left: 10px;
+    color:  #024664;
+    font-weight: bold;
 }
 
-#body_menu {
-    max-width: 200px;
+#lbl_status {
+    color:  #024664;
 }
 
+
+#lbl_title {
+    color:  #024664;
+    font-weight: bold;
+    font-size: 18pt;
+}
+
+#btn_logo {
+    margin-top: -3px;
+}
+
+/*#body_menu {
+    max-width: 190px;
+}*/
+
+/*#menu_top {
+    min-width: 60px;
+    max-width: 190px;
+}*/
 
 
 

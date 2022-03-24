@@ -13,9 +13,16 @@ if sys.platform in ["linux","linux2","darwin"]:
 elif sys.platform == "win32":
     os.system('cls')
 
+class ANS_GUI(gui.MainWindow):
+    def __init__(self):
+        super().__init__()
+        gui.btn_close.clicked.connect(lambda: self.close())
+        gui.btn_minimize.clicked.connect(lambda: self.showMinimized())
+        gui.btn_menu.clicked.connect(lambda: gui.body_menu.setStyleSheet("max-width: 60px"))
+
 def main():
     app = QApplication(sys.argv)
-    win = gui.MainWindow()
+    win = ANS_GUI()
     win.show()
     app.exec_()
 
