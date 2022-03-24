@@ -4,9 +4,19 @@ import sys
 
 from PyQt5.QtCore import (
     Qt,
+    QRect,
+    QPoint,
+    QEasingCurve,
+    QPropertyAnimation,
+    pyqtProperty,
 )
 
-from PyQt5.QtGui import QPixmap, QColor
+from PyQt5.QtGui import (
+    QPixmap,
+    QColor,
+    QIcon,
+    QPainter,
+)
 
 from PyQt5.QtWidgets import (
     QMainWindow,
@@ -16,6 +26,8 @@ from PyQt5.QtWidgets import (
     QLabel,
     QLineEdit,
     QScrollArea,
+    QStackedWidget,
+    QCheckBox,
     QVBoxLayout,
     QHBoxLayout,
     QGridLayout,
@@ -26,10 +38,96 @@ from PyQt5.QtWidgets import (
 pkg_dir, _ = os.path.split(__file__)
 images_dir = os.path.join(pkg_dir,"data","images")
 
+class MyCheckBox(QCheckBox):
+    def __init__(self):
+        super().__init__()
+        self.setStyleSheet("spacing: 200px;")
+        self.setFixedSize(30,18)
+        self.setCursor(Qt.PointingHandCursor)
+        self.bg_color = '#aaa'
+        self.circle_color = '#fff'
+        self.active_color = '#299408'
+        # for animation
+        self._circle_position = 2
+        self.animation = QPropertyAnimation(self, b"circle_position", self)
+        self.animation.setEasingCurve(QEasingCurve.Linear)
+        self.animation.setDuration(100)
+        self.stateChanged.connect(self.startTransition)
+
+    def hitButton(self, pos: QPoint):
+        return self.contentsRect().contains(pos)
+
+    def get_circle_position(self):
+        return self._circle_position
+
+    def set_circle_position(self, pos):
+        self._circle_position = pos
+        self.update()
+
+    circle_position = pyqtProperty(float, get_circle_position, set_circle_position)
+    
+    def startTransition(self, value):
+        self.animation.stop()
+        if value:
+            self.animation.setEndValue(self.width() - self.height() + 2)
+        else:
+            self.animation.setEndValue(2)
+        self.animation.start()
+
+    def paintEvent(self, e):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
+        painter.setPen(Qt.NoPen)
+
+        # draw background rectangle
+        rect = QRect(0, 0, self.width(), self.height())
+        
+        # draw circle
+        if  self.isChecked():
+            painter.setBrush(QColor(self.active_color))
+            painter.drawRoundedRect(0, 0, rect.width(), rect.height(),
+                                    rect.height() / 2, rect.height() / 2)
+            painter.setBrush(QColor(self.circle_color))
+            # painter.drawEllipse(self.width() - self.height() + 2, 2,
+            #                     self.height() - 4, self.height() - 4)
+            painter.drawEllipse(self._circle_position, 2,
+                                self.height() - 4, self.height() - 4)
+        else:
+            painter.setBrush(QColor(self.bg_color))
+            painter.drawRoundedRect(0, 0, rect.width(), rect.height(),
+                                    rect.height() / 2, rect.height() / 2)
+            painter.setBrush(QColor(self.circle_color))
+            painter.drawEllipse(self._circle_position, 2,
+                                self.height() - 4, self.height() - 4)
+
+        painter.end()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setMinimumSize(800, 600)
+        app_icon = QIcon()
+        app_icon.addFile(os.path.join(images_dir,'ans_logo.svg'))
+        self.setWindowIcon(app_icon)
 
         # global vars
         global btn_menu
@@ -46,6 +144,7 @@ class MainWindow(QMainWindow):
         global btn_discard
         global btn_revert
         global body_menu
+        global body_main
 
         # load external stylesheet file
         with open(os.path.join(pkg_dir,'gui.qss')) as qss:
@@ -177,12 +276,39 @@ class MainWindow(QMainWindow):
         body_menu.setLayout(lyo_body_menu)
 
         # body: main
-        body_main = QFrame()
+        body_main = QStackedWidget()
         body_main.setObjectName("body_main")
         body_main.setSizePolicy(QSizePolicy(QSizePolicy.MinimumExpanding,\
                                             QSizePolicy.MinimumExpanding))
-        lyo_body_main = QVBoxLayout()
-        body_main.setLayout(lyo_body_main)
+        setting = QWidget()
+        download = QWidget()
+        mseed2sac = QWidget()
+        sac2ncf = QWidget()
+        ncf2egf = QWidget()
+        lyo_setting = QVBoxLayout()
+        lyo_download = QVBoxLayout()
+        lyo_mseed2sac = QVBoxLayout()
+        lyo_sac2ncf = QVBoxLayout()
+        lyo_ncf2egf = QVBoxLayout()
+
+        chb = MyCheckBox()
+        lyo_setting.addWidget(chb, Qt.AlignCenter, Qt.AlignCenter)
+        lyo_download.addWidget(QCheckBox("Widget: download"), Qt.AlignCenter, Qt.AlignCenter)
+        lyo_mseed2sac.addWidget(QLabel("Widget: mseed2sac"), Qt.AlignCenter, Qt.AlignCenter)
+        lyo_sac2ncf.addWidget(QLabel("Widget: sac2ncf"), Qt.AlignCenter, Qt.AlignCenter)
+        lyo_ncf2egf.addWidget(QLabel("Widget: ncf2egf"), Qt.AlignCenter, Qt.AlignCenter)
+
+        setting.setLayout(lyo_setting)
+        download.setLayout(lyo_download)
+        mseed2sac.setLayout(lyo_mseed2sac)
+        sac2ncf.setLayout(lyo_sac2ncf)
+        ncf2egf.setLayout(lyo_ncf2egf)
+
+        body_main.addWidget(setting)
+        body_main.addWidget(download)
+        body_main.addWidget(mseed2sac)
+        body_main.addWidget(sac2ncf)
+        body_main.addWidget(ncf2egf)
 
         # BODY: LAYOUT
         body = QFrame()
@@ -365,15 +491,15 @@ class MainWindow(QMainWindow):
         # remove title bar
         # self.setWindowFlags(Qt.FramelessWindowHint)
 
-        self.setAttribute(Qt.WA_TranslucentBackground)
+        # self.setAttribute(Qt.WA_TranslucentBackground)
 
-        self.shadow = QGraphicsDropShadowEffect(self)
-        self.shadow.setBlurRadius(50)
-        self.shadow.setXOffset(0)
-        self.shadow.setYOffset(0)
-        self.shadow.setColor(QColor(256,0,0))
+        # self.shadow = QGraphicsDropShadowEffect(self)
+        # self.shadow.setBlurRadius(50)
+        # self.shadow.setXOffset(0)
+        # self.shadow.setYOffset(0)
+        # self.shadow.setColor(QColor(256,0,0))
 
-        self.setGraphicsEffect(self.shadow)
+        # self.setGraphicsEffect(self.shadow)
 
 
     def set_btn_qss(self, btn_obj, btn_obj_name,\
