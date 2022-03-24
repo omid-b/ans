@@ -1,0 +1,38 @@
+
+QFrame{
+    background-color: #EEE;
+    border: 1px dashed red;
+}
+
+
+#header *, #body_menu *, #footer {
+/*    make sure that same color is set 
+for border-color of buttons in self.set_btn_qss()*/
+    background-color: #DDDDF9; 
+}
+
+#header, #footer  {
+    min-height: 60px;
+    max-height: 60px;
+}
+
+
+#btn_logo {
+    margin-top: -5px;
+}
+
+#body_menu QLabel, #header_left QLabel {
+    min-height: 40px;
+    max-height: 40px;
+    min-width: 100px;
+    max-width: 100px;
+    margin-left: 10px;
+}
+
+#body_menu {
+    max-width: 200px;
+}
+
+
+
+
