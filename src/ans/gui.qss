@@ -34,5 +34,9 @@ for border-color of buttons in self.set_btn_qss()*/
     margin-top: -3px;
 }
 
+#body_main {
+    border-left: 2px solid #DDDDFB;
+}
+
 
 

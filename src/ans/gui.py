@@ -173,10 +173,10 @@ class MainWindow(QMainWindow):
         self.header_left.setLayout(lyo_header_left)
 
         #header: right
-        header_right = QFrame()
-        header_right.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,\
+        self.header_right = QFrame()
+        self.header_right.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,\
                                             QSizePolicy.Expanding))
-        header_right.setObjectName("header_right")
+        self.header_right.setObjectName("header_right")
         lyo_header_right = QHBoxLayout()
         btn_logo = QPushButton()
         btn_logo.setEnabled(False)
@@ -188,7 +188,7 @@ class MainWindow(QMainWindow):
         lyo_header_right.setAlignment(Qt.AlignCenter)
         lyo_header_right.setSpacing(5)
         lyo_header_right.setContentsMargins(10,10,0,10)
-        header_right.setLayout(lyo_header_right)
+        self.header_right.setLayout(lyo_header_right)
 
 
         # HEADER: LAYOUT
@@ -196,7 +196,7 @@ class MainWindow(QMainWindow):
         header.setObjectName("header")
         lyo_header = QHBoxLayout()
         lyo_header.addWidget(self.header_left)
-        lyo_header.addWidget(header_right)
+        lyo_header.addWidget(self.header_right)
         lyo_header.setSpacing(0)
         lyo_header.setContentsMargins(0,0,0,0)
         header.setLayout(lyo_header)
@@ -228,7 +228,6 @@ class MainWindow(QMainWindow):
         btn_terminal = QPushButton()
         btn_terminal.setObjectName("btn_terminal")
         btn_terminal.setCursor(Qt.PointingHandCursor)
-        lbl_terminal = QLabel()
         btn_about = QPushButton()
         btn_about.setObjectName("btn_about")
         btn_about.setCursor(Qt.PointingHandCursor)
@@ -241,11 +240,9 @@ class MainWindow(QMainWindow):
         lyo_menu_top.setAlignment(Qt.AlignTop)
         lyo_menu_top.setSpacing(10)
         lyo_menu_top.setContentsMargins(10,10,10,0)
-        lyo_menu_bottom = QGridLayout()
-        lyo_menu_bottom.addWidget(btn_terminal, 0,0)
-        lyo_menu_bottom.addWidget(lbl_terminal, 0,1)
-        lyo_menu_bottom.addWidget(btn_about, 1,0)
-        # lyo_menu_bottom.addWidget(lbl_about, 1,1)
+        lyo_menu_bottom = QVBoxLayout()
+        lyo_menu_bottom.addWidget(btn_terminal)
+        lyo_menu_bottom.addWidget(btn_about)
         lyo_menu_bottom.setAlignment(Qt.AlignBottom)
         lyo_menu_bottom.setSpacing(10)
         lyo_menu_bottom.setContentsMargins(10,10,0,10)
@@ -353,95 +350,84 @@ class MainWindow(QMainWindow):
 
         #### APPLY BUTTON STYLES ###
 
+        # PATH to BUTTON ICONS
         # logo
         icon_logo = os.path.join(images_dir,"ans_logo.svg")
         if sys.platform == "win32":
             icon_logo = icon_logo.replace('\\','/')
-
         # menu
         icon_test = os.path.join(images_dir,"test.svg")
         icon_test_hover = os.path.join(images_dir,"test.svg")
         if sys.platform == "win32":
             icon_test = icon_test.replace('\\','/')
             icon_test_hover = icon_test_hover.replace('\\','/')
-        
         # menu
         icon_menu = os.path.join(images_dir,"menu.svg")
         icon_menu_hover = os.path.join(images_dir,"menu_hover.svg")
         if sys.platform == "win32":
             icon_menu = icon_menu.replace('\\','/')
             icon_menu_hover = icon_menu_hover.replace('\\','/')
-        
         # setting
         icon_setting = os.path.join(images_dir,"setting.svg")
         icon_setting_hover = os.path.join(images_dir,"setting_hover.svg")
         if sys.platform == "win32":
             icon_setting = icon_setting.replace('\\','/')
             icon_setting_hover = icon_setting_hover.replace('\\','/')
-        
         # download            
         icon_download = os.path.join(images_dir,"download.svg")
         icon_download_hover = os.path.join(images_dir,"download_hover.svg")
         if sys.platform == "win32":
             icon_download = icon_download.replace('\\','/')
             icon_download_hover = icon_download_hover.replace('\\','/')
-        
         # mseed2sac
         icon_mseed2sac = os.path.join(images_dir,"mseed2sac.svg")
         icon_mseed2sac_hover = os.path.join(images_dir,"mseed2sac_hover.svg")
         if sys.platform == "win32":
             icon_mseed2sac = icon_mseed2sac.replace('\\','/')
             icon_mseed2sac_hover = icon_mseed2sac_hover.replace('\\','/')
-        
         # sac2ncf
         icon_sac2ncf = os.path.join(images_dir,"sac2ncf.svg")
         icon_sac2ncf_hover = os.path.join(images_dir,"sac2ncf_hover.svg")
         if sys.platform == "win32":
             icon_sac2ncf = icon_sac2ncf.replace('\\','/')
             icon_sac2ncf_hover = icon_sac2ncf_hover.replace('\\','/')
-        
         # ncf2egf
         icon_ncf2egf = os.path.join(images_dir,"ncf2egf.svg")
         icon_ncf2egf_hover = os.path.join(images_dir,"ncf2egf_hover.svg")
         if sys.platform == "win32":
             icon_ncf2egf = icon_ncf2egf.replace('\\','/')
             icon_ncf2egf_hover = icon_ncf2egf_hover.replace('\\','/')
-
         # terminal
         icon_terminal = os.path.join(images_dir,"terminal.svg")
         icon_terminal_hover = os.path.join(images_dir,"terminal_hover.svg")
         if sys.platform == "win32":
             icon_terminal = icon_terminal.replace('\\','/')
             icon_terminal_hover = icon_terminal_hover.replace('\\','/')
-
         # about
         icon_about = os.path.join(images_dir,"about.svg")
         icon_about_hover = os.path.join(images_dir,"about_hover.svg")
         if sys.platform == "win32":
             icon_about = icon_about.replace('\\','/')
             icon_about_hover = icon_about_hover.replace('\\','/')
-
         # save
         icon_save = os.path.join(images_dir,"save.svg")
         icon_save_hover = os.path.join(images_dir,"save_hover.svg")
         if sys.platform == "win32":
             icon_save = icon_save.replace('\\','/')
             icon_save_hover = icon_save_hover.replace('\\','/')
-
         # discard
         icon_discard = os.path.join(images_dir,"discard.svg")
         icon_discard_hover = os.path.join(images_dir,"discard_hover.svg")
         if sys.platform == "win32":
             icon_discard = icon_discard.replace('\\','/')
             icon_discard_hover = icon_discard_hover.replace('\\','/')
-
         # revert
         icon_revert = os.path.join(images_dir,"revert.svg")
         icon_revert_hover = os.path.join(images_dir,"revert_hover.svg")
         if sys.platform == "win32":
             icon_revert = icon_revert.replace('\\','/')
             icon_revert_hover = icon_revert_hover.replace('\\','/')
-
+        # APPLY BUTTON QSS
         self.set_btn_qss(btn_logo, "btn_logo", (50, 50), icon_logo, icon_logo, 3,'#DDDDF9')
         self.set_btn_qss(btn_menu, "btn_menu", (176,40), icon_menu, icon_menu_hover, 1,'#DDDDF9')
         self.set_btn_qss(btn_setting, "btn_setting", (176,40), icon_setting, icon_setting_hover, 1,'#DDDDF9')
@@ -465,6 +451,8 @@ class MainWindow(QMainWindow):
 
         # fix failing to update self on Mac!
         QCoreApplication.processEvents()
+        self.header_left.setStyleSheet("max-width: 190px")
+        self.body_menu.setStyleSheet("max-width: 190px")
         self.toggle_menu()
 
 
@@ -497,10 +485,29 @@ class MainWindow(QMainWindow):
 
     
     def toggle_menu(self):
-        if self.body_menu.width() == 60:
-            self.header_left.setStyleSheet("max-width: 190px")
-            self.body_menu.setStyleSheet("max-width: 190px")
+        self.anim_body_main = QPropertyAnimation(self.body_main, b'minimumWidth')
+        self.anim_body_menu = QPropertyAnimation(self.body_menu, b'maximumWidth')
+        self.anim_header_right = QPropertyAnimation(self.header_right, b'minimumWidth')
+        self.anim_header_left = QPropertyAnimation(self.header_left, b'maximumWidth')
+        self.anim_body_main.setDuration(200)
+        self.anim_body_menu.setDuration(200)
+        self.anim_header_left.setDuration(200)
+        self.anim_header_right.setDuration(200)
+        maxWidth = self.width() - 60
+        minWidth = self.width() - 190
+        if self.body_menu.width() != 60:
+            self.anim_body_main.setEndValue(self.width() - 60)
+            self.anim_body_menu.setEndValue(60)
+            self.anim_header_right.setEndValue(self.width() - 60)
+            self.anim_header_left.setEndValue(60)
         else:
-            self.header_left.setStyleSheet("max-width: 60px")
-            self.body_menu.setStyleSheet("max-width: 60px")
+            self.anim_body_main.setEndValue(self.width() - 190)
+            self.anim_body_menu.setEndValue(190)
+            self.anim_header_right.setEndValue(self.width() - 190)
+            self.anim_header_left.setEndValue(190)
+        self.anim_body_menu.start()
+        self.anim_body_main.start()
+        self.anim_header_left.start()
+        self.anim_header_right.start()
 
+    
