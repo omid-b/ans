@@ -35,8 +35,82 @@ for border-color of buttons in self.set_btn_qss()*/
 }
 
 #body_main {
-    border-left: 2px solid #DDDDFB;
+    border: 2px solid #D1D1F9;
+}
+
+#menu_top {
+    border-top: 2px solid #D1D1F9;
+}
+
+#menu_bottom {
+    border-top: 2px solid #D1D1F9;
+    border-bottom: 2px solid #D1D1F9;
+}
+
+/*----MAIN WIDGETS----*/
+
+QLineEdit {
+    min-height: 20px;
+    margin: 0;
+    padding: 0;
+    padding-left: 5px;
+    padding-right: 5px;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+#le_startdate {
+    max-width: 110px;
 }
 
 
+#le_enddate {
+    max-width: 110px;
+}
+
+#le_minlat {
+    max-width: 110px;
+}
+
+#le_maxlat {
+    max-width: 110px;
+}
+
+#le_minlon {
+    max-width: 110px;
+}
+
+#le_maxlon {
+    max-width: 110px;
+}
+
+
+#btn_showmap:enabled {
+	font-weight: bold;
+    background-color: #1C63F0;
+    color: white;
+    min-height: 15px;
+    margin-top: 10px;
+    margin-left: 7px;
+    margin-right: 7px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+#btn_showmap:enabled::hover {
+    background-color: #4584FF;
+}
+
+#btn_showmap:disabled {
+    min-height: 15px;
+    margin-top: 10px;
+    margin-left: 7px;
+    margin-right: 7px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+QScrollArea {
+    border: none;
+}
 

@@ -107,6 +107,144 @@ class MyCheckBox(QCheckBox):
 
 
 
+class Project_Setting(QWidget):
+    def __init__(self):
+        super().__init__()
+        global le_maindir
+        global le_startdate
+        global le_enddate
+        global le_maxlat
+        global le_minlat
+        global le_minlon
+        global le_maxlon
+        global le_sac
+        global le_gmt
+        global le_perl
+        # project general setting (top section)
+        # widgets
+        lbl_proj = QLabel("Project general setting:")
+        lbl_proj.setObjectName("lbl_proj")
+        lbl_maindir = QLabel("Main dir:")
+        lbl_maindir.setObjectName("lbl_maindir")
+        le_maindir = QLineEdit()
+        le_maindir.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        le_maindir.setObjectName("le_maindir")
+        le_maindir.setPlaceholderText("Full path to project main directory")
+        lbl_startdate = QLabel("Start date:")
+        lbl_startdate.setObjectName("lbl_startdate")
+        le_startdate = QLineEdit()
+        le_startdate.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        le_startdate.setAlignment(Qt.AlignCenter)
+        le_startdate.setObjectName("le_startdate")
+        le_startdate.setPlaceholderText("YYYY-MM-DD")
+        lbl_enddate = QLabel("End date:")
+        lbl_enddate.setObjectName("lbl_enddate")
+        le_enddate = QLineEdit()
+        le_enddate.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        le_enddate.setAlignment(Qt.AlignCenter)
+        le_enddate.setObjectName("le_enddate")
+        le_enddate.setPlaceholderText("YYYY-MM-DD")
+        lbl_studyarea = QLabel("Study area boundaries")
+        lbl_studyarea.setObjectName("lbl_studyarea")
+        le_maxlat = QLineEdit()
+        le_maxlat.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        le_maxlat.setObjectName("le_maxlat")
+        le_maxlat.setAlignment(Qt.AlignCenter)
+        le_maxlat.setPlaceholderText("Max Lat (deg)")
+        le_minlat = QLineEdit()
+        le_minlat.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        le_minlat.setObjectName("le_minlat")
+        le_minlat.setAlignment(Qt.AlignCenter)
+        le_minlat.setPlaceholderText("Min Lat (deg)")
+        le_minlon = QLineEdit()
+        le_minlon.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        le_minlon.setObjectName("le_minlon")
+        le_minlon.setAlignment(Qt.AlignCenter)
+        le_minlon.setPlaceholderText("Min Lon (deg)")
+        le_maxlon = QLineEdit()
+        le_maxlon.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        le_maxlon.setObjectName("le_maxlon")
+        le_maxlon.setAlignment(Qt.AlignCenter)
+        le_maxlon.setPlaceholderText("Max Lon (deg)")
+        btn_showmap = QPushButton("Show map")
+        btn_showmap.setObjectName("btn_showmap")
+        btn_showmap.setEnabled(True)
+        if btn_showmap.isEnabled():
+            btn_showmap.setCursor(Qt.PointingHandCursor)
+        lbl_depend = QLabel("Program dependencies:")
+        lbl_depend.setObjectName("lbl_depend")
+        lbl_sac = QLabel("SAC:")
+        lbl_sac.setObjectName("lbl_sac")
+        le_sac = QLineEdit()
+        le_sac.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        le_sac.setObjectName("le_sac")
+        le_sac.setPlaceholderText("Full path to SAC executable") 
+        lbl_gmt = QLabel("GMT:")
+        lbl_gmt.setObjectName("lbl_gmt")
+        le_gmt = QLineEdit()
+        le_gmt.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        le_gmt.setObjectName("le_gmt")
+        le_gmt.setPlaceholderText("Full path to GMT executable") 
+        lbl_perl = QLabel("Perl:")
+        lbl_perl.setObjectName("lbl_perl")
+        le_perl = QLineEdit()
+        le_perl.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        le_perl.setObjectName("le_perl")
+        le_perl.setPlaceholderText("Full path to the Perl interpreter")
+
+        # Design layouts
+
+        ## Top Left/Right 
+        layout_tl = QGridLayout()
+        layout_tl.addWidget(lbl_maindir,0,0)
+        layout_tl.addWidget(le_maindir,0,1)
+        layout_tl.addWidget(lbl_startdate,1,0)
+        layout_tl.addWidget(le_startdate,1,1)
+        layout_tl.addWidget(lbl_enddate,2,0)
+        layout_tl.addWidget(le_enddate,2,1)
+        layout_tl.setContentsMargins(0,0,0,0)
+        layout_tl.setVerticalSpacing(10)
+        layout_tl.setHorizontalSpacing(0)
+
+        layout_tr = QGridLayout()
+        layout_tr.addWidget(le_maxlat,0,1)
+        layout_tr.addWidget(le_minlon,1,0)
+        layout_tr.addWidget(le_maxlon,1,2)
+        layout_tr.addWidget(le_minlat,2,1)
+        layout_tr.addWidget(btn_showmap,3,1)
+        layout_tr.setContentsMargins(0,0,0,0)
+        layout_tr.setVerticalSpacing(10)
+        layout_tr.setHorizontalSpacing(0)
+
+        layout_top = QGridLayout()
+        layout_top.addWidget(lbl_proj, 0,0,1,3)
+        layout_top.addWidget(lbl_studyarea, 0,3,1,2)
+        layout_top.addLayout(layout_tl,1,0,1,3)
+        layout_top.addLayout(layout_tr,1,3,1,2)
+        layout_top.setVerticalSpacing(0)
+        layout_top.setHorizontalSpacing(30)
+        layout_top.setContentsMargins(0,0,0,0)
+
+        ## bottom ##
+        layout_bottom = QGridLayout()
+        layout_bottom.addWidget(lbl_depend,0,0,1,2)
+        layout_bottom.addWidget(lbl_sac,1,0)
+        layout_bottom.addWidget(le_sac,1,1)
+        layout_bottom.addWidget(lbl_gmt,2,0)
+        layout_bottom.addWidget(le_gmt,2,1)
+        layout_bottom.addWidget(lbl_perl,3,0)
+        layout_bottom.addWidget(le_perl,3,1)
+        layout_top.setVerticalSpacing(0)
+        layout_top.setHorizontalSpacing(30)
+        layout_top.setContentsMargins(0,0,0,0)
+
+        # put together top and bottom layouts
+        self.layout = QVBoxLayout()
+        self.layout.addLayout(layout_top)
+        self.layout.addLayout(layout_bottom)
+        self.layout.setSpacing(30)
+        self.layout.setContentsMargins(60,60,60,60)
+        self.setLayout(self.layout)
 
 
 
@@ -116,9 +254,340 @@ class MyCheckBox(QCheckBox):
 
 
 
+class Download(QWidget):
+    def __init__(self):
+        super().__init__()
+        global chb_dc_service_iris_edu
+        global chb_dc_service_ncedc_org
+        global chb_dc_service_scedc_caltech_edu
+        global chb_dc_rtserve_beg_utexas_edu
+        global chb_dc_eida_bgr_de
+        global chb_dc_ws_resif_fr
+        global chb_dc_seisrequest_iag_usp_br
+        global chb_dc_eida_service_koeri_boun_edu_tr
+        global chb_dc_eida_ethz_ch
+        global chb_dc_geofon_gfz_potsdam_de
+        global chb_dc_ws_icgc_cat
+        global chb_dc_eida_ipgp_fr
+        global chb_dc_fdsnws_raspberryshakedata_com
+        global chb_dc_webservices_ingv_it
+        global chb_dc_erde_geophysik_uni_muenchen_de
+        global chb_dc_eida_sc3_infp_ro
+        global chb_dc_eida_gein_noa_gr
+        global chb_dc_www_orfeus_eu_org
+        global chb_dc_auspass_edu_au
+        global le_stalist
+        global le_stameta
+        global le_stalocs
+        global le_stachns
+        global le_timelen
+        global chb_obspy
+        global chb_fetch
+        lbl_datacenters = QLabel("Datacenters:")
+        lbl_datacenters.setObjectName("lbl_datacenters")
+        chb_dc_service_iris_edu = MyCheckBox()
+        lbl_dc_service_iris_edu = QLabel("service.iris.edu")
+        chb_dc_service_iris_edu.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        chb_dc_service_iris_edu.setObjectName("chb_dc_service_iris_edu")
+        chb_dc_service_ncedc_org = MyCheckBox()
+        lbl_dc_service_ncedc_org = QLabel("service.ncedc.org")
+        chb_dc_service_ncedc_org.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        chb_dc_service_ncedc_org.setObjectName("chb_dc_service_ncedc_org")
+        chb_dc_service_scedc_caltech_edu = MyCheckBox()
+        lbl_dc_service_scedc_caltech_edu = QLabel("service.scedc.caltech.edu")
+        chb_dc_service_scedc_caltech_edu.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        chb_dc_service_scedc_caltech_edu.setObjectName("chb_dc_service_scedc_caltech_edu")
+        chb_dc_rtserve_beg_utexas_edu = MyCheckBox()
+        lbl_dc_rtserve_beg_utexas_edu = QLabel("rtserve.beg.utexas.edu")
+        chb_dc_rtserve_beg_utexas_edu.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        chb_dc_rtserve_beg_utexas_edu.setObjectName("chb_dc_rtserve_beg_utexas_edu")
+        chb_dc_eida_bgr_de = MyCheckBox()
+        lbl_dc_eida_bgr_de = QLabel("eida.bgr.de")
+        chb_dc_eida_bgr_de.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        chb_dc_eida_bgr_de.setObjectName("chb_dc_eida_bgr_de")
+        chb_dc_ws_resif_fr = MyCheckBox()
+        lbl_dc_ws_resif_fr = QLabel("ws.resif.fr")
+        chb_dc_ws_resif_fr.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        chb_dc_ws_resif_fr.setObjectName("chb_dc_ws_resif_fr")
+        chb_dc_seisrequest_iag_usp_br = MyCheckBox()
+        lbl_dc_seisrequest_iag_usp_br = QLabel("seisrequest.iag.usp.br")
+        chb_dc_seisrequest_iag_usp_br.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        chb_dc_seisrequest_iag_usp_br.setObjectName("chb_dc_seisrequest_iag_usp_br")
+        chb_dc_eida_service_koeri_boun_edu_tr = MyCheckBox()
+        lbl_dc_eida_service_koeri_boun_edu_tr = QLabel("eida-service.koeri.boun.edu.tr")
+        chb_dc_eida_service_koeri_boun_edu_tr.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        chb_dc_eida_service_koeri_boun_edu_tr.setObjectName("chb_dc_eida_service_koeri_boun_edu_tr")
+        chb_dc_eida_ethz_ch = MyCheckBox()
+        lbl_dc_eida_ethz_ch = QLabel("eida.ethz.ch")
+        chb_dc_eida_ethz_ch.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        chb_dc_eida_ethz_ch.setObjectName("chb_dc_eida_ethz_ch")
+        chb_dc_geofon_gfz_potsdam_de = MyCheckBox()
+        lbl_dc_geofon_gfz_potsdam_de = QLabel("geofon.gfz-potsdam.de")
+        chb_dc_geofon_gfz_potsdam_de.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        chb_dc_geofon_gfz_potsdam_de.setObjectName("chb_dc_geofon_gfz_potsdam_de")
+        chb_dc_ws_icgc_cat = MyCheckBox()
+        lbl_dc_ws_icgc_cat = QLabel("ws.icgc.cat")
+        chb_dc_ws_icgc_cat.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        chb_dc_ws_icgc_cat.setObjectName("chb_dc_ws_icgc_cat")
+        chb_dc_eida_ipgp_fr = MyCheckBox()
+        lbl_dc_eida_ipgp_fr = QLabel("eida.ipgp.fr")
+        chb_dc_eida_ipgp_fr.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        chb_dc_eida_ipgp_fr.setObjectName("chb_dc_eida_ipgp_fr")
+        chb_dc_fdsnws_raspberryshakedata_com = MyCheckBox()
+        lbl_dc_fdsnws_raspberryshakedata_com = QLabel("fdsnws.raspberryshakedata.com")
+        chb_dc_fdsnws_raspberryshakedata_com.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        chb_dc_fdsnws_raspberryshakedata_com.setObjectName("chb_dc_fdsnws_raspberryshakedata_com")
+        # column 3 widgets
+        chb_dc_webservices_ingv_it = MyCheckBox()
+        lbl_dc_webservices_ingv_it = QLabel("webservices.ingv.it")
+        chb_dc_webservices_ingv_it.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        chb_dc_webservices_ingv_it.setObjectName("chb_dc_webservices_ingv_it")
+        chb_dc_erde_geophysik_uni_muenchen_de = MyCheckBox()
+        lbl_dc_erde_geophysik_uni_muenchen_de = QLabel("erde.geophysik.uni-muenchen.de")
+        chb_dc_erde_geophysik_uni_muenchen_de.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        chb_dc_erde_geophysik_uni_muenchen_de.setObjectName("chb_dc_erde_geophysik_uni_muenchen_de")
+        chb_dc_eida_sc3_infp_ro = MyCheckBox()
+        lbl_dc_eida_sc3_infp_ro = QLabel("eida-sc3.infp.ro")
+        chb_dc_eida_sc3_infp_ro.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        chb_dc_eida_sc3_infp_ro.setObjectName("chb_dc_eida_sc3_infp_ro")
+        chb_dc_eida_gein_noa_gr = MyCheckBox()
+        lbl_dc_eida_gein_noa_gr = QLabel("eida.gein.noa.gr")
+        chb_dc_eida_gein_noa_gr.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        chb_dc_eida_gein_noa_gr.setObjectName("chb_dc_eida_gein_noa_gr")
+        chb_dc_www_orfeus_eu_org = MyCheckBox()
+        lbl_dc_www_orfeus_eu_org = QLabel("www.orfeus-eu.org")
+        chb_dc_www_orfeus_eu_org.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        chb_dc_www_orfeus_eu_org.setObjectName("chb_dc_www_orfeus_eu_org")
+        chb_dc_auspass_edu_au = MyCheckBox()
+        lbl_dc_auspass_edu_au = QLabel("auspass.edu.au")
+        chb_dc_auspass_edu_au.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        chb_dc_auspass_edu_au.setObjectName("chb_dc_auspass_edu_au")
+        #### Download setting (bottom panel) ####
+        # bottom left
+        lbl_dlsetting = QLabel("Download setting:")
+        lbl_dlsetting.setObjectName("lbl_dlsetting")
+        lbl_stalist = QLabel("Station list file:")
+        lbl_stalist.setObjectName("lbl_stalist")
+        le_stalist = QLineEdit()
+        le_stalist.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        le_stalist.setObjectName("le_stalist")
+        le_stalist.setPlaceholderText("Full path to station list file")
+        #
+        lbl_stameta = QLabel("Station meta files dir:")
+        lbl_stameta.setObjectName("lbl_stameta")
+        le_stameta = QLineEdit()
+        le_stameta.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        le_stameta.setObjectName("le_stameta")
+        le_stameta.setPlaceholderText("Full path to station meta files directory")
+        #
+        lbl_stalocs = QLabel("Station location codes:")
+        lbl_stalocs.setObjectName("lbl_stalocs")
+        le_stalocs = QLineEdit()
+        le_stalocs.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        le_stalocs.setObjectName("le_stalocs")
+        le_stalocs.setPlaceholderText("Station location codes separated by space")
+        #
+        lbl_stachns = QLabel("Station channels:")
+        lbl_stachns.setObjectName("lbl_stachns")
+        le_stachns = QLineEdit()
+        le_stachns.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        le_stachns.setObjectName("le_stachns")
+        le_stachns.setPlaceholderText("Station channels separated by space")
+        #
+        lbl_timelen = QLabel("Timeseries length (s):")
+        lbl_timelen.setObjectName("lbl_timelen")
+        le_timelen = QLineEdit()
+        le_timelen.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        le_timelen.setObjectName("le_timelen")
+        le_timelen.setPlaceholderText("Timeseries length in seconds")
+        # bottom right
+        lbl_dlscripts = QLabel("Download scripts:")
+        lbl_dlscripts.setObjectName("lbl_dlscripts")
+        chb_obspy = MyCheckBox()
+        lbl_obspy = QLabel("ObsPy script")
+        chb_obspy.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        chb_obspy.setObjectName("chb_obspy")
+        chb_fetch = MyCheckBox()
+        lbl_fetch = QLabel("IRIS FetchData Perl script")
+        chb_fetch.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        chb_fetch.setObjectName("chb_fetch")
+
+        # design layouts
+        # top
+        layout_datacenters = QGridLayout()
+        layout_datacenters.addWidget(lbl_datacenters,0,0,1,6)
+        layout_datacenters.addWidget(chb_dc_service_iris_edu, 1,0)
+        layout_datacenters.addWidget(lbl_dc_service_iris_edu, 1,1)
+        layout_datacenters.addWidget(chb_dc_service_ncedc_org, 1,2)
+        layout_datacenters.addWidget(lbl_dc_service_ncedc_org, 1,3)
+        layout_datacenters.addWidget(chb_dc_service_scedc_caltech_edu, 1,4)
+        layout_datacenters.addWidget(lbl_dc_service_scedc_caltech_edu, 1,5)
+        layout_datacenters.addWidget(chb_dc_auspass_edu_au, 2,0)
+        layout_datacenters.addWidget(lbl_dc_auspass_edu_au, 2,1)
+        layout_datacenters.addWidget(chb_dc_eida_bgr_de, 2,2)
+        layout_datacenters.addWidget(lbl_dc_eida_bgr_de, 2,3)
+        layout_datacenters.addWidget(chb_dc_eida_ethz_ch, 2,4)
+        layout_datacenters.addWidget(lbl_dc_eida_ethz_ch, 2,5)
+        layout_datacenters.addWidget(chb_dc_eida_gein_noa_gr, 3,0)
+        layout_datacenters.addWidget(lbl_dc_eida_gein_noa_gr, 3,1)
+        layout_datacenters.addWidget(chb_dc_eida_ipgp_fr, 3,2)
+        layout_datacenters.addWidget(lbl_dc_eida_ipgp_fr, 3,3)
+        layout_datacenters.addWidget(chb_dc_eida_sc3_infp_ro, 3,4)
+        layout_datacenters.addWidget(lbl_dc_eida_sc3_infp_ro, 3,5)
+        layout_datacenters.addWidget(chb_dc_eida_service_koeri_boun_edu_tr, 4,0)
+        layout_datacenters.addWidget(lbl_dc_eida_service_koeri_boun_edu_tr, 4,1)
+        layout_datacenters.addWidget(chb_dc_erde_geophysik_uni_muenchen_de, 4,2)
+        layout_datacenters.addWidget(lbl_dc_erde_geophysik_uni_muenchen_de, 4,3)
+        layout_datacenters.addWidget(chb_dc_fdsnws_raspberryshakedata_com, 4,4)
+        layout_datacenters.addWidget(lbl_dc_fdsnws_raspberryshakedata_com, 4,5)
+        layout_datacenters.addWidget(chb_dc_geofon_gfz_potsdam_de, 5,0)
+        layout_datacenters.addWidget(lbl_dc_geofon_gfz_potsdam_de, 5,1)
+        layout_datacenters.addWidget(chb_dc_rtserve_beg_utexas_edu, 5,2)
+        layout_datacenters.addWidget(lbl_dc_rtserve_beg_utexas_edu, 5,3)
+        layout_datacenters.addWidget(chb_dc_seisrequest_iag_usp_br, 5,4)
+        layout_datacenters.addWidget(lbl_dc_seisrequest_iag_usp_br, 5,5)
+        layout_datacenters.addWidget(chb_dc_webservices_ingv_it, 6,0)
+        layout_datacenters.addWidget(lbl_dc_webservices_ingv_it, 6,1)
+        layout_datacenters.addWidget(chb_dc_ws_icgc_cat, 6,2)
+        layout_datacenters.addWidget(lbl_dc_ws_icgc_cat, 6,3)
+        layout_datacenters.addWidget(chb_dc_ws_resif_fr, 6,4)
+        layout_datacenters.addWidget(lbl_dc_ws_resif_fr, 6,5)
+        layout_datacenters.addWidget(chb_dc_www_orfeus_eu_org, 7,0,1,1)
+        layout_datacenters.addWidget(lbl_dc_www_orfeus_eu_org, 7,1,1,5)
+        layout_datacenters.setContentsMargins(30,30,50,30)
+        layout_datacenters.setSpacing(10)
+        # bottom 
+        layout_bottom = QGridLayout()
+        layout_bottom.addWidget(lbl_dlsetting,0,0,1,2)
+        layout_bottom.addWidget(lbl_dlscripts,0,2,1,2)
+        layout_bottom.addWidget(lbl_stalist, 1,0,1,1)
+        layout_bottom.addWidget(le_stalist, 1,1,1,1)
+        layout_bottom.addWidget(chb_obspy,1,2,1,1)
+        layout_bottom.addWidget(lbl_obspy,1,3,1,1)
+        layout_bottom.addWidget(chb_fetch,2,2,1,1)
+        layout_bottom.addWidget(lbl_fetch,2,3,1,1)
+        layout_bottom.addWidget(lbl_stameta, 2,0)
+        layout_bottom.addWidget(le_stameta, 2,1)
+        layout_bottom.addWidget(lbl_stalocs, 3,0)
+        layout_bottom.addWidget(le_stalocs, 3,1)
+        layout_bottom.addWidget(lbl_stachns, 4,0)
+        layout_bottom.addWidget(le_stachns, 4,1)
+        layout_bottom.addWidget(lbl_timelen, 5,0)
+        layout_bottom.addWidget(le_timelen, 5,1)
+        layout_bottom.setSpacing(10)
+        layout_bottom.setContentsMargins(30,30,50,30)
+
+        self.layout = QVBoxLayout()
+        self.layout.addLayout(layout_datacenters)
+        self.layout.addLayout(layout_bottom)
+        self.setLayout(self.layout)
 
 
 
+class MSEED_to_SAC(QWidget):
+    def __init__(self):
+        super().__init__()
+
+        # buttons graphics files
+        icon_add = os.path.join(images_dir,"add.svg")
+        icon_add_hover = os.path.join(images_dir,"add_hover.svg")
+        if sys.platform == "win32":
+            icon_add = icon_add.replace('\\','/')
+            icon_add_hover = icon_add_hover.replace('\\','/')
+        icon_remove = os.path.join(images_dir,"remove.svg")
+        icon_remove_hover = os.path.join(images_dir,"remove_hover.svg")
+        if sys.platform == "win32":
+            icon_remove = icon_remove.replace('\\','/')
+            icon_remove_hover = icon_remove_hover.replace('\\','/')
+
+        self.layout = QVBoxLayout()
+        self.scroll = QScrollArea()
+        self.scroll.setFrameShape(QFrame.Box)
+        self.scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.scroll.setWidgetResizable(True)
+        self.scroll_widget = QWidget()
+        self.procs_mseed2sac_layout = QVBoxLayout(self.scroll_widget)
+        self.procs_mseed2sac_layout.setAlignment(Qt.AlignTop)
+        self.scroll.setWidget(self.scroll_widget)
+        self.add_rem_btns_mseed2sac = QWidget()
+        self.add_rem_btns_mseed2sac.setObjectName("add_rem_btns_mseed2sac")
+        self.add_rem_btns_mseed2sac.setStyleSheet("QPushButton {min-width: 35px; max-width: 35px;\
+                                                 min-height: 35px; max-height: 35px;\
+                                                 margin-top: 0px; margin-bottom: 0px; }\
+                                    QPushButton:pressed {border: 3px solid #EEE;}")
+        # Add process button
+        self.btn_mseed2sac_add = QPushButton()
+        self.btn_mseed2sac_add.setCursor(Qt.PointingHandCursor)
+        self.btn_mseed2sac_add.setObjectName("btn_mseed2sac_add")
+        qss_code = '''
+            #btn_mseed2sac_add {
+                image: url(%s);
+            }
+
+            #btn_mseed2sac_add:hover {
+                image: url(%s);
+            }
+        ''' %(icon_add, icon_add_hover)
+        self.btn_mseed2sac_add.setStyleSheet(qss_code)
+
+        # Remove process button
+        self.btn_mseed2sac_remove = QPushButton()
+        self.btn_mseed2sac_remove.setCursor(Qt.PointingHandCursor)
+        self.btn_mseed2sac_remove.setObjectName("btn_mseed2sac_remove")
+        qss_code = '''
+            #btn_mseed2sac_remove {
+                image: url(%s);
+            }
+
+            #btn_mseed2sac_remove:hover {
+                image: url(%s);
+            }
+        ''' %(icon_remove, icon_remove_hover)
+        self.btn_mseed2sac_remove.setStyleSheet(qss_code)
+
+        self.layout_buttons = QHBoxLayout()
+        self.layout_buttons.addWidget(self.btn_mseed2sac_remove)
+        self.layout_buttons.addWidget(self.btn_mseed2sac_add)
+        self.layout_buttons.setAlignment(Qt.AlignCenter)
+        self.add_rem_btns_mseed2sac.setLayout(self.layout_buttons)
+        self.layout.addWidget(self.scroll)
+        self.layout.addWidget(self.add_rem_btns_mseed2sac)
+        self.layout.setSpacing(0)
+        self.layout.setContentsMargins(0,0,0,0)
+        self.setLayout(self.layout)
+
+        # button signals and slots
+        self.btn_mseed2sac_add.clicked.connect(lambda: self.add_proc())
+        self.btn_mseed2sac_remove.clicked.connect(lambda: self.remove_proc())
+
+    def proc_widget(self):
+        return QFrame()
+
+    def add_proc(self):
+        nprocs = self.procs_mseed2sac_layout.count()
+        widget_name = f"proc_{nprocs}"
+        self.proc = self.proc_widget()
+        self.proc.setObjectName(widget_name)
+        proc_height = "180px";
+        self.proc.setStyleSheet("*{ background-color: #B3B3B3; min-height: %s; max-height: %s; border-radius: 10px; margin: 3px; margin-right: 5px}" %(proc_height, proc_height))
+        self.procs_mseed2sac_layout.addWidget(self.proc)
+
+    def remove_proc(self):
+        nprocs = int(self.procs_mseed2sac_layout.count())
+        if nprocs:
+            widget_obj = self.procs_mseed2sac_layout.itemAt(nprocs - 1).widget()
+            widget_obj.deleteLater()
+
+
+
+class SAC_to_NCF(MSEED_to_SAC):
+    def __init__(self):
+        super().__init__()
+
+class NCF_to_EGF(MSEED_to_SAC):
+    def __init__(self):
+        super().__init__()
 
 
 class MainWindow(QMainWindow):
@@ -261,29 +730,11 @@ class MainWindow(QMainWindow):
         self.body_main.setObjectName("body_main")
         self.body_main.setSizePolicy(QSizePolicy(QSizePolicy.MinimumExpanding,\
                                             QSizePolicy.MinimumExpanding))
-        setting = QWidget()
-        download = QWidget()
-        mseed2sac = QWidget()
-        sac2ncf = QWidget()
-        ncf2egf = QWidget()
-        lyo_setting = QVBoxLayout()
-        lyo_download = QVBoxLayout()
-        lyo_mseed2sac = QVBoxLayout()
-        lyo_sac2ncf = QVBoxLayout()
-        lyo_ncf2egf = QVBoxLayout()
-
-        chb = MyCheckBox()
-        lyo_setting.addWidget(chb, Qt.AlignCenter, Qt.AlignCenter)
-        lyo_download.addWidget(QCheckBox("Widget: download"), Qt.AlignCenter, Qt.AlignCenter)
-        lyo_mseed2sac.addWidget(QLabel("Widget: mseed2sac"), Qt.AlignCenter, Qt.AlignCenter)
-        lyo_sac2ncf.addWidget(QLabel("Widget: sac2ncf"), Qt.AlignCenter, Qt.AlignCenter)
-        lyo_ncf2egf.addWidget(QLabel("Widget: ncf2egf"), Qt.AlignCenter, Qt.AlignCenter)
-
-        setting.setLayout(lyo_setting)
-        download.setLayout(lyo_download)
-        mseed2sac.setLayout(lyo_mseed2sac)
-        sac2ncf.setLayout(lyo_sac2ncf)
-        ncf2egf.setLayout(lyo_ncf2egf)
+        setting = Project_Setting()
+        download = Download()
+        mseed2sac = MSEED_to_SAC()
+        sac2ncf = SAC_to_NCF()
+        ncf2egf = NCF_to_EGF()
 
         self.body_main.addWidget(setting)
         self.body_main.addWidget(download)
@@ -322,10 +773,13 @@ class MainWindow(QMainWindow):
         lyo_footer_right = QHBoxLayout()
         btn_save = QPushButton()
         btn_save.setObjectName("btn_save")
+        btn_save.setCursor(Qt.PointingHandCursor)
         btn_discard = QPushButton()
         btn_discard.setObjectName("btn_discard")
+        btn_discard.setCursor(Qt.PointingHandCursor)
         btn_revert = QPushButton()
         btn_revert.setObjectName("btn_revert")
+        btn_revert.setCursor(Qt.PointingHandCursor)
         lyo_footer_right.addWidget(btn_revert)
         lyo_footer_right.addWidget(btn_discard)
         lyo_footer_right.addWidget(btn_save)
@@ -489,10 +943,10 @@ class MainWindow(QMainWindow):
         self.anim_body_menu = QPropertyAnimation(self.body_menu, b'maximumWidth')
         self.anim_header_right = QPropertyAnimation(self.header_right, b'minimumWidth')
         self.anim_header_left = QPropertyAnimation(self.header_left, b'maximumWidth')
-        self.anim_body_main.setDuration(200)
-        self.anim_body_menu.setDuration(200)
-        self.anim_header_left.setDuration(200)
-        self.anim_header_right.setDuration(200)
+        self.anim_body_main.setDuration(170)
+        self.anim_body_menu.setDuration(170)
+        self.anim_header_left.setDuration(170)
+        self.anim_header_right.setDuration(170)
         maxWidth = self.width() - 60
         minWidth = self.width() - 190
         if self.body_menu.width() != 60:
