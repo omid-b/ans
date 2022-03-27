@@ -10,6 +10,7 @@ from PyQt5.QtCore import (
     QPropertyAnimation,
     pyqtProperty,
     QCoreApplication,
+    QSize,
 )
 
 from PyQt5.QtGui import (
@@ -104,6 +105,11 @@ class MyCheckBox(QCheckBox):
 
 
 
+class BrowseFile(QPushButton):
+    def __init__(self, size, text, format, lineEditObj):
+        super().__init__()
+        self.setText(text)
+        self.resize(QSize(size[0], size[1]))
 
 
 
@@ -178,19 +184,24 @@ class Project_Setting(QWidget):
         le_sac = QLineEdit()
         le_sac.setAttribute(Qt.WA_MacShowFocusRect, 0)
         le_sac.setObjectName("le_sac")
-        le_sac.setPlaceholderText("Full path to SAC executable") 
+        le_sac.setPlaceholderText("Full path to SAC executable")
+        browse_sac = BrowseFile([35,23], "...", "txt (*.txt)", le_sac)
+
         lbl_gmt = QLabel("GMT:")
         lbl_gmt.setObjectName("lbl_gmt")
         le_gmt = QLineEdit()
         le_gmt.setAttribute(Qt.WA_MacShowFocusRect, 0)
         le_gmt.setObjectName("le_gmt")
         le_gmt.setPlaceholderText("Full path to GMT executable") 
+        browse_gmt = BrowseFile([35,23], "...", "txt (*.txt)", le_gmt)
+
         lbl_perl = QLabel("Perl:")
         lbl_perl.setObjectName("lbl_perl")
         le_perl = QLineEdit()
         le_perl.setAttribute(Qt.WA_MacShowFocusRect, 0)
         le_perl.setObjectName("le_perl")
         le_perl.setPlaceholderText("Full path to the Perl interpreter")
+        browse_perl = BrowseFile([35,23], "...", "txt (*.txt)", le_gmt)
 
         # Design layouts
 
@@ -221,22 +232,25 @@ class Project_Setting(QWidget):
         layout_top.addWidget(lbl_studyarea, 0,3,1,2)
         layout_top.addLayout(layout_tl,1,0,1,3)
         layout_top.addLayout(layout_tr,1,3,1,2)
-        layout_top.setVerticalSpacing(0)
+        layout_top.setVerticalSpacing(10)
         layout_top.setHorizontalSpacing(30)
         layout_top.setContentsMargins(0,0,0,0)
 
         ## bottom ##
         layout_bottom = QGridLayout()
-        layout_bottom.addWidget(lbl_depend,0,0,1,2)
-        layout_bottom.addWidget(lbl_sac,1,0)
-        layout_bottom.addWidget(le_sac,1,1)
-        layout_bottom.addWidget(lbl_gmt,2,0)
-        layout_bottom.addWidget(le_gmt,2,1)
-        layout_bottom.addWidget(lbl_perl,3,0)
-        layout_bottom.addWidget(le_perl,3,1)
-        layout_top.setVerticalSpacing(0)
-        layout_top.setHorizontalSpacing(30)
-        layout_top.setContentsMargins(0,0,0,0)
+        layout_bottom.addWidget(lbl_depend,0,0,1,3)
+        layout_bottom.addWidget(lbl_sac,1,0,1,1)
+        layout_bottom.addWidget(le_sac,1,1,1,1)
+        layout_bottom.addWidget(browse_sac,1,2,1,1)
+        layout_bottom.addWidget(lbl_gmt,2,0,1,1)
+        layout_bottom.addWidget(le_gmt,2,1,1,1)
+        layout_bottom.addWidget(browse_gmt,2,2,1,1)
+        layout_bottom.addWidget(lbl_perl,3,0,1,1)
+        layout_bottom.addWidget(le_perl,3,1,1,1)
+        layout_bottom.addWidget(browse_perl,3,2,1,1)
+        layout_bottom.setVerticalSpacing(10)
+        layout_bottom.setHorizontalSpacing(10)
+        layout_bottom.setContentsMargins(0,0,0,0)
 
         # put together top and bottom layouts
         self.layout = QVBoxLayout()
@@ -372,6 +386,8 @@ class Download(QWidget):
         le_stalist.setAttribute(Qt.WA_MacShowFocusRect, 0)
         le_stalist.setObjectName("le_stalist")
         le_stalist.setPlaceholderText("Full path to station list file")
+        browse_stalist = BrowseFile([35,23], "...", "txt (*.txt)", le_stalist)
+        browse_stalist.setStyleSheet("padding-right:30px")
         #
         lbl_stameta = QLabel("Station meta files dir:")
         lbl_stameta.setObjectName("lbl_stameta")
@@ -458,22 +474,23 @@ class Download(QWidget):
         layout_datacenters.setSpacing(10)
         # bottom 
         layout_bottom = QGridLayout()
-        layout_bottom.addWidget(lbl_dlsetting,0,0,1,2)
-        layout_bottom.addWidget(lbl_dlscripts,0,2,1,2)
+        layout_bottom.addWidget(lbl_dlsetting,0,0,1,3)
+        layout_bottom.addWidget(lbl_dlscripts,0,3,1,2)
         layout_bottom.addWidget(lbl_stalist, 1,0,1,1)
         layout_bottom.addWidget(le_stalist, 1,1,1,1)
-        layout_bottom.addWidget(chb_obspy,1,2,1,1)
-        layout_bottom.addWidget(lbl_obspy,1,3,1,1)
-        layout_bottom.addWidget(chb_fetch,2,2,1,1)
-        layout_bottom.addWidget(lbl_fetch,2,3,1,1)
-        layout_bottom.addWidget(lbl_stameta, 2,0)
-        layout_bottom.addWidget(le_stameta, 2,1)
-        layout_bottom.addWidget(lbl_stalocs, 3,0)
-        layout_bottom.addWidget(le_stalocs, 3,1)
-        layout_bottom.addWidget(lbl_stachns, 4,0)
-        layout_bottom.addWidget(le_stachns, 4,1)
-        layout_bottom.addWidget(lbl_timelen, 5,0)
-        layout_bottom.addWidget(le_timelen, 5,1)
+        layout_bottom.addWidget(browse_stalist, 1,2,1,1)
+        layout_bottom.addWidget(chb_obspy,1,3,1,1)
+        layout_bottom.addWidget(lbl_obspy,1,4,1,1)
+        layout_bottom.addWidget(chb_fetch,2,3,1,1)
+        layout_bottom.addWidget(lbl_fetch,2,4,1,1)
+        layout_bottom.addWidget(lbl_stameta, 2,0,1,1)
+        layout_bottom.addWidget(le_stameta, 2,1,1,2)
+        layout_bottom.addWidget(lbl_stalocs, 3,0,1,1)
+        layout_bottom.addWidget(le_stalocs, 3,1,1,2)
+        layout_bottom.addWidget(lbl_stachns, 4,0,1,1)
+        layout_bottom.addWidget(le_stachns, 4,1,1,2)
+        layout_bottom.addWidget(lbl_timelen, 5,0,1,1)
+        layout_bottom.addWidget(le_timelen, 5,1,1,2)
         layout_bottom.setSpacing(10)
         layout_bottom.setContentsMargins(30,30,50,30)
 
@@ -570,7 +587,7 @@ class MSEED_to_SAC(QWidget):
         self.proc = self.proc_widget()
         self.proc.setObjectName(widget_name)
         proc_height = "180px";
-        self.proc.setStyleSheet("*{ background-color: #B3B3B3; min-height: %s; max-height: %s; border-radius: 10px; margin: 3px; margin-right: 5px}" %(proc_height, proc_height))
+        self.proc.setStyleSheet("*{ background-color: #CDCDCD; min-height: %s; max-height: %s; border-radius: 10px; margin: 3px; margin-right: 5px}" %(proc_height, proc_height))
         self.procs_mseed2sac_layout.addWidget(self.proc)
 
     def remove_proc(self):
