@@ -1,6 +1,7 @@
 
 import os
 import sys 
+import re
 
 from PyQt5.QtCore import (
     Qt,
@@ -14,7 +15,6 @@ from PyQt5.QtCore import (
 )
 
 from PyQt5.QtGui import (
-    QPixmap,
     QColor,
     QIcon,
     QPainter,
@@ -30,6 +30,7 @@ from PyQt5.QtWidgets import (
     QScrollArea,
     QStackedWidget,
     QCheckBox,
+    QFileDialog,
     QVBoxLayout,
     QHBoxLayout,
     QGridLayout,
@@ -37,8 +38,96 @@ from PyQt5.QtWidgets import (
     QSizePolicy,
 )
 
+
 pkg_dir, _ = os.path.split(__file__)
 images_dir = os.path.join(pkg_dir,"data","images")
+
+class MyLineEdit(QLineEdit):
+    def __init__(self):
+        super().__init__()
+
+    def isfile(self): # is an existing file
+        f = self.text()
+        if os.path.isfile(f) or f == '':
+            self.setStyleSheet("color: black")
+            if os.path.isfile(f):
+                return True
+        else:
+            self.setStyleSheet("color: red")
+            return False
+
+    def isdir(self): # is an existing directory
+        d = self.text()
+        if os.path.isdir(d) or d == '':
+            self.setStyleSheet("color: black")
+            if os.path.isdir(d):
+                return True
+        else:
+            self.setStyleSheet("color: red")
+            return False
+
+    def isdate(self): # is a date value: 'YYYY-MM-DD'
+        text = self.text()
+        rexpr = re.compile("[1-2][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]")
+        if rexpr.match(text) or text == '':
+            self.setStyleSheet("color: black")
+            if rexpr.match(text):
+                return True
+        else:
+            self.setStyleSheet("color: red")
+            return False
+
+    def islat(self): # is a latitude value
+        text = self.text()
+        try:
+            val = float(text)
+            if val >= -90 and val <= 90:
+                self.setStyleSheet("color: black")
+                return True
+            else:
+                self.setStyleSheet("color: red")
+                return False
+        except ValueError:
+            if len(text):
+                self.setStyleSheet("color: red")
+            else:
+                self.setStyleSheet("color: black")
+            return False
+
+    def islon(self): # is a longitude value
+        text = self.text()
+        try:
+            val = float(text)
+            if val >= -180 and val <= 180:
+                self.setStyleSheet("color: black")
+                return True
+            else:
+                self.setStyleSheet("color: red")
+                return False
+        except ValueError:
+            if len(text):
+                self.setStyleSheet("color: red")
+            else:
+                self.setStyleSheet("color: black")
+            return False
+
+    def isposint(self): # is positive integer
+        text = self.text()
+        try:
+            val = int(text)
+            if val > 0:
+                self.setStyleSheet("color: black")
+                return True
+            else:
+                self.setStyleSheet("color: red")
+                return False
+        except ValueError:
+            if len(text):
+                self.setStyleSheet("color: red")
+            else:
+                self.setStyleSheet("color: black")
+            return False
+
 
 class MyCheckBox(QCheckBox):
     def __init__(self):
@@ -100,16 +189,88 @@ class MyCheckBox(QCheckBox):
             painter.setBrush(QColor(self.circle_color))
             painter.drawEllipse(self._circle_position, 2,
                                 self.height() - 4, self.height() - 4)
-
         painter.end()
 
 
 
-class BrowseFile(QPushButton):
-    def __init__(self, size, text, format, lineEditObj):
+
+class MyDialog(QPushButton):
+
+    def __init__(self, text='...', type=0, filters='All Files (*)', lineEditObj=None, size=[30,23]):
         super().__init__()
+        self.filters = filters
+        self.lineEditObj = lineEditObj
         self.setText(text)
-        self.resize(QSize(size[0], size[1]))
+        self.setFixedSize(QSize(size[0], size[1]))
+        self.setCursor(Qt.PointingHandCursor)
+        if type == 1:
+            self.clicked.connect(self.select_file)
+        elif type == 2:
+            self.clicked.connect(self.select_files)
+        elif type == 3:
+            self.clicked.connect(self.select_directory)
+        elif type == 4:
+            self.clicked.connect(self.save_file)
+        else:
+            pass
+
+    def select_file(self):
+        ret = ""
+        response, _ = QFileDialog.getOpenFileName(
+            parent=self,
+            caption="Select file",
+            directory=os.getcwd(),
+            filter=self.filters,
+        )
+        if self.lineEditObj != None and response != "":
+            ret = os.path.abspath(response)
+            self.lineEditObj.setText(ret)
+        return ret
+
+
+    def select_files(self):
+        ret = []
+        response, _ = QFileDialog.getOpenFileNames(
+            parent=self,
+            caption="Select files",
+            directory=os.getcwd(),
+            filter=self.filters,
+        )
+        if self.lineEditObj != None and response != []:
+            for f in response:
+                ret.append(os.path.abspath(f))
+            ret = "; ".join(ret)
+            self.lineEditObj.setText(ret)
+        return ret
+
+
+    def select_directory(self):
+        ret = ""
+        response = QFileDialog.getExistingDirectory(
+            parent=self,
+            caption="Select directory",
+            directory=os.getcwd(),
+        )
+        print(response)
+        if self.lineEditObj != None and response != "":
+            ret = os.path.abspath(response)
+            self.lineEditObj.setText(ret)
+        return ret
+
+
+    def save_file(self):
+        ret = ""
+        response, _ = QFileDialog.getSaveFileName(
+            parent=self,
+            caption="Save file name",
+            directory=os.getcwd(),
+            filter=self.filters,
+        )
+        if self.lineEditObj != None and response != "":
+            ret = os.path.abspath(response)
+            self.lineEditObj.setText(ret)
+        return ret
+
 
 
 
@@ -132,47 +293,54 @@ class Project_Setting(QWidget):
         lbl_proj.setObjectName("lbl_proj")
         lbl_maindir = QLabel("Main dir:")
         lbl_maindir.setObjectName("lbl_maindir")
-        le_maindir = QLineEdit()
+        le_maindir = MyLineEdit()
         le_maindir.setAttribute(Qt.WA_MacShowFocusRect, 0)
         le_maindir.setObjectName("le_maindir")
         le_maindir.setPlaceholderText("Full path to project main directory")
-        browse_maindir = BrowseFile([35,23], "...", "txt (*.txt)", le_maindir)
+        le_maindir.textChanged.connect(le_maindir.isdir)
+        browse_maindir = MyDialog(type=3, lineEditObj=le_maindir)
         lbl_startdate = QLabel("Start date:")
         lbl_startdate.setObjectName("lbl_startdate")
-        le_startdate = QLineEdit()
+        le_startdate = MyLineEdit()
         le_startdate.setAttribute(Qt.WA_MacShowFocusRect, 0)
         le_startdate.setAlignment(Qt.AlignCenter)
         le_startdate.setObjectName("le_startdate")
         le_startdate.setPlaceholderText("YYYY-MM-DD")
+        le_startdate.textChanged.connect(le_startdate.isdate)
         lbl_enddate = QLabel("End date:")
         lbl_enddate.setObjectName("lbl_enddate")
-        le_enddate = QLineEdit()
+        le_enddate = MyLineEdit()
         le_enddate.setAttribute(Qt.WA_MacShowFocusRect, 0)
         le_enddate.setAlignment(Qt.AlignCenter)
         le_enddate.setObjectName("le_enddate")
         le_enddate.setPlaceholderText("YYYY-MM-DD")
+        le_enddate.textChanged.connect(le_enddate.isdate)
         lbl_studyarea = QLabel("Study area boundaries")
         lbl_studyarea.setObjectName("lbl_studyarea")
-        le_maxlat = QLineEdit()
+        le_maxlat = MyLineEdit()
         le_maxlat.setAttribute(Qt.WA_MacShowFocusRect, 0)
         le_maxlat.setObjectName("le_maxlat")
         le_maxlat.setAlignment(Qt.AlignCenter)
         le_maxlat.setPlaceholderText("Max Lat (deg)")
-        le_minlat = QLineEdit()
+        le_maxlat.textChanged.connect(le_maxlat.islat)
+        le_minlat = MyLineEdit()
         le_minlat.setAttribute(Qt.WA_MacShowFocusRect, 0)
         le_minlat.setObjectName("le_minlat")
         le_minlat.setAlignment(Qt.AlignCenter)
         le_minlat.setPlaceholderText("Min Lat (deg)")
-        le_minlon = QLineEdit()
+        le_minlat.textChanged.connect(le_minlat.islat)
+        le_minlon = MyLineEdit()
         le_minlon.setAttribute(Qt.WA_MacShowFocusRect, 0)
         le_minlon.setObjectName("le_minlon")
         le_minlon.setAlignment(Qt.AlignCenter)
         le_minlon.setPlaceholderText("Min Lon (deg)")
-        le_maxlon = QLineEdit()
+        le_minlon.textChanged.connect(le_minlon.islon)
+        le_maxlon = MyLineEdit()
         le_maxlon.setAttribute(Qt.WA_MacShowFocusRect, 0)
         le_maxlon.setObjectName("le_maxlon")
         le_maxlon.setAlignment(Qt.AlignCenter)
         le_maxlon.setPlaceholderText("Max Lon (deg)")
+        le_maxlon.textChanged.connect(le_maxlon.islon)
         btn_showmap = QPushButton("Show map")
         btn_showmap.setObjectName("btn_showmap")
         btn_showmap.setEnabled(True)
@@ -182,27 +350,30 @@ class Project_Setting(QWidget):
         lbl_depend.setObjectName("lbl_depend")
         lbl_sac = QLabel("SAC:")
         lbl_sac.setObjectName("lbl_sac")
-        le_sac = QLineEdit()
+        le_sac = MyLineEdit()
         le_sac.setAttribute(Qt.WA_MacShowFocusRect, 0)
         le_sac.setObjectName("le_sac")
         le_sac.setPlaceholderText("Full path to SAC executable")
-        browse_sac = BrowseFile([35,23], "...", "txt (*.txt)", le_sac)
+        le_sac.textChanged.connect(le_sac.isfile)
+        browse_sac = MyDialog(type=1, lineEditObj=le_sac)
 
         lbl_gmt = QLabel("GMT:")
         lbl_gmt.setObjectName("lbl_gmt")
-        le_gmt = QLineEdit()
+        le_gmt = MyLineEdit()
         le_gmt.setAttribute(Qt.WA_MacShowFocusRect, 0)
         le_gmt.setObjectName("le_gmt")
         le_gmt.setPlaceholderText("Full path to GMT executable") 
-        browse_gmt = BrowseFile([35,23], "...", "txt (*.txt)", le_gmt)
+        le_gmt.textChanged.connect(le_gmt.isfile)
+        browse_gmt = MyDialog(type=1, lineEditObj=le_gmt)
 
         lbl_perl = QLabel("Perl:")
         lbl_perl.setObjectName("lbl_perl")
-        le_perl = QLineEdit()
+        le_perl = MyLineEdit()
         le_perl.setAttribute(Qt.WA_MacShowFocusRect, 0)
         le_perl.setObjectName("le_perl")
         le_perl.setPlaceholderText("Full path to the Perl interpreter")
-        browse_perl = BrowseFile([35,23], "...", "txt (*.txt)", le_gmt)
+        le_perl.textChanged.connect(le_perl.isfile)
+        browse_perl = MyDialog(type=1, lineEditObj=le_perl)
 
         # Design layouts
 
@@ -261,7 +432,6 @@ class Project_Setting(QWidget):
         self.layout.setSpacing(30)
         self.layout.setContentsMargins(60,60,60,60)
         self.setLayout(self.layout)
-
 
 
 
@@ -384,39 +554,42 @@ class Download(QWidget):
         lbl_dlsetting.setObjectName("lbl_dlsetting")
         lbl_stalist = QLabel("Station list file:")
         lbl_stalist.setObjectName("lbl_stalist")
-        le_stalist = QLineEdit()
+        le_stalist = MyLineEdit()
         le_stalist.setAttribute(Qt.WA_MacShowFocusRect, 0)
         le_stalist.setObjectName("le_stalist")
         le_stalist.setPlaceholderText("Full path to station list file")
-        browse_stalist = BrowseFile([35,23], "...", "txt (*.txt)", le_stalist)
+        le_stalist.textChanged.connect(le_stalist.isfile)
+        browse_stalist = MyDialog(type=1, lineEditObj=le_stalist)
         #
         lbl_stameta = QLabel("Station meta files dir:")
         lbl_stameta.setObjectName("lbl_stameta")
-        le_stameta = QLineEdit()
+        le_stameta = MyLineEdit()
         le_stameta.setAttribute(Qt.WA_MacShowFocusRect, 0)
         le_stameta.setObjectName("le_stameta")
         le_stameta.setPlaceholderText("Full path to station meta files directory")
-        browse_stameta = BrowseFile([35,23], "...", "txt (*.txt)", le_stameta)
+        le_stameta.textChanged.connect(le_stameta.isdir)
+        browse_stameta = MyDialog(type=3, lineEditObj=le_stameta)
         #
         lbl_stalocs = QLabel("Station location codes:")
         lbl_stalocs.setObjectName("lbl_stalocs")
-        le_stalocs = QLineEdit()
+        le_stalocs = MyLineEdit()
         le_stalocs.setAttribute(Qt.WA_MacShowFocusRect, 0)
         le_stalocs.setObjectName("le_stalocs")
         le_stalocs.setPlaceholderText("Station location codes separated by space")
         #
         lbl_stachns = QLabel("Station channels:")
         lbl_stachns.setObjectName("lbl_stachns")
-        le_stachns = QLineEdit()
+        le_stachns = MyLineEdit()
         le_stachns.setAttribute(Qt.WA_MacShowFocusRect, 0)
         le_stachns.setObjectName("le_stachns")
         le_stachns.setPlaceholderText("Station channels separated by space")
         #
         lbl_timelen = QLabel("Timeseries length (s):")
         lbl_timelen.setObjectName("lbl_timelen")
-        le_timelen = QLineEdit()
+        le_timelen = MyLineEdit()
         le_timelen.setAttribute(Qt.WA_MacShowFocusRect, 0)
         le_timelen.setObjectName("le_timelen")
+        le_timelen.textChanged.connect(le_timelen.isposint)
         le_timelen.setPlaceholderText("Timeseries length in seconds")
         # bottom right
         lbl_dlscripts = QLabel("Download scripts:")
