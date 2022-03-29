@@ -18,6 +18,7 @@ from PyQt5.QtGui import (
     QColor,
     QIcon,
     QPainter,
+    QPalette,
 )
 
 from PyQt5.QtWidgets import (
@@ -31,6 +32,7 @@ from PyQt5.QtWidgets import (
     QStackedWidget,
     QCheckBox,
     QFileDialog,
+    QComboBox,
     QVBoxLayout,
     QHBoxLayout,
     QGridLayout,
@@ -379,57 +381,57 @@ class Project_Setting(QWidget):
         # Design layouts
 
         ## Top Left/Right 
-        layout_tl = QGridLayout()
-        layout_tl.addWidget(lbl_maindir,0,0)
-        layout_tl.addWidget(le_maindir,0,1)
-        layout_tl.addWidget(browse_maindir,0,2)
-        layout_tl.addWidget(lbl_startdate,1,0)
-        layout_tl.addWidget(le_startdate,1,1)
-        layout_tl.addWidget(lbl_enddate,2,0)
-        layout_tl.addWidget(le_enddate,2,1)
-        layout_tl.setContentsMargins(0,0,0,0)
-        layout_tl.setVerticalSpacing(10)
-        layout_tl.setHorizontalSpacing(0)
+        lyo_tl = QGridLayout()
+        lyo_tl.addWidget(lbl_maindir,0,0)
+        lyo_tl.addWidget(le_maindir,0,1)
+        lyo_tl.addWidget(browse_maindir,0,2)
+        lyo_tl.addWidget(lbl_startdate,1,0)
+        lyo_tl.addWidget(le_startdate,1,1)
+        lyo_tl.addWidget(lbl_enddate,2,0)
+        lyo_tl.addWidget(le_enddate,2,1)
+        lyo_tl.setContentsMargins(0,0,0,0)
+        lyo_tl.setVerticalSpacing(10)
+        lyo_tl.setHorizontalSpacing(0)
 
-        layout_tr = QGridLayout()
-        layout_tr.addWidget(le_maxlat,0,1)
-        layout_tr.addWidget(le_minlon,1,0)
-        layout_tr.addWidget(le_maxlon,1,2)
-        layout_tr.addWidget(le_minlat,2,1)
-        layout_tr.addWidget(btn_showmap,3,1)
-        layout_tr.setContentsMargins(0,0,0,0)
-        layout_tr.setVerticalSpacing(10)
-        layout_tr.setHorizontalSpacing(0)
+        lyo_tr = QGridLayout()
+        lyo_tr.addWidget(le_maxlat,0,1)
+        lyo_tr.addWidget(le_minlon,1,0)
+        lyo_tr.addWidget(le_maxlon,1,2)
+        lyo_tr.addWidget(le_minlat,2,1)
+        lyo_tr.addWidget(btn_showmap,3,1)
+        lyo_tr.setContentsMargins(0,0,0,0)
+        lyo_tr.setVerticalSpacing(10)
+        lyo_tr.setHorizontalSpacing(0)
 
-        layout_top = QGridLayout()
-        layout_top.addWidget(lbl_proj, 0,0,1,3)
-        layout_top.addWidget(lbl_studyarea, 0,3,1,2)
-        layout_top.addLayout(layout_tl,1,0,1,3)
-        layout_top.addLayout(layout_tr,1,3,1,2)
-        layout_top.setVerticalSpacing(10)
-        layout_top.setHorizontalSpacing(30)
-        layout_top.setContentsMargins(0,0,0,0)
+        lyo_top = QGridLayout()
+        lyo_top.addWidget(lbl_proj, 0,0,1,3)
+        lyo_top.addWidget(lbl_studyarea, 0,3,1,2)
+        lyo_top.addLayout(lyo_tl,1,0,1,3)
+        lyo_top.addLayout(lyo_tr,1,3,1,2)
+        lyo_top.setVerticalSpacing(10)
+        lyo_top.setHorizontalSpacing(30)
+        lyo_top.setContentsMargins(0,0,0,0)
 
         ## bottom ##
-        layout_bottom = QGridLayout()
-        layout_bottom.addWidget(lbl_depend,0,0,1,3)
-        layout_bottom.addWidget(lbl_sac,1,0,1,1)
-        layout_bottom.addWidget(le_sac,1,1,1,1)
-        layout_bottom.addWidget(browse_sac,1,2,1,1)
-        layout_bottom.addWidget(lbl_gmt,2,0,1,1)
-        layout_bottom.addWidget(le_gmt,2,1,1,1)
-        layout_bottom.addWidget(browse_gmt,2,2,1,1)
-        layout_bottom.addWidget(lbl_perl,3,0,1,1)
-        layout_bottom.addWidget(le_perl,3,1,1,1)
-        layout_bottom.addWidget(browse_perl,3,2,1,1)
-        layout_bottom.setVerticalSpacing(10)
-        layout_bottom.setHorizontalSpacing(10)
-        layout_bottom.setContentsMargins(0,0,0,0)
+        lyo_bottom = QGridLayout()
+        lyo_bottom.addWidget(lbl_depend,0,0,1,3)
+        lyo_bottom.addWidget(lbl_sac,1,0,1,1)
+        lyo_bottom.addWidget(le_sac,1,1,1,1)
+        lyo_bottom.addWidget(browse_sac,1,2,1,1)
+        lyo_bottom.addWidget(lbl_gmt,2,0,1,1)
+        lyo_bottom.addWidget(le_gmt,2,1,1,1)
+        lyo_bottom.addWidget(browse_gmt,2,2,1,1)
+        lyo_bottom.addWidget(lbl_perl,3,0,1,1)
+        lyo_bottom.addWidget(le_perl,3,1,1,1)
+        lyo_bottom.addWidget(browse_perl,3,2,1,1)
+        lyo_bottom.setVerticalSpacing(10)
+        lyo_bottom.setHorizontalSpacing(10)
+        lyo_bottom.setContentsMargins(0,0,0,0)
 
         # put together top and bottom layouts
         self.layout = QVBoxLayout()
-        self.layout.addLayout(layout_top)
-        self.layout.addLayout(layout_bottom)
+        self.layout.addLayout(lyo_top)
+        self.layout.addLayout(lyo_bottom)
         self.layout.setSpacing(30)
         self.layout.setContentsMargins(60,60,60,60)
         self.setLayout(self.layout)
@@ -606,74 +608,74 @@ class Download(QWidget):
 
         # design layouts
         # top
-        layout_datacenters = QGridLayout()
-        layout_datacenters.addWidget(lbl_datacenters,0,0,1,6)
-        layout_datacenters.addWidget(chb_dc_service_iris_edu, 1,0)
-        layout_datacenters.addWidget(lbl_dc_service_iris_edu, 1,1)
-        layout_datacenters.addWidget(chb_dc_service_ncedc_org, 1,2)
-        layout_datacenters.addWidget(lbl_dc_service_ncedc_org, 1,3)
-        layout_datacenters.addWidget(chb_dc_service_scedc_caltech_edu, 1,4)
-        layout_datacenters.addWidget(lbl_dc_service_scedc_caltech_edu, 1,5)
-        layout_datacenters.addWidget(chb_dc_auspass_edu_au, 2,0)
-        layout_datacenters.addWidget(lbl_dc_auspass_edu_au, 2,1)
-        layout_datacenters.addWidget(chb_dc_eida_bgr_de, 2,2)
-        layout_datacenters.addWidget(lbl_dc_eida_bgr_de, 2,3)
-        layout_datacenters.addWidget(chb_dc_eida_ethz_ch, 2,4)
-        layout_datacenters.addWidget(lbl_dc_eida_ethz_ch, 2,5)
-        layout_datacenters.addWidget(chb_dc_eida_gein_noa_gr, 3,0)
-        layout_datacenters.addWidget(lbl_dc_eida_gein_noa_gr, 3,1)
-        layout_datacenters.addWidget(chb_dc_eida_ipgp_fr, 3,2)
-        layout_datacenters.addWidget(lbl_dc_eida_ipgp_fr, 3,3)
-        layout_datacenters.addWidget(chb_dc_eida_sc3_infp_ro, 3,4)
-        layout_datacenters.addWidget(lbl_dc_eida_sc3_infp_ro, 3,5)
-        layout_datacenters.addWidget(chb_dc_eida_service_koeri_boun_edu_tr, 4,0)
-        layout_datacenters.addWidget(lbl_dc_eida_service_koeri_boun_edu_tr, 4,1)
-        layout_datacenters.addWidget(chb_dc_erde_geophysik_uni_muenchen_de, 4,2)
-        layout_datacenters.addWidget(lbl_dc_erde_geophysik_uni_muenchen_de, 4,3)
-        layout_datacenters.addWidget(chb_dc_fdsnws_raspberryshakedata_com, 4,4)
-        layout_datacenters.addWidget(lbl_dc_fdsnws_raspberryshakedata_com, 4,5)
-        layout_datacenters.addWidget(chb_dc_geofon_gfz_potsdam_de, 5,0)
-        layout_datacenters.addWidget(lbl_dc_geofon_gfz_potsdam_de, 5,1)
-        layout_datacenters.addWidget(chb_dc_rtserve_beg_utexas_edu, 5,2)
-        layout_datacenters.addWidget(lbl_dc_rtserve_beg_utexas_edu, 5,3)
-        layout_datacenters.addWidget(chb_dc_seisrequest_iag_usp_br, 5,4)
-        layout_datacenters.addWidget(lbl_dc_seisrequest_iag_usp_br, 5,5)
-        layout_datacenters.addWidget(chb_dc_webservices_ingv_it, 6,0)
-        layout_datacenters.addWidget(lbl_dc_webservices_ingv_it, 6,1)
-        layout_datacenters.addWidget(chb_dc_ws_icgc_cat, 6,2)
-        layout_datacenters.addWidget(lbl_dc_ws_icgc_cat, 6,3)
-        layout_datacenters.addWidget(chb_dc_ws_resif_fr, 6,4)
-        layout_datacenters.addWidget(lbl_dc_ws_resif_fr, 6,5)
-        layout_datacenters.addWidget(chb_dc_www_orfeus_eu_org, 7,0,1,1)
-        layout_datacenters.addWidget(lbl_dc_www_orfeus_eu_org, 7,1,1,5)
-        layout_datacenters.setContentsMargins(30,15,50,0)
-        layout_datacenters.setSpacing(10)
+        lyo_datacenters = QGridLayout()
+        lyo_datacenters.addWidget(lbl_datacenters,0,0,1,6)
+        lyo_datacenters.addWidget(chb_dc_service_iris_edu, 1,0)
+        lyo_datacenters.addWidget(lbl_dc_service_iris_edu, 1,1)
+        lyo_datacenters.addWidget(chb_dc_service_ncedc_org, 1,2)
+        lyo_datacenters.addWidget(lbl_dc_service_ncedc_org, 1,3)
+        lyo_datacenters.addWidget(chb_dc_service_scedc_caltech_edu, 1,4)
+        lyo_datacenters.addWidget(lbl_dc_service_scedc_caltech_edu, 1,5)
+        lyo_datacenters.addWidget(chb_dc_auspass_edu_au, 2,0)
+        lyo_datacenters.addWidget(lbl_dc_auspass_edu_au, 2,1)
+        lyo_datacenters.addWidget(chb_dc_eida_bgr_de, 2,2)
+        lyo_datacenters.addWidget(lbl_dc_eida_bgr_de, 2,3)
+        lyo_datacenters.addWidget(chb_dc_eida_ethz_ch, 2,4)
+        lyo_datacenters.addWidget(lbl_dc_eida_ethz_ch, 2,5)
+        lyo_datacenters.addWidget(chb_dc_eida_gein_noa_gr, 3,0)
+        lyo_datacenters.addWidget(lbl_dc_eida_gein_noa_gr, 3,1)
+        lyo_datacenters.addWidget(chb_dc_eida_ipgp_fr, 3,2)
+        lyo_datacenters.addWidget(lbl_dc_eida_ipgp_fr, 3,3)
+        lyo_datacenters.addWidget(chb_dc_eida_sc3_infp_ro, 3,4)
+        lyo_datacenters.addWidget(lbl_dc_eida_sc3_infp_ro, 3,5)
+        lyo_datacenters.addWidget(chb_dc_eida_service_koeri_boun_edu_tr, 4,0)
+        lyo_datacenters.addWidget(lbl_dc_eida_service_koeri_boun_edu_tr, 4,1)
+        lyo_datacenters.addWidget(chb_dc_erde_geophysik_uni_muenchen_de, 4,2)
+        lyo_datacenters.addWidget(lbl_dc_erde_geophysik_uni_muenchen_de, 4,3)
+        lyo_datacenters.addWidget(chb_dc_fdsnws_raspberryshakedata_com, 4,4)
+        lyo_datacenters.addWidget(lbl_dc_fdsnws_raspberryshakedata_com, 4,5)
+        lyo_datacenters.addWidget(chb_dc_geofon_gfz_potsdam_de, 5,0)
+        lyo_datacenters.addWidget(lbl_dc_geofon_gfz_potsdam_de, 5,1)
+        lyo_datacenters.addWidget(chb_dc_rtserve_beg_utexas_edu, 5,2)
+        lyo_datacenters.addWidget(lbl_dc_rtserve_beg_utexas_edu, 5,3)
+        lyo_datacenters.addWidget(chb_dc_seisrequest_iag_usp_br, 5,4)
+        lyo_datacenters.addWidget(lbl_dc_seisrequest_iag_usp_br, 5,5)
+        lyo_datacenters.addWidget(chb_dc_webservices_ingv_it, 6,0)
+        lyo_datacenters.addWidget(lbl_dc_webservices_ingv_it, 6,1)
+        lyo_datacenters.addWidget(chb_dc_ws_icgc_cat, 6,2)
+        lyo_datacenters.addWidget(lbl_dc_ws_icgc_cat, 6,3)
+        lyo_datacenters.addWidget(chb_dc_ws_resif_fr, 6,4)
+        lyo_datacenters.addWidget(lbl_dc_ws_resif_fr, 6,5)
+        lyo_datacenters.addWidget(chb_dc_www_orfeus_eu_org, 7,0,1,1)
+        lyo_datacenters.addWidget(lbl_dc_www_orfeus_eu_org, 7,1,1,5)
+        lyo_datacenters.setContentsMargins(30,15,50,0)
+        lyo_datacenters.setSpacing(10)
         # bottom 
-        layout_bottom = QGridLayout()
-        layout_bottom.addWidget(lbl_dlsetting,0,0,1,3)
-        layout_bottom.addWidget(lbl_dlscripts,0,3,1,2)
-        layout_bottom.addWidget(lbl_stalist, 1,0,1,1)
-        layout_bottom.addWidget(le_stalist, 1,1,1,1)
-        layout_bottom.addWidget(browse_stalist, 1,2,1,1)
-        layout_bottom.addWidget(chb_obspy,1,3,1,1)
-        layout_bottom.addWidget(lbl_obspy,1,4,1,1)
-        layout_bottom.addWidget(chb_fetch,2,3,1,1)
-        layout_bottom.addWidget(lbl_fetch,2,4,1,1)
-        layout_bottom.addWidget(lbl_stameta, 2,0,1,1)
-        layout_bottom.addWidget(le_stameta, 2,1,1,1)
-        layout_bottom.addWidget(browse_stameta, 2,2,1,1)
-        layout_bottom.addWidget(lbl_stalocs, 3,0,1,1)
-        layout_bottom.addWidget(le_stalocs, 3,1,1,2)
-        layout_bottom.addWidget(lbl_stachns, 4,0,1,1)
-        layout_bottom.addWidget(le_stachns, 4,1,1,2)
-        layout_bottom.addWidget(lbl_timelen, 5,0,1,1)
-        layout_bottom.addWidget(le_timelen, 5,1,1,2)
-        layout_bottom.setSpacing(10)
-        layout_bottom.setContentsMargins(30,30,50,30)
+        lyo_bottom = QGridLayout()
+        lyo_bottom.addWidget(lbl_dlsetting,0,0,1,3)
+        lyo_bottom.addWidget(lbl_dlscripts,0,3,1,2)
+        lyo_bottom.addWidget(lbl_stalist, 1,0,1,1)
+        lyo_bottom.addWidget(le_stalist, 1,1,1,1)
+        lyo_bottom.addWidget(browse_stalist, 1,2,1,1)
+        lyo_bottom.addWidget(chb_obspy,1,3,1,1)
+        lyo_bottom.addWidget(lbl_obspy,1,4,1,1)
+        lyo_bottom.addWidget(chb_fetch,2,3,1,1)
+        lyo_bottom.addWidget(lbl_fetch,2,4,1,1)
+        lyo_bottom.addWidget(lbl_stameta, 2,0,1,1)
+        lyo_bottom.addWidget(le_stameta, 2,1,1,1)
+        lyo_bottom.addWidget(browse_stameta, 2,2,1,1)
+        lyo_bottom.addWidget(lbl_stalocs, 3,0,1,1)
+        lyo_bottom.addWidget(le_stalocs, 3,1,1,2)
+        lyo_bottom.addWidget(lbl_stachns, 4,0,1,1)
+        lyo_bottom.addWidget(le_stachns, 4,1,1,2)
+        lyo_bottom.addWidget(lbl_timelen, 5,0,1,1)
+        lyo_bottom.addWidget(le_timelen, 5,1,1,2)
+        lyo_bottom.setSpacing(10)
+        lyo_bottom.setContentsMargins(30,30,50,30)
 
         self.layout = QVBoxLayout()
-        self.layout.addLayout(layout_datacenters)
-        self.layout.addLayout(layout_bottom)
+        self.layout.addLayout(lyo_datacenters)
+        self.layout.addLayout(lyo_bottom)
         self.setLayout(self.layout)
 
 
@@ -694,15 +696,32 @@ class MSEED_to_SAC(QWidget):
             icon_remove = icon_remove.replace('\\','/')
             icon_remove_hover = icon_remove_hover.replace('\\','/')
 
-        self.layout = QVBoxLayout()
+        
+        self.le_input_mseeds = QLineEdit()
+        self.le_input_mseeds.setPlaceholderText("Full path to input MSEED dataset dir")   
+        self.browse_input_mseeds = MyDialog(type=3)
+        self.le_output_sacs = QLineEdit()
+        self.le_output_sacs.setPlaceholderText("Full path to input/output SAC dataset dir")
+        self.browse_output_sacs = MyDialog(type=3)
+
+        self.lyo_top = QGridLayout()
+        self.lyo_top.addWidget(QLabel("Input MSEED dataset dir:"), 0,0)
+        self.lyo_top.addWidget(self.le_input_mseeds, 0,1)
+        self.lyo_top.addWidget(self.browse_input_mseeds, 0,2)
+        self.lyo_top.addWidget(QLabel("Input/output SAC dataset dir:"), 1,0)
+        self.lyo_top.addWidget(self.le_output_sacs, 1,1)
+        self.lyo_top.addWidget(self.browse_output_sacs, 1,2)
+        self.lyo_top.setContentsMargins(10,0,10,0)
+
+
         self.scroll = QScrollArea()
         self.scroll.setFrameShape(QFrame.Box)
         self.scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.scroll.setWidgetResizable(True)
         self.scroll_widget = QWidget()
-        self.procs_mseed2sac_layout = QVBoxLayout(self.scroll_widget)
-        self.procs_mseed2sac_layout.setAlignment(Qt.AlignTop)
+        self.lyo_procs_mseed2sac = QVBoxLayout(self.scroll_widget)
+        self.lyo_procs_mseed2sac.setAlignment(Qt.AlignTop)
         self.scroll.setWidget(self.scroll_widget)
         self.add_rem_btns_mseed2sac = QWidget()
         self.add_rem_btns_mseed2sac.setObjectName("add_rem_btns_mseed2sac")
@@ -740,15 +759,18 @@ class MSEED_to_SAC(QWidget):
         ''' %(icon_remove, icon_remove_hover)
         self.btn_mseed2sac_remove.setStyleSheet(qss_code)
 
-        self.layout_buttons = QHBoxLayout()
-        self.layout_buttons.addWidget(self.btn_mseed2sac_remove)
-        self.layout_buttons.addWidget(self.btn_mseed2sac_add)
-        self.layout_buttons.setAlignment(Qt.AlignCenter)
-        self.add_rem_btns_mseed2sac.setLayout(self.layout_buttons)
+        self.lyo_buttons = QHBoxLayout()
+        self.lyo_buttons.addWidget(self.btn_mseed2sac_remove)
+        self.lyo_buttons.addWidget(self.btn_mseed2sac_add)
+        self.lyo_buttons.setAlignment(Qt.AlignCenter)
+        self.add_rem_btns_mseed2sac.setLayout(self.lyo_buttons)
+
+        self.layout = QVBoxLayout()
+        self.layout.addLayout(self.lyo_top)
         self.layout.addWidget(self.scroll)
         self.layout.addWidget(self.add_rem_btns_mseed2sac)
-        self.layout.setSpacing(0)
-        self.layout.setContentsMargins(0,0,0,0)
+        self.layout.setSpacing(10)
+        self.layout.setContentsMargins(10,20,10,10)
         self.setLayout(self.layout)
 
         # button signals and slots
@@ -756,21 +778,67 @@ class MSEED_to_SAC(QWidget):
         self.btn_mseed2sac_remove.clicked.connect(lambda: self.remove_proc())
 
     def proc_widget(self):
-        return QFrame()
+        # self.setAutoFillBackground(True)
+        # palette = self.palette()
+        # palette.setColor(QPalette.Window, QColor(color))
+        # self.setPalette(palette)
+        proc = QFrame()
+        # proc_height = "180px";
+        # proc.setFixedHeight(180)
+        # proc.setObjectName("proc_widget")
+        # proc.setStyleSheet("#proc_widget QFrame {background-color: #CDCDCD; min-height: %s; max-height: %s; border-radius: 10px; margin: 3px; margin-right: 5px}" %(proc_height, proc_height))
+
+        proc_left = QFrame()
+        # proc_left.setStyleSheet("max-width: 200px")
+        proc_right = QFrame()
+
+        cmb_proc = QComboBox()
+        cmb_proc.setPlaceholderText("text")
+        cmb_proc.addItem("---choose process---")
+        cmb_proc.addItem("MSEED to SAC")
+        cmb_proc.addItem("Remove extra channels")
+        cmb_proc.addItem("Decimate")
+        cmb_proc.addItem("Cut seismograms")
+        cmb_proc.addItem("Remove response")
+        cmb_proc.addItem("Bandpass filter")
+
+        lyo_proc_left = QGridLayout()
+        lyo_proc_left.addWidget(cmb_proc, 0,0,1,2)
+        lyo_proc_left.addWidget(QLabel(), 1,0,1,2)
+        lyo_proc_left.setAlignment(Qt.AlignLeft)
+
+        lyo_proc_right = QVBoxLayout()
+
+        proc_left.setLayout(lyo_proc_left)
+        proc_right.setLayout(lyo_proc_right)
+
+        lyo_proc = QHBoxLayout()
+        lyo_proc.addWidget(proc_left)
+        lyo_proc.addWidget(proc_right)
+        lyo_proc.setContentsMargins(20,20,20,20)
+        # lyo_proc.setContentsMargins(0,0,0,0)
+
+        proc.setLayout(lyo_proc)
+
+        palette = QPalette()
+        palette.setColor(QPalette.Window, QColor("#FF0000"))
+        proc.setAutoFillBackground(True)
+        proc.setPalette(palette)
+
+        return proc
+
 
     def add_proc(self):
-        nprocs = self.procs_mseed2sac_layout.count()
+        nprocs = self.lyo_procs_mseed2sac.count()
         widget_name = f"proc_{nprocs}"
-        self.proc = self.proc_widget()
-        self.proc.setObjectName(widget_name)
-        proc_height = "180px";
-        self.proc.setStyleSheet("*{ background-color: #CDCDCD; min-height: %s; max-height: %s; border-radius: 10px; margin: 3px; margin-right: 5px}" %(proc_height, proc_height))
-        self.procs_mseed2sac_layout.addWidget(self.proc)
+        proc = self.proc_widget()
+        proc.setObjectName(widget_name)
+        self.lyo_procs_mseed2sac.addWidget(proc)
 
     def remove_proc(self):
-        nprocs = int(self.procs_mseed2sac_layout.count())
+        nprocs = int(self.lyo_procs_mseed2sac.count())
         if nprocs:
-            widget_obj = self.procs_mseed2sac_layout.itemAt(nprocs - 1).widget()
+            widget_obj = self.lyo_procs_mseed2sac.itemAt(nprocs - 1).widget()
             widget_obj.deleteLater()
 
 
@@ -778,6 +846,7 @@ class MSEED_to_SAC(QWidget):
 class SAC_to_NCF(MSEED_to_SAC):
     def __init__(self):
         super().__init__()
+
 
 class NCF_to_EGF(MSEED_to_SAC):
     def __init__(self):
@@ -1004,12 +1073,6 @@ class MainWindow(QMainWindow):
         if sys.platform == "win32":
             icon_logo = icon_logo.replace('\\','/')
         # menu
-        icon_test = os.path.join(images_dir,"test.svg")
-        icon_test_hover = os.path.join(images_dir,"test.svg")
-        if sys.platform == "win32":
-            icon_test = icon_test.replace('\\','/')
-            icon_test_hover = icon_test_hover.replace('\\','/')
-        # menu
         icon_menu = os.path.join(images_dir,"menu.svg")
         icon_menu_hover = os.path.join(images_dir,"menu_hover.svg")
         if sys.platform == "win32":
@@ -1018,33 +1081,43 @@ class MainWindow(QMainWindow):
         # setting
         self.icon_setting = os.path.join(images_dir,"setting.svg")
         self.icon_setting_hover = os.path.join(images_dir,"setting_hover.svg")
+        self.icon_setting_selected = os.path.join(images_dir,"setting_selected.svg")
         if sys.platform == "win32":
             self.icon_setting = self.icon_setting.replace('\\','/')
             self.icon_setting_hover = self.icon_setting_hover.replace('\\','/')
+            self.icon_setting_selected = self.icon_setting_selected.replace('\\','/')
         # download            
         self.icon_download = os.path.join(images_dir,"download.svg")
         self.icon_download_hover = os.path.join(images_dir,"download_hover.svg")
+        self.icon_download_selected = os.path.join(images_dir,"download_selected.svg")
         if sys.platform == "win32":
             self.icon_download = self.icon_download.replace('\\','/')
             self.icon_download_hover = self.icon_download_hover.replace('\\','/')
+            self.icon_download_selected = self.icon_download_selected.replace('\\','/')
         # mseed2sac
         self.icon_mseed2sac = os.path.join(images_dir,"mseed2sac.svg")
         self.icon_mseed2sac_hover = os.path.join(images_dir,"mseed2sac_hover.svg")
+        self.icon_mseed2sac_selected = os.path.join(images_dir,"mseed2sac_selected.svg")
         if sys.platform == "win32":
             self.icon_mseed2sac = self.icon_mseed2sac.replace('\\','/')
             self.icon_mseed2sac_hover = self.icon_mseed2sac_hover.replace('\\','/')
+            self.icon_mseed2sac_selected = self.icon_mseed2sac_selected.replace('\\','/')
         # sac2ncf
         self.icon_sac2ncf = os.path.join(images_dir,"sac2ncf.svg")
         self.icon_sac2ncf_hover = os.path.join(images_dir,"sac2ncf_hover.svg")
+        self.icon_sac2ncf_selected = os.path.join(images_dir,"sac2ncf_selected.svg")
         if sys.platform == "win32":
             self.icon_sac2ncf = self.icon_sac2ncf.replace('\\','/')
             self.icon_sac2ncf_hover = self.icon_sac2ncf_hover.replace('\\','/')
+            self.icon_sac2ncf_selected = self.icon_sac2ncf_selected.replace('\\','/')
         # ncf2egf
         self.icon_ncf2egf = os.path.join(images_dir,"ncf2egf.svg")
         self.icon_ncf2egf_hover = os.path.join(images_dir,"ncf2egf_hover.svg")
+        self.icon_ncf2egf_selected = os.path.join(images_dir,"ncf2egf_selected.svg")
         if sys.platform == "win32":
             self.icon_ncf2egf = self.icon_ncf2egf.replace('\\','/')
             self.icon_ncf2egf_hover = self.icon_ncf2egf_hover.replace('\\','/')
+            self.icon_ncf2egf_selected = self.icon_ncf2egf_selected.replace('\\','/')
         # terminal
         icon_terminal = os.path.join(images_dir,"terminal.svg")
         icon_terminal_hover = os.path.join(images_dir,"terminal_hover.svg")
@@ -1075,6 +1148,7 @@ class MainWindow(QMainWindow):
         if sys.platform == "win32":
             icon_revert = icon_revert.replace('\\','/')
             icon_revert_hover = icon_revert_hover.replace('\\','/')
+        
         # APPLY BUTTON QSS
         self.set_btn_qss(btn_logo, "btn_logo", (50, 50), icon_logo, icon_logo, 3,'#DDDDF9')
         self.set_btn_qss(btn_menu, "btn_menu", (176,40), icon_menu, icon_menu_hover, 1,'#DDDDF9')
@@ -1102,6 +1176,9 @@ class MainWindow(QMainWindow):
         btn_ncf2egf.clicked.connect(lambda: self.selected_widget_tab(4))
         btn_menu.clicked.connect(self.toggle_menu)
 
+
+        #### EXTRA STEPS BEFORE RUNNIG THE APP ####
+
         # fix failing to update self on Mac!
         QCoreApplication.processEvents()
         self.header_left.setStyleSheet("max-width: 190px")
@@ -1109,39 +1186,44 @@ class MainWindow(QMainWindow):
         self.toggle_menu()
 
         # select widget 0
-        self.selected_widget_tab(0)
+        self.selected_widget_tab(2)
+        self.body_main.setCurrentIndex(2)
+
+        # hide terminal button (for the first versions)
+        btn_terminal.setVisible(False)
+
 
     def selected_widget_tab(self, widget_index): # apply proper qss to the selected widget button
         if widget_index == 0:
-            self.set_btn_qss(btn_setting, "btn_setting", (176,40), self.icon_setting_hover, self.icon_setting_hover, 1,'#DDDDF9')
+            self.set_btn_qss(btn_setting, "btn_setting", (176,40), self.icon_setting_selected, self.icon_setting_hover, 1,'#DDDDF9')
             self.set_btn_qss(btn_download, "btn_download", (176,40), self.icon_download, self.icon_download_hover, 1,'#DDDDF9')
             self.set_btn_qss(btn_mseed2sac, "btn_mseed2sac", (176,40), self.icon_mseed2sac, self.icon_mseed2sac_hover, 1,'#DDDDF9')
             self.set_btn_qss(btn_sac2ncf, "btn_sac2ncf", (176,40), self.icon_sac2ncf, self.icon_sac2ncf_hover, 1,'#DDDDF9')
             self.set_btn_qss(btn_ncf2egf, "btn_ncf2egf", (176,40), self.icon_ncf2egf, self.icon_ncf2egf_hover, 1,'#DDDDF9')
         elif widget_index == 1:
             self.set_btn_qss(btn_setting, "btn_setting", (176,40), self.icon_setting, self.icon_setting_hover, 1,'#DDDDF9')
-            self.set_btn_qss(btn_download, "btn_download", (176,40), self.icon_download_hover, self.icon_download_hover, 1,'#DDDDF9')
+            self.set_btn_qss(btn_download, "btn_download", (176,40), self.icon_download_selected, self.icon_download_hover, 1,'#DDDDF9')
             self.set_btn_qss(btn_mseed2sac, "btn_mseed2sac", (176,40), self.icon_mseed2sac, self.icon_mseed2sac_hover, 1,'#DDDDF9')
             self.set_btn_qss(btn_sac2ncf, "btn_sac2ncf", (176,40), self.icon_sac2ncf, self.icon_sac2ncf_hover, 1,'#DDDDF9')
             self.set_btn_qss(btn_ncf2egf, "btn_ncf2egf", (176,40), self.icon_ncf2egf, self.icon_ncf2egf_hover, 1,'#DDDDF9')
         elif widget_index == 2:
             self.set_btn_qss(btn_setting, "btn_setting", (176,40), self.icon_setting, self.icon_setting_hover, 1,'#DDDDF9')
             self.set_btn_qss(btn_download, "btn_download", (176,40), self.icon_download, self.icon_download_hover, 1,'#DDDDF9')
-            self.set_btn_qss(btn_mseed2sac, "btn_mseed2sac", (176,40), self.icon_mseed2sac_hover, self.icon_mseed2sac_hover, 1,'#DDDDF9')
+            self.set_btn_qss(btn_mseed2sac, "btn_mseed2sac", (176,40), self.icon_mseed2sac_selected, self.icon_mseed2sac_hover, 1,'#DDDDF9')
             self.set_btn_qss(btn_sac2ncf, "btn_sac2ncf", (176,40), self.icon_sac2ncf, self.icon_sac2ncf_hover, 1,'#DDDDF9')
             self.set_btn_qss(btn_ncf2egf, "btn_ncf2egf", (176,40), self.icon_ncf2egf, self.icon_ncf2egf_hover, 1,'#DDDDF9')
         elif widget_index == 3:
             self.set_btn_qss(btn_setting, "btn_setting", (176,40), self.icon_setting, self.icon_setting_hover, 1,'#DDDDF9')
             self.set_btn_qss(btn_download, "btn_download", (176,40), self.icon_download, self.icon_download_hover, 1,'#DDDDF9')
             self.set_btn_qss(btn_mseed2sac, "btn_mseed2sac", (176,40), self.icon_mseed2sac, self.icon_mseed2sac_hover, 1,'#DDDDF9')
-            self.set_btn_qss(btn_sac2ncf, "btn_sac2ncf", (176,40), self.icon_sac2ncf_hover, self.icon_sac2ncf_hover, 1,'#DDDDF9')
+            self.set_btn_qss(btn_sac2ncf, "btn_sac2ncf", (176,40), self.icon_sac2ncf_selected, self.icon_sac2ncf_hover, 1,'#DDDDF9')
             self.set_btn_qss(btn_ncf2egf, "btn_ncf2egf", (176,40), self.icon_ncf2egf, self.icon_ncf2egf_hover, 1,'#DDDDF9')
         elif widget_index == 4:
             self.set_btn_qss(btn_setting, "btn_setting", (176,40), self.icon_setting, self.icon_setting_hover, 1,'#DDDDF9')
             self.set_btn_qss(btn_download, "btn_download", (176,40), self.icon_download, self.icon_download_hover, 1,'#DDDDF9')
             self.set_btn_qss(btn_mseed2sac, "btn_mseed2sac", (176,40), self.icon_mseed2sac, self.icon_mseed2sac_hover, 1,'#DDDDF9')
             self.set_btn_qss(btn_sac2ncf, "btn_sac2ncf", (176,40), self.icon_sac2ncf, self.icon_sac2ncf_hover, 1,'#DDDDF9')
-            self.set_btn_qss(btn_ncf2egf, "btn_ncf2egf", (176,40), self.icon_ncf2egf_hover, self.icon_ncf2egf_hover, 1,'#DDDDF9')
+            self.set_btn_qss(btn_ncf2egf, "btn_ncf2egf", (176,40), self.icon_ncf2egf_selected, self.icon_ncf2egf_hover, 1,'#DDDDF9')
         else:
             pass
 
