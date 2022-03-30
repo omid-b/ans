@@ -696,6 +696,10 @@ class MSEED_to_SAC(QWidget):
             icon_remove = icon_remove.replace('\\','/')
             icon_remove_hover = icon_remove_hover.replace('\\','/')
 
+        self.mseed2sac_proc_frames = []
+        self.mseed2sac_proc_types = []
+        self.mseed2sac_proc_methods = []
+        self.mseed2sac_proc_options = []
         
         self.le_input_mseeds = QLineEdit()
         self.le_input_mseeds.setAttribute(Qt.WA_MacShowFocusRect, 0)
@@ -722,8 +726,8 @@ class MSEED_to_SAC(QWidget):
         self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.scroll.setWidgetResizable(True)
         self.scroll_widget = QWidget()
-        self.lyo_procs_mseed2sac = QVBoxLayout(self.scroll_widget)
-        self.lyo_procs_mseed2sac.setAlignment(Qt.AlignTop)
+        self.lyo_mseed2sac_procs = QVBoxLayout(self.scroll_widget)
+        self.lyo_mseed2sac_procs.setAlignment(Qt.AlignTop)
         self.scroll.setWidget(self.scroll_widget)
         self.add_rem_btns_mseed2sac = QWidget()
         self.add_rem_btns_mseed2sac.setObjectName("add_rem_btns_mseed2sac")
@@ -776,31 +780,78 @@ class MSEED_to_SAC(QWidget):
         self.setLayout(self.layout)
 
         # button signals and slots
-        self.btn_mseed2sac_add.clicked.connect(lambda: self.add_proc())
-        self.btn_mseed2sac_remove.clicked.connect(lambda: self.remove_proc())
+        self.btn_mseed2sac_add.clicked.connect(self.add_proc)
+        self.btn_mseed2sac_remove.clicked.connect(self.remove_proc)
 
-    def proc_widget(self):
-        proc = QFrame()
-        nprocs = self.lyo_procs_mseed2sac.count()
-        proc.setObjectName(f"proc_{nprocs}")
+
+    def add_proc(self):
+        self.mseed2sac_proc_frames.append(self.proc_frame())
+        self.lyo_mseed2sac_procs.addWidget(self.mseed2sac_proc_frames[-1])
+
+
+    def remove_proc(self):
+        nprocs = len(self.mseed2sac_proc_frames)
+        print(nprocs)
+        if nprocs:
+            proc_frame_obj = self.lyo_mseed2sac_procs.itemAt(nprocs - 1).widget()
+            proc_frame_obj.deleteLater()
+            self.mseed2sac_proc_frames.pop()
+            self.mseed2sac_proc_types.pop()
+            self.mseed2sac_proc_methods.pop()
+            self.mseed2sac_proc_options.pop()
+
+    def proc_frame(self):
+        proc_frame = QFrame()
+        pid = len(self.mseed2sac_proc_frames)
+        proc_frame.setObjectName(f"proc_frame_{pid}")
 
         # left panel
-        lbl_proc_num = QLabel(f"Process #{nprocs+1}:")
-        lbl_proc_num.setObjectName(f"lbl_proc_num_{nprocs}")
-        cmb_proc = QComboBox()
-        cmb_proc.addItem("---- Select ----") # proc_stack 0
-        cmb_proc.addItem("MSEED to SAC") # # proc_stack 1
-        cmb_proc.addItem("Remove extra channels") # proc_stack 2
-        cmb_proc.addItem("Decimate") # proc_stack 3
-        cmb_proc.addItem("Cut seismograms") # proc_stack 4
-        cmb_proc.addItem("Remove instrument response") # proc_stack 5
-        cmb_proc.addItem("Bandpass filter") # proc_stack 6
         proc_left = QFrame()
-        proc_left.setObjectName(f"proc_left_{nprocs}")
-        lyo_proc_left = QVBoxLayout()
-        lyo_proc_left.addWidget(lbl_proc_num)
-        lyo_proc_left.addWidget(cmb_proc)
-        lyo_proc_left.setAlignment(Qt.AlignTop)
+        proc_left.setObjectName(f"proc_left_{pid}")
+        txt_select = "------------ Select ------------"
+        txt_mseed2sac = "  MSEED to SAC"
+        txt_remchn = "  Remove extra channels"
+        txt_dec = "  Decimate"
+        txt_cut = "  Cut seismograms"
+        txt_remresp = "  Remove response"
+        txt_bandpass = "  Bandpass filter"
+        lbl_proc_num = QLabel(f"Process #{pid + 1}:")
+        lbl_proc_num.setObjectName(f"lbl_proc_num_{pid}")
+
+        self.mseed2sac_proc_types.append(QComboBox())
+        self.mseed2sac_proc_types[-1].setEditable(True)
+        self.mseed2sac_proc_types[-1].lineEdit().setAlignment(Qt.AlignCenter)
+        self.mseed2sac_proc_types[-1].addItem(txt_select)
+        self.mseed2sac_proc_types[-1].addItem(txt_mseed2sac)
+        self.mseed2sac_proc_types[-1].addItem(txt_remchn)
+        self.mseed2sac_proc_types[-1].addItem(txt_dec)
+        self.mseed2sac_proc_types[-1].addItem(txt_cut)
+        self.mseed2sac_proc_types[-1].addItem(txt_remresp)
+        self.mseed2sac_proc_types[-1].addItem(txt_bandpass)
+
+        self.mseed2sac_proc_methods.append(QStackedWidget())
+        self.mseed2sac_proc_methods[-1].addWidget(QWidget())
+        self.mseed2sac_proc_methods[-1].addWidget(self.mseed2sac_methods())
+        self.mseed2sac_proc_methods[-1].addWidget(self.remchn_methods())
+        self.mseed2sac_proc_methods[-1].addWidget(self.dec_methods())
+        self.mseed2sac_proc_methods[-1].addWidget(self.cut_methods())
+        self.mseed2sac_proc_methods[-1].addWidget(self.remresp_methods())
+        self.mseed2sac_proc_methods[-1].addWidget(self.bandpass_methods())
+
+        self.mseed2sac_proc_options.append(QStackedWidget())
+        self.mseed2sac_proc_options[-1].addWidget(QWidget())
+        self.mseed2sac_proc_options[-1].addWidget(self.mseed2sac_options())
+        self.mseed2sac_proc_options[-1].addWidget(self.remchn_options())
+        self.mseed2sac_proc_options[-1].addWidget(self.dec_options())
+        self.mseed2sac_proc_options[-1].addWidget(self.cut_options())
+        self.mseed2sac_proc_options[-1].addWidget(self.remresp_options())
+        self.mseed2sac_proc_options[-1].addWidget(self.bandpass_options())
+
+        lyo_proc_left = QGridLayout()
+        lyo_proc_left.addWidget(lbl_proc_num, 0,0,1,1)
+        lyo_proc_left.addWidget(self.mseed2sac_proc_types[-1], 0,1,1,1)
+        lyo_proc_left.addWidget(self.mseed2sac_proc_methods[-1], 1,0,1,2)
+        lyo_proc_left.setContentsMargins(5,20,10,0)
         proc_left.setLayout(lyo_proc_left)
 
         # right panel
@@ -810,34 +861,234 @@ class MSEED_to_SAC(QWidget):
 
         # setup final layout
         lyo_proc = QHBoxLayout()
-        lbl_proc_height = QLabel()
-        lbl_proc_height.setFixedSize(QSize(1,180))
         lyo_proc.addWidget(proc_left)
         lyo_proc.addWidget(proc_right)
-        lyo_proc.addWidget(lbl_proc_height)
-        lyo_proc.setContentsMargins(5,5,5,5)
-        proc.setLayout(lyo_proc)
+        proc_frame.setLayout(lyo_proc)
+
+
+        # signals and slots
+        self.mseed2sac_proc_types[-1].currentIndexChanged.connect(lambda: self.ptype_changed(pid))
 
         # apply stylesheet
-        proc.setStyleSheet("#%s {border: 3px solid #CDCDCD; border-radius: 15px;}" %(f"proc_{nprocs}"))
-        proc_left.setStyleSheet("#%s {max-width:220px; border-right: 3px solid #CDCDCD;}" %(f"proc_left_{nprocs}"))
-        lbl_proc_num.setStyleSheet("#%s  {color:#999; margin-bottom: 40px}" %(f"lbl_proc_num_{nprocs}"))
-        return proc
+        proc_frame.setStyleSheet("#%s {max-height: 180px; min-height: 180px;border: 3px solid #CDCDCD; border-radius: 15px; margin-bottom: 10px;}" %(f"proc_frame_{pid}"))
+        proc_left.setStyleSheet("#%s {min-width:250px; max-width:250px; border-right: 2px solid #DDD;}" %(f"proc_left_{pid}"))
+        lbl_proc_num.setStyleSheet("#%s  {color:#999;}" %(f"lbl_proc_num_{pid}"))
+
+        return proc_frame
 
 
-    def add_proc(self):
-        # nprocs = self.lyo_procs_mseed2sac.count()
-        # widget_name = f"proc_{nprocs}"
-        proc = self.proc_widget()
-        # proc.setObjectName(widget_name)
-        # proc.setStyleSheet("#%s {border: 3px solid #CDCDCD; border-radius: 15px;}" %(widget_name))
-        self.lyo_procs_mseed2sac.addWidget(proc)
+    def ptype_changed(self, pid):
+        if self.mseed2sac_proc_types[pid].currentIndex() == 1:
+            self.mseed2sac_proc_methods[pid].setCurrentIndex(1)
+        elif self.mseed2sac_proc_types[pid].currentIndex() == 2:
+            self.mseed2sac_proc_methods[pid].setCurrentIndex(2)
+        elif self.mseed2sac_proc_types[pid].currentIndex() == 3:
+            self.mseed2sac_proc_methods[pid].setCurrentIndex(3)
+        elif self.mseed2sac_proc_types[pid].currentIndex() == 4:
+            self.mseed2sac_proc_methods[pid].setCurrentIndex(4)
+        elif self.mseed2sac_proc_types[pid].currentIndex() == 5:
+            self.mseed2sac_proc_methods[pid].setCurrentIndex(5)
+        elif self.mseed2sac_proc_types[pid].currentIndex() == 6:
+            self.mseed2sac_proc_methods[pid].setCurrentIndex(6)
+        else:
+            self.mseed2sac_proc_methods[pid].setCurrentIndex(0)
 
-    def remove_proc(self):
-        nprocs = int(self.lyo_procs_mseed2sac.count())
-        if nprocs:
-            widget_obj = self.lyo_procs_mseed2sac.itemAt(nprocs - 1).widget()
-            widget_obj.deleteLater()
+    # def proc_frame(self):
+    #     proc = QFrame()
+    #     nprocs = self.lyo_mseed2sac_procs.count()
+    #     proc.setObjectName(f"proc_{nprocs}")
+
+    #     # left panel
+    #     proc_left = QFrame()
+    #     proc_left.setObjectName(f"proc_left_{nprocs}")
+    #     txt_select = "---- Select ----"
+    #     txt_mseed2sac = "MSEED to SAC"
+    #     txt_remchn = "Remove extra channels"
+    #     txt_dec = "Decimate"
+    #     txt_cut = "Cut seismograms"
+    #     txt_remresp = "Remove instrument response"
+    #     txt_bandpass = "Bandpass filter"
+    #     lbl_proc_num = QLabel(f"Process #{nprocs+1}:")
+    #     lbl_proc_num.setObjectName(f"lbl_proc_num_{nprocs}")
+    #     self.cmb_proc = QComboBox()
+    #     self.cmb_proc.setEditable(True)
+    #     self.cmb_proc.lineEdit().setAlignment(Qt.AlignCenter)
+    #     self.cmb_proc.addItem(txt_select) # proc_stack 0
+    #     self.cmb_proc.addItem(txt_mseed2sac) # # proc_stack 1
+    #     self.cmb_proc.addItem(txt_remchn) # proc_stack 2
+    #     self.cmb_proc.addItem(txt_dec) # proc_stack 3
+    #     self.cmb_proc.addItem(txt_cut) # proc_stack 4
+    #     self.cmb_proc.addItem(txt_remresp) # proc_stack 5
+    #     self.cmb_proc.addItem(txt_bandpass) # proc_stack 6
+    #     self.cmb_proc.currentIndexChanged.connect(self.proc_changed)
+    #     self.stack_mseed2sac_methods = QStackedWidget()
+    #     self.stack_mseed2sac_methods.addWidget(QWidget())
+    #     self.stack_mseed2sac_methods.addWidget(self.mseed2sac_methods())
+    #     self.stack_mseed2sac_methods.addWidget(self.remchn_methods())
+    #     self.stack_mseed2sac_methods.addWidget(self.dec_methods())
+    #     self.stack_mseed2sac_methods.addWidget(self.cut_methods())
+    #     self.stack_mseed2sac_methods.addWidget(self.remresp_methods())
+    #     self.stack_mseed2sac_methods.addWidget(self.bandpass_methods())
+
+    #     lyo_proc_left = QVBoxLayout()
+    #     lyo_proc_left.addWidget(lbl_proc_num)
+    #     lyo_proc_left.addWidget(self.cmb_proc)
+    #     lyo_proc_left.addWidget(self.stack_mseed2sac_methods)
+    #     lyo_proc_left.setAlignment(Qt.AlignVCenter)
+    #     proc_left.setLayout(lyo_proc_left)
+
+    #     # right panel
+    #     proc_right = QFrame()
+    #     lyo_proc_right = QVBoxLayout()
+    #     proc_right.setLayout(lyo_proc_right)
+
+    #     # setup final layout
+    #     lyo_proc = QHBoxLayout()
+    #     lbl_proc_height = QLabel()
+    #     lbl_proc_height.setFixedSize(QSize(1,180))
+    #     lyo_proc.addWidget(proc_left)
+    #     lyo_proc.addWidget(proc_right)
+    #     lyo_proc.addWidget(lbl_proc_height)
+    #     lyo_proc.setContentsMargins(5,5,5,5)
+    #     proc.setLayout(lyo_proc)
+
+    #     # apply stylesheet
+    #     proc.setStyleSheet("#%s {border: 3px solid #CDCDCD; border-radius: 15px; margin-bottom: 10px;}" %(f"proc_{nprocs}"))
+    #     # proc_left.setStyleSheet("#%s {min-width:50px; max-width:50px; border-right: 2px solid #DDD;}" %(f"proc_left_{nprocs}"))
+    #     lbl_proc_num.setStyleSheet("#%s  {color:#999;}" %(f"lbl_proc_num_{nprocs}"))
+    #     return proc
+
+
+    def mseed2sac_methods(self):
+        mseed2sac_methods = QWidget()
+        lbl_mseed2sac_methods = QLabel("Method:")
+        lbl_mseed2sac_methods.setObjectName("lbl_mseed2sac_methods")
+        lbl_mseed2sac_methods.setStyleSheet("#%s {color:#999;}" %("lbl_mseed2sac_methods"))
+        cmb_mseed2sac_methods = QComboBox()
+        cmb_mseed2sac_methods.setEditable(True)
+        cmb_mseed2sac_methods.lineEdit().setAlignment(Qt.AlignCenter)
+        # method: "Obspy + SAC"
+        cmb_mseed2sac_methods.addItem("Obspy + SAC")
+        # channels
+        lbl_mseed2sac_channels = QLabel("Channels:")
+        lbl_mseed2sac_channels.setObjectName("lbl_mseed2sac_channels")
+        lbl_mseed2sac_channels.setStyleSheet("#%s {color:#999;}" %("lbl_mseed2sac_channels"))
+        le_mseed2sac_channels = QLineEdit()
+        le_mseed2sac_channels.setObjectName("le_mseed2sac_channels")
+        le_mseed2sac_channels.setPlaceholderText("Separated by space")
+        lyo_mseed2sac_methods = QGridLayout()
+        lyo_mseed2sac_methods.addWidget(lbl_mseed2sac_methods, 0,0)
+        lyo_mseed2sac_methods.addWidget(cmb_mseed2sac_methods, 0,1)
+        lyo_mseed2sac_methods.addWidget(lbl_mseed2sac_channels, 1,0)
+        lyo_mseed2sac_methods.addWidget(le_mseed2sac_channels, 1,1)
+        mseed2sac_methods.setLayout(lyo_mseed2sac_methods)
+        return mseed2sac_methods
+
+    def mseed2sac_options(self):
+        mseed2sac_options = QStackedWidget()
+        # method 1: "Obspy + SAC"
+        method1_mseed2sac_options = QLabel("mseed2sac_options: method 1")
+
+        mseed2sac_options.addWidget(method1_mseed2sac_options)
+        return mseed2sac_options
+
+
+    def remchn_methods(self):
+        remchn_methods = QWidget()
+        lbl_remchn_methods = QLabel("Method:")
+        lbl_remchn_methods.setObjectName("lbl_remchn_methods")
+        lbl_remchn_methods.setStyleSheet("#%s {color:#999}" %("lbl_remchn_methods"))
+        cmb_remchn_methods = QComboBox()
+        cmb_remchn_methods.setEditable(True)
+        cmb_remchn_methods.lineEdit().setAlignment(Qt.AlignCenter)
+        cmb_remchn_methods.addItem("Python script")
+        lyo_remchn_methods = QHBoxLayout()
+        lyo_remchn_methods.addWidget(lbl_remchn_methods)
+        lyo_remchn_methods.addWidget(cmb_remchn_methods)
+        remchn_methods.setLayout(lyo_remchn_methods)
+        return remchn_methods
+
+    def remchn_options(self):
+        return QLabel("remchn options")
+
+
+    def dec_methods(self):
+        dec_methods = QWidget()
+        lbl_dec_methods = QLabel("Method:")
+        lbl_dec_methods.setObjectName("lbl_dec_methods")
+        lbl_dec_methods.setStyleSheet("#%s {color:#999}" %("lbl_dec_methods"))
+        cmb_dec_methods = QComboBox()
+        cmb_dec_methods.setEditable(True)
+        cmb_dec_methods.lineEdit().setAlignment(Qt.AlignCenter)
+        cmb_dec_methods.addItem("SAC: decimate")
+        lyo_dec_methods = QHBoxLayout()
+        lyo_dec_methods.addWidget(lbl_dec_methods)
+        lyo_dec_methods.addWidget(cmb_dec_methods)
+        dec_methods.setLayout(lyo_dec_methods)
+        return dec_methods
+
+    def dec_options(self):
+        return QLabel("dec options")
+
+
+    def cut_methods(self):
+        cut_methods = QWidget()
+        lbl_cut_methods = QLabel("Method:")
+        lbl_cut_methods.setObjectName("lbl_cut_methods")
+        lbl_cut_methods.setStyleSheet("#%s {color:#999}" %("lbl_cut_methods"))
+        cmb_cut_methods = QComboBox()
+        cmb_cut_methods.setEditable(True)
+        cmb_cut_methods.lineEdit().setAlignment(Qt.AlignCenter)
+        cmb_cut_methods.addItem("SAC: cut")
+        lyo_cut_methods = QHBoxLayout()
+        lyo_cut_methods.addWidget(lbl_cut_methods)
+        lyo_cut_methods.addWidget(cmb_cut_methods)
+        cut_methods.setLayout(lyo_cut_methods)
+        return cut_methods
+
+    def cut_options(self):
+        return QLabel("cut options")
+
+
+    def remresp_methods(self):
+        remresp_methods = QWidget()
+        lbl_remresp_methods = QLabel("Method:")
+        lbl_remresp_methods.setObjectName("lbl_remresp_methods")
+        lbl_remresp_methods.setStyleSheet("#%s {color:#999}" %("lbl_remresp_methods"))
+        cmb_remresp_methods = QComboBox()
+        cmb_remresp_methods.setEditable(True)
+        cmb_remresp_methods.lineEdit().setAlignment(Qt.AlignCenter)
+        cmb_remresp_methods.addItem(" ObsPy: remove_response")
+        lyo_remresp_methods = QHBoxLayout()
+        lyo_remresp_methods.addWidget(lbl_remresp_methods)
+        lyo_remresp_methods.addWidget(cmb_remresp_methods)
+        remresp_methods.setLayout(lyo_remresp_methods)
+        return remresp_methods
+
+    def remresp_options(self):
+        return QLabel("remresp options")
+
+
+    def bandpass_methods(self):
+        bandpass_methods = QWidget()
+        lbl_bandpass_methods = QLabel("Method:")
+        lbl_bandpass_methods.setObjectName("lbl_bandpass_methods")
+        lbl_bandpass_methods.setStyleSheet("#%s {color:#999}" %("lbl_bandpass_methods"))
+        cmb_bandpass_methods = QComboBox()
+        cmb_bandpass_methods.setEditable(True)
+        cmb_bandpass_methods.lineEdit().setAlignment(Qt.AlignCenter)
+        cmb_bandpass_methods.addItem("SAC: bp")
+        lyo_bandpass_methods = QHBoxLayout()
+        lyo_bandpass_methods.addWidget(lbl_bandpass_methods)
+        lyo_bandpass_methods.addWidget(cmb_bandpass_methods)
+        bandpass_methods.setLayout(lyo_bandpass_methods)
+        return bandpass_methods
+
+    def bandpass_options(self):
+        return QLabel("bandpass options")
+
+
+
 
 
 
