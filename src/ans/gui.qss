@@ -1,7 +1,7 @@
 
 QFrame{
     background-color: #EEE;
-    border: 1px dashed red;
+    /*border: 1px dashed red;*/
 }
 
 

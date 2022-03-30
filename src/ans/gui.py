@@ -698,9 +698,11 @@ class MSEED_to_SAC(QWidget):
 
         
         self.le_input_mseeds = QLineEdit()
+        self.le_input_mseeds.setAttribute(Qt.WA_MacShowFocusRect, 0)
         self.le_input_mseeds.setPlaceholderText("Full path to input MSEED dataset dir")   
         self.browse_input_mseeds = MyDialog(type=3)
         self.le_output_sacs = QLineEdit()
+        self.le_output_sacs.setAttribute(Qt.WA_MacShowFocusRect, 0)
         self.le_output_sacs.setPlaceholderText("Full path to input/output SAC dataset dir")
         self.browse_output_sacs = MyDialog(type=3)
 
@@ -778,61 +780,57 @@ class MSEED_to_SAC(QWidget):
         self.btn_mseed2sac_remove.clicked.connect(lambda: self.remove_proc())
 
     def proc_widget(self):
-        # self.setAutoFillBackground(True)
-        # palette = self.palette()
-        # palette.setColor(QPalette.Window, QColor(color))
-        # self.setPalette(palette)
         proc = QFrame()
-        # proc_height = "180px";
-        # proc.setFixedHeight(180)
-        # proc.setObjectName("proc_widget")
-        # proc.setStyleSheet("#proc_widget QFrame {background-color: #CDCDCD; min-height: %s; max-height: %s; border-radius: 10px; margin: 3px; margin-right: 5px}" %(proc_height, proc_height))
+        nprocs = self.lyo_procs_mseed2sac.count()
+        proc.setObjectName(f"proc_{nprocs}")
 
-        proc_left = QFrame()
-        # proc_left.setStyleSheet("max-width: 200px")
-        proc_right = QFrame()
-
+        # left panel
+        lbl_proc_num = QLabel(f"Process #{nprocs+1}:")
+        lbl_proc_num.setObjectName(f"lbl_proc_num_{nprocs}")
         cmb_proc = QComboBox()
-        cmb_proc.setPlaceholderText("text")
-        cmb_proc.addItem("---choose process---")
-        cmb_proc.addItem("MSEED to SAC")
-        cmb_proc.addItem("Remove extra channels")
-        cmb_proc.addItem("Decimate")
-        cmb_proc.addItem("Cut seismograms")
-        cmb_proc.addItem("Remove response")
-        cmb_proc.addItem("Bandpass filter")
-
-        lyo_proc_left = QGridLayout()
-        lyo_proc_left.addWidget(cmb_proc, 0,0,1,2)
-        lyo_proc_left.addWidget(QLabel(), 1,0,1,2)
-        lyo_proc_left.setAlignment(Qt.AlignLeft)
-
-        lyo_proc_right = QVBoxLayout()
-
+        cmb_proc.addItem("---- Select ----") # proc_stack 0
+        cmb_proc.addItem("MSEED to SAC") # # proc_stack 1
+        cmb_proc.addItem("Remove extra channels") # proc_stack 2
+        cmb_proc.addItem("Decimate") # proc_stack 3
+        cmb_proc.addItem("Cut seismograms") # proc_stack 4
+        cmb_proc.addItem("Remove instrument response") # proc_stack 5
+        cmb_proc.addItem("Bandpass filter") # proc_stack 6
+        proc_left = QFrame()
+        proc_left.setObjectName(f"proc_left_{nprocs}")
+        lyo_proc_left = QVBoxLayout()
+        lyo_proc_left.addWidget(lbl_proc_num)
+        lyo_proc_left.addWidget(cmb_proc)
+        lyo_proc_left.setAlignment(Qt.AlignTop)
         proc_left.setLayout(lyo_proc_left)
+
+        # right panel
+        proc_right = QFrame()
+        lyo_proc_right = QVBoxLayout()
         proc_right.setLayout(lyo_proc_right)
 
+        # setup final layout
         lyo_proc = QHBoxLayout()
+        lbl_proc_height = QLabel()
+        lbl_proc_height.setFixedSize(QSize(1,180))
         lyo_proc.addWidget(proc_left)
         lyo_proc.addWidget(proc_right)
-        lyo_proc.setContentsMargins(20,20,20,20)
-        # lyo_proc.setContentsMargins(0,0,0,0)
-
+        lyo_proc.addWidget(lbl_proc_height)
+        lyo_proc.setContentsMargins(5,5,5,5)
         proc.setLayout(lyo_proc)
 
-        palette = QPalette()
-        palette.setColor(QPalette.Window, QColor("#FF0000"))
-        proc.setAutoFillBackground(True)
-        proc.setPalette(palette)
-
+        # apply stylesheet
+        proc.setStyleSheet("#%s {border: 3px solid #CDCDCD; border-radius: 15px;}" %(f"proc_{nprocs}"))
+        proc_left.setStyleSheet("#%s {max-width:220px; border-right: 3px solid #CDCDCD;}" %(f"proc_left_{nprocs}"))
+        lbl_proc_num.setStyleSheet("#%s  {color:#999; margin-bottom: 40px}" %(f"lbl_proc_num_{nprocs}"))
         return proc
 
 
     def add_proc(self):
-        nprocs = self.lyo_procs_mseed2sac.count()
-        widget_name = f"proc_{nprocs}"
+        # nprocs = self.lyo_procs_mseed2sac.count()
+        # widget_name = f"proc_{nprocs}"
         proc = self.proc_widget()
-        proc.setObjectName(widget_name)
+        # proc.setObjectName(widget_name)
+        # proc.setStyleSheet("#%s {border: 3px solid #CDCDCD; border-radius: 15px;}" %(widget_name))
         self.lyo_procs_mseed2sac.addWidget(proc)
 
     def remove_proc(self):
