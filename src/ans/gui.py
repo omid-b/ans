@@ -774,48 +774,58 @@ class MSEED_to_SAC(QWidget):
         self.layout.setContentsMargins(10,20,10,10)
         self.setLayout(self.layout)
 
-        self.mseed2sac_proc_frames = [] # pfid: process frame id
-        self.mseed2sac_proc_types = [] # ptid: process type id
+        self.lyo_mseed2sac_proc_left = []
+        self.mseed2sac_proc_frames = []  # pfid: process frame id
+        self.mseed2sac_proc_types = []   # ptype_index: process type id
         self.mseed2sac_proc_methods = [] # pmid: process method id
-        self.mseed2sac_proc_options = [] # poid: process option id
+
         # button signals and slots
-        self.btn_mseed2sac_add.clicked.connect(self.add_proc)
-        self.btn_mseed2sac_remove.clicked.connect(self.remove_proc)
+        self.btn_mseed2sac_add.clicked.connect(self.add_proc_frame)
+        # self.btn_mseed2sac_remove.clicked.connect(self.remove_proc_frame)
 
 
-    def add_proc(self):
-        self.mseed2sac_proc_frames.append(self.proc_frame())
+    def add_proc_frame(self):
+        self.mseed2sac_proc_frames.append(self.new_proc_frame())
         self.lyo_mseed2sac_proc_frames.addWidget(self.mseed2sac_proc_frames[-1])
 
 
-    def remove_proc(self):
-        nprocs = len(self.mseed2sac_proc_frames)
-        print(nprocs)
-        if nprocs:
-            proc_frame_obj = self.lyo_mseed2sac_proc_frames.itemAt(-1).widget()
-            proc_frame_obj.deleteLater()
-            self.mseed2sac_proc_frames.pop()
-            self.mseed2sac_proc_types.pop()
-            self.mseed2sac_proc_methods.pop()
-            self.mseed2sac_proc_options.pop()
-
-    def proc_frame(self):
+    def new_proc_frame(self):
         proc_frame = QFrame()
-        pfid = len(self.mseed2sac_proc_frames)
-        proc_frame.setObjectName(f"proc_frame_{pid}")
+        proc_frame.setObjectName("proc_frame")
+        proc_frame_left = QFrame()
+        proc_frame_right = QFrame()
+
+        # mseed2sac_proc_frame_left
+        mseed2sac_proc_frame_type = QFrame()
+        mseed2sac_proc_frame_type.setObjectName()
+        mseed2sac_proc_frame_method = QFrame()
+
+        lyo_proc_frame = QHBoxLayout()
+        lyo_proc_frame.addWidget(proc_frame_left)
+        lyo_proc_frame.addWidget(proc_frame_right)
+        proc_frame.setLayout(lyo_proc_frame)
+
+        proc_frame.setStyleSheet("#%s {max-height: 180px; min-height: 180px;border: 3px solid #DDD; border-radius: 15px; margin-bottom: 10px;}" %("proc_frame"))
+        proc_left.setStyleSheet("#%s {min-width:250px; max-width:250px; border-right: 2px solid #DDD;}" %("proc_left"))
+
+        return proc_frame
+
+    def new_proc_frame(self):
+        proc_frame = QFrame()
+        nproc = len(self.mseed2sac_proc_frames)
+        proc_frame.setObjectName(f"proc_frame_{nproc}")
 
         # left panel
         proc_left = QFrame()
-        proc_left.setObjectName(f"proc_left_{pid}")
+        proc_left.setObjectName(f"proc_left_{nproc}")
         txt_select = "---- Select ----"
         txt_mseed2sac = "  MSEED to SAC"
         txt_remchn = "  Remove extra channels"
         txt_dec = "  Decimate"
-        txt_cut = "  Cut seismograms"
         txt_remresp = "  Remove response"
         txt_bandpass = "  Bandpass filter"
-        lbl_proc_num = QLabel(f"Process #{pid + 1}:")
-        lbl_proc_num.setObjectName(f"lbl_proc_num_{pid}")
+        lbl_proc_num = QLabel(f"Process #{nproc + 1}:")
+        lbl_proc_num.setObjectName(f"lbl_proc_num_{nproc}")
 
         self.mseed2sac_proc_types.append(QComboBox())
         self.mseed2sac_proc_types[-1].setEditable(True)
@@ -824,7 +834,6 @@ class MSEED_to_SAC(QWidget):
         self.mseed2sac_proc_types[-1].addItem(txt_mseed2sac)
         self.mseed2sac_proc_types[-1].addItem(txt_remchn)
         self.mseed2sac_proc_types[-1].addItem(txt_dec)
-        self.mseed2sac_proc_types[-1].addItem(txt_cut)
         self.mseed2sac_proc_types[-1].addItem(txt_remresp)
         self.mseed2sac_proc_types[-1].addItem(txt_bandpass)
 
@@ -849,78 +858,188 @@ class MSEED_to_SAC(QWidget):
 
         # signals and slots
 
-        self.mseed2sac_proc_types[-1].currentIndexChanged.connect(lambda: self.ptype_changed(pid))
+        self.mseed2sac_proc_types[-1].currentIndexChanged.connect(lambda: self.ptype_changed(self.mseed2sac_proc_types[-1].currentIndex()))
+
 
         # apply stylesheet
-        proc_frame.setStyleSheet("#%s {max-height: 180px; min-height: 180px;border: 3px solid #CDCDCD; border-radius: 15px; margin-bottom: 10px;}" %(f"proc_frame_{pid}"))
-        proc_left.setStyleSheet("#%s {min-width:250px; max-width:250px; border-right: 2px solid #DDD;}" %(f"proc_left_{pid}"))
-        lbl_proc_num.setStyleSheet("#%s  {color:#999;}" %(f"lbl_proc_num_{pid}"))
+        # proc_frame.setStyleSheet("#%s {max-height: 180px; min-height: 180px;border: 3px solid #CDCDCD; border-radius: 15px; margin-bottom: 10px;}" %(f"proc_frame_{pid}"))
+        # proc_left.setStyleSheet("#%s {min-width:250px; max-width:250px; border-right: 2px solid #DDD;}" %(f"proc_left_{pid}"))
+        # lbl_proc_num.setStyleSheet("#%s  {color:#999;}" %(f"lbl_proc_num_{pid}"))
 
         return proc_frame
 
 
+    def new_proc_param(self, pid, params='default'):
+        proc_param = QWidget()
+        proc_param.setObjectName(f"proc_param_{pid[0]}")
+        lyo_proc_param = QGridLayout()
+        if params == 'default':
+            params = self.default_proc_params(pid)
+        if pid == [1,1]: # MSEED to SAC - Method 1
+            lbl_mseed2sac_channels = QLabel("Channels:")
+            lbl_mseed2sac_channels.setObjectName(f"lbl_mseed2sac_channels")
+            le_mseed2sac_channels = QLineEdit()
+            le_mseed2sac_channels.setObjectName("le_mseed2sac_channels")
+            chb_mseed2sac_taper = MyCheckBox()
+            chb_mseed2sac_taper.setObjectName("chb_mseed2sac_taper")
+            lbl_mseed2sac_taper = QLabel("")
+            lbl_mseed2sac_taper.setObjectName("lbl_mseed2sac_taper")
+            chb_mseed2sac_detrend = MyCheckBox()
+            chb_mseed2sac_detrend.setObjectName("chb_mseed2sac_detrend")
+            lbl_mseed2sac_detrend = QLabel("")
+            lbl_mseed2sac_detrend.setObjectName("lbl_mseed2sac_detrend")
+            lbl_mseed2sac_taperMethod = QLabel("")
+            lbl_mseed2sac_taperMethod.setObjectName("lbl_mseed2sac_taperMethod")
+            cmb_mseed2sac_taperMethod = QComboBox()
+            cmb_mseed2sac_taperMethod.setObjectName("cmb_mseed2sac_taperMethod")
+            lbl_mseed2sac_maxTaperPer = QLabel("")
+            lbl_mseed2sac_maxTaperPer.setObjectName("lbl_mseed2sac_maxTaperPer")
+            dsb_mseed2sac_maxTaperPer = QDoubleSpinBox()
+            dsb_mseed2sac_maxTaperPer.setObjectName("dsb_mseed2sac_maxTaperPer")
+            lbl_mseed2sac_detrendMethod = QLabel("")
+            lbl_mseed2sac_detrendMethod.setObjectName("lbl_mseed2sac_detrendMethod")
+            cmb_mseed2sac_detrendMethod = QComboBox()
+            cmb_mseed2sac_detrendMethod.setObjectName("cmb_mseed2sac_detrendMethod")
+            lbl_mseed2sac_detrendOrder = QLabel("")
+            lbl_mseed2sac_detrendOrder.setObjectName("lbl_mseed2sac_detrendOrder")
+            sb_mseed2sac_detrendOrder = QSpinBox()
+            sb_mseed2sac_detrendOrder.setObjectName("sb_mseed2sac_detrendOrder")
+            lbl_mseed2sac_dspline = QLabel("")
+            lbl_mseed2sac_dspline.setObjectName("lbl_mseed2sac_dspline")
+            le_mseed2sac_dspline = QLineEdit()
+            le_mseed2sac_dspline.setObjectName("le_mseed2sac_dspline")
+            # put to layout
+            lyo_proc_param.addWidget(chb_mseed2sac_detrend, 0,0)
+            lyo_proc_param.addWidget(chb_mseed2sac_taper, 1,0)
+            lyo_proc_param.addWidget(lbl_mseed2sac_channels, 2,0)
+            lyo_proc_param.addWidget(lbl_mseed2sac_detrend, 0,1)
+            lyo_proc_param.addWidget(lbl_mseed2sac_taper, 1,1)
+            lyo_proc_param.addWidget(le_mseed2sac_channels, 2,1)
+            lyo_proc_param.addWidget(lbl_mseed2sac_detrendMethod, 0,2)
+            lyo_proc_param.addWidget(lbl_mseed2sac_detrendOrder, 1,2)
+            lyo_proc_param.addWidget(lbl_mseed2sac_dspline, 2,2)
+            # set parameters
+            chb_mseed2sac_detrend.setCheckState(params['chb_mseed2sac_detrend'])
+            chb_mseed2sac_taper.setCheckState(params['chb_mseed2sac_detrend'])
+            le_mseed2sac_channels.setText(params['le_mseed2sac_channels'])
+
+
+        proc_param.setLayout(lyo_proc_param)
+        return proc_param
+
+
+    def default_proc_params(self, pid):
+        mseed2sac_proc_params = {"pid": [0,0]}
+        if pid == [1,1]: # MSEED to SAC - Method 1
+            mseed2sac_proc_params["pid"] = [1,1]
+            mseed2sac_proc_params["le_mseed2sac_channels"] = "BHZ HHZ"
+            mseed2sac_proc_params["chb_mseed2sac_taper"] = True
+            mseed2sac_proc_params["chb_mseed2sac_detrend"] = True
+            mseed2sac_proc_params["cmb_mseed2sac_taperMethod"] = 0
+            mseed2sac_proc_params["dsb_mseed2sac_maxTaperPer"] = 0.05
+            mseed2sac_proc_params["cmb_mseed2sac_detrendMethod"] = 0
+            mseed2sac_proc_params["sb_mseed2sac_detrendOrder"] = 3
+            mseed2sac_proc_params["le_mseed2sac_dspline"] = 864000
+        elif pid == [2,1]: # Remove extra channels - Method 1
+            mseed2sac_proc_params["pid"] = [2,1]
+            mseed2sac_proc_params["le_mseed2sac_similarChannels"] = "BHZ HHZ"
+            mseed2sac_proc_params["le_mseed2sac_channel2keep"] = "HHZ"
+        elif pid == [3,1]: # Decimate - Method 1
+            mseed2sac_proc_params["pid"] = [3,1]
+            mseed2sac_proc_params["cmb_mseed2sac_finalSF"] = 0
+        elif pid == [4,1]: # Remove response - Method 1
+            mseed2sac_proc_params["pid"] = [4,1]
+            mseed2sac_proc_params["cmb_mseed2sac_respOutput"] = 0
+            mseed2sac_proc_params["cmb_mseed2sac_respPreFilter"] = 0
+        elif pid == [5,1]: # Bandpass filter - Method 1
+            mseed2sac_proc_params["pid"] = [5,1]
+            mseed2sac_proc_params["le_mseed2sac_bpCP1"] = "4"
+            mseed2sac_proc_params["le_mseed2sac_bpCP2"] = "500"
+            mseed2sac_proc_params["sb_mseed2sac_bpPoles"] = 3
+            mseed2sac_proc_params["sb_mseed2sac_bpPasses"] = 2
+        return mseed2sac_proc_params
+
+
+    
+
+
+    def remove_proc_frame(self):
+        nprocs = len(self.mseed2sac_proc_frames)
+        print(nprocs)
+        if nprocs:
+            proc_frame_obj = self.lyo_mseed2sac_proc_frames.itemAt(-1).widget()
+            proc_frame_obj.deleteLater()
+            self.mseed2sac_proc_frames.pop()
+            self.mseed2sac_proc_types.pop()
+            self.mseed2sac_proc_methods.pop()
+            self.mseed2sac_proc_options.pop()
+
+
+
     def ptype_changed(self, pid):
-        pass
+        wobj = self.lyo_mseed2sac_proc_left[-1].itemAt(-1).widget()
+        wobj.deleteLater()
+        self.lyo_mseed2sac_proc_left[-1].append(self.get_proc_method(pid))
         
 
 
-    def get_proc_method(self, pid):
+    def get_proc_method(self, ptype_index):
         proc_method = QWidget()
         lyo_proc_method = QHBoxLayout()
-        if pid == 1: # mseed to sac
+        if ptype_index == 1: # mseed to sac
             lbl_mseed2sac_method = QLabel("Method:")
-            lbl_mseed2sac_method.setObjectName(f"lbl_mseed2sac_method_{pid}")
-            lbl_mseed2sac_method.setStyleSheet("%s {color:#999;}" %(f"lbl_mseed2sac_method_{pid}"))
+            lbl_mseed2sac_method.setObjectName(f"lbl_mseed2sac_method_{ptype_index}")
+            lbl_mseed2sac_method.setStyleSheet("%s {color:#999;}" %(f"lbl_mseed2sac_method_{ptype_index}"))
             cmb_mseed2sac_method = QComboBox()
             cmb_mseed2sac_method.setEditable(True)
             cmb_mseed2sac_method.lineEdit().setAlignment(Qt.AlignCenter)
             cmb_mseed2sac_method.addItem("Obspy + SAC") # Method 1
             lyo_proc_method.addWidget(lbl_mseed2sac_methods)
             lyo_proc_method.addWidget(cmb_mseed2sac_methods)
-        elif pid == 2: # remove channel
+        elif ptype_index == 2: # remove channel
             bl_remchn_method = QLabel("Method:")
             lbl_remchn_method.setObjectName(f"lbl_remchn_method_{1}")
-            lbl_remchn_method.setStyleSheet("#%s {color:#999;}" %(f"lbl_remchn_method_{pid}"))
+            lbl_remchn_method.setStyleSheet("#%s {color:#999;}" %(f"lbl_remchn_method_{ptype_index}"))
             cmb_remchn_method = QComboBox()
             cmb_remchn_method.setEditable(True)
             cmb_remchn_method.lineEdit().setAlignment(Qt.AlignCenter)
             cmb_remchn_method.addItem("Python script") # Method 1
             lyo_proc_method.addWidget(lbl_remchn_method)
             lyo_proc_method.addWidget(cmb_remchn_method)
-        elif pid == 3: # decimate
+        elif ptype_index == 3: # decimate
             lbl_decimate_method = QLabel("Method:")
-            lbl_decimate_method.setObjectName(f"lbl_decimate_method_{pid}")
-            lbl_decimate_method.setStyleSheet("#%s {color:#999;}" %(f"lbl_decimate_method_{pid}"))
+            lbl_decimate_method.setObjectName(f"lbl_decimate_method_{ptype_index}")
+            lbl_decimate_method.setStyleSheet("#%s {color:#999;}" %(f"lbl_decimate_method_{ptype_index}"))
             cmb_decimate_method = QComboBox()
             cmb_decimate_method.setEditable(True)
             cmb_decimate_method.lineEdit().setAlignment(Qt.AlignCenter)
             cmb_decimate_method.addItem("SAC: decimate") # Method 1
             lyo_proc_method.addWidget(lbl_decimate_method)
             lyo_proc_method.addWidget(cmb_dec_method)
-        elif pid == 4: # cut seismograms
+        elif ptype_index == 4: # cut seismograms
             lbl_cut_method = QLabel("Method:")
-            lbl_cut_method.setObjectName(f"lbl_cut_method_{pid}")
-            lbl_cut_method.setStyleSheet("#%s {color:#999;}" %(f"lbl_cut_method_{pid}"))
+            lbl_cut_method.setObjectName(f"lbl_cut_method_{ptype_index}")
+            lbl_cut_method.setStyleSheet("#%s {color:#999;}" %(f"lbl_cut_method_{ptype_index}"))
             cmb_cut_method = QComboBox()
             cmb_cut_method.setEditable(True)
             cmb_cut_method.lineEdit().setAlignment(Qt.AlignCenter)
             cmb_cut_method.addItem("SAC: cut")
             lyo_proc_method.addWidget(lbl_cut_method)
             lyo_proc_method.addWidget(cmb_cut_method)
-        elif pid == 5: # remove response
+        elif ptype_index == 5: # remove response
             lbl_remresp_method = QLabel("Method:")
-            lbl_remresp_method.setObjectName(f"lbl_remresp_method_{pid}")
-            lbl_remresp_method.setStyleSheet("#%s {color:#999;}" %("lbl_remresp_method_{pid}"))
+            lbl_remresp_method.setObjectName(f"lbl_remresp_method_{ptype_index}")
+            lbl_remresp_method.setStyleSheet("#%s {color:#999;}" %(f"lbl_remresp_method_{ptype_index}"))
             cmb_remresp_method = QComboBox()
             cmb_remresp_method.setEditable(True)
             cmb_remresp_method.lineEdit().setAlignment(Qt.AlignCenter)
             cmb_remresp_method.addItem("ObsPy: remove_response") # Method 1
             lyo_proc_method.addWidget(lbl_remresp_method)
             lyo_proc_method.addWidget(cmb_remresp_method)
-        elif pid == 6: # bandpass filter
+        elif ptype_index == 6: # bandpass filter
             lbl_bandpass_method = QLabel("Method:")
-            lbl_bandpass_method.setObjectName(f"lbl_bandpass_method_{pid}")
-            lbl_bandpass_method.setStyleSheet("#%s {color:#999;}" %(f"lbl_bandpass_method_{pid}"))
+            lbl_bandpass_method.setObjectName(f"lbl_bandpass_method_{ptype_index}")
+            lbl_bandpass_method.setStyleSheet("#%s {color:#999;}" %(f"lbl_bandpass_method_{ptype_index}"))
             cmb_bandpass_method = QComboBox()
             cmb_bandpass_method.setEditable(True)
             cmb_bandpass_method.lineEdit().setAlignment(Qt.AlignCenter)
@@ -935,12 +1054,12 @@ class MSEED_to_SAC(QWidget):
 
 
 
-class SAC_to_NCF(MSEED_to_SAC):
+class SAC_to_NCF(QWidget):
     def __init__(self):
         super().__init__()
 
 
-class NCF_to_EGF(MSEED_to_SAC):
+class NCF_to_EGF(QWidget):
     def __init__(self):
         super().__init__()
 
