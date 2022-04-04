@@ -706,6 +706,8 @@ class MSEED_to_SAC(QWidget):
             icon_remove = icon_remove.replace('\\','/')
             icon_remove_hover = icon_remove_hover.replace('\\','/')
 
+        self.mseed2sac_proc_frames = []
+
         self.le_input_mseeds = QLineEdit()
         self.le_input_mseeds.setAttribute(Qt.WA_MacShowFocusRect, 0)
         self.le_input_mseeds.setPlaceholderText("Full path to input MSEED dataset dir")   
@@ -715,7 +717,6 @@ class MSEED_to_SAC(QWidget):
         self.le_output_sacs.setPlaceholderText("Full path to input/output SAC dataset dir")
         self.browse_output_sacs = MyDialog(type=3)
         self.lbl_mseed2sac_channels = QLabel("Channels:")
-
         self.le_mseed2sac_channels = QLineEdit()
         self.le_mseed2sac_channels.setAttribute(Qt.WA_MacShowFocusRect, 0)
         self.le_mseed2sac_channels.setPlaceholderText("Station channels to process, separated by space")
@@ -746,7 +747,6 @@ class MSEED_to_SAC(QWidget):
                                                  min-height: 35px; max-height: 35px;\
                                                  margin-top: 0px; margin-bottom: 0px; }\
                                     QPushButton:pressed {border: 3px solid #EEE;}")
-
         # Add process button
         self.btn_mseed2sac_add = QPushButton()
         self.btn_mseed2sac_add.setCursor(Qt.PointingHandCursor)
@@ -761,7 +761,6 @@ class MSEED_to_SAC(QWidget):
             }
         ''' %(icon_add, icon_add_hover)
         self.btn_mseed2sac_add.setStyleSheet(qss_code)
-
         # Remove process button
         self.btn_mseed2sac_remove = QPushButton()
         self.btn_mseed2sac_remove.setCursor(Qt.PointingHandCursor)
@@ -791,20 +790,14 @@ class MSEED_to_SAC(QWidget):
         self.layout.setContentsMargins(10,20,10,10)
         self.setLayout(self.layout)
 
-        self.lyo_mseed2sac_proc_left = []
-        self.mseed2sac_proc_frames = []  
-        self.mseed2sac_proc_types = []   
-        self.proc_methods = [] 
-        self.proc_param = []
-        self.proc_method = []
-
         # button signals and slots
         self.btn_mseed2sac_add.clicked.connect(self.add_proc_frame)
         self.btn_mseed2sac_remove.clicked.connect(self.remove_proc_frame)
 
 
     def add_proc_frame(self, params={}):
-        new_proc_frame = self.new_proc_frame()
+        pframe_id = len(self.mseed2sac_proc_frames)
+        new_proc_frame = self.new_proc_frame(pframe_id)
         self.mseed2sac_proc_frames.append(new_proc_frame)
         self.lyo_mseed2sac_proc_frames.addWidget(self.mseed2sac_proc_frames[-1])
 
@@ -816,67 +809,111 @@ class MSEED_to_SAC(QWidget):
             proc_frame_obj.deleteLater()
             self.mseed2sac_proc_frames.pop()
 
-    # def set_proc_frame_params(self, frame_id, params={}):
-    #     if frame_id < len(self.mseed2sac_proc_frames):
 
-    #         proc_frame_layout = self.mseed2sac_proc_frames[frame_id].findChildren(QFrame)[0].parent().layout()
-
-    #         proc_frame_layout.replaceWidget(self.proc_frame_type, self.new_proc_type())
-    #         self.proc_frame_type.deleteLater()
-    #         proc_frame_layout.replaceWidget(self.proc_frame_method, self.new_proc_method(frame_id))
-    #         self.proc_frame_method.deleteLater()
-    #         proc_frame_layout.replaceWidget(self.proc_frame_param, self.new_proc_param([5,1]))
-    #         self.proc_frame_param.deleteLater()
-
-
-    def new_proc_frame(self):
-        pframe_id = len(self.mseed2sac_proc_frames)
+    def new_proc_frame(self, pframe_id, pid=[0,0], params={}):
         proc_frame = QFrame()
-        self.proc_type = self.new_proc_type()
-        self.proc_method = self.new_proc_method()
-        self.proc_param = self.new_proc_param()
+        proc_type = self.new_proc_type(pframe_id=pframe_id, ptype_index=pid[0])
+        proc_method = self.new_proc_method(pid=pid)
+        proc_param = self.new_proc_param(pframe_id=pframe_id, pid=pid, params=params)
         proc_frame.setObjectName("proc_frame")
-        self.proc_type.setObjectName("proc_type")
-        self.proc_method.setObjectName("proc_method")
-        self.proc_param.setObjectName("proc_param")
+        proc_type.setObjectName("proc_type")
+        proc_method.setObjectName("proc_method")
+        proc_param.setObjectName("proc_param")
         # setup main layout
         lyo_proc_frame = QGridLayout()
-        lyo_proc_frame.addWidget(self.proc_type, 0, 0)
-        lyo_proc_frame.addWidget(self.proc_method, 1, 0)
-        lyo_proc_frame.addWidget(self.proc_param, 0, 1, 2, 1)
+        lyo_proc_frame.addWidget(proc_type, 0, 0)
+        lyo_proc_frame.addWidget(proc_method, 1, 0)
+        lyo_proc_frame.addWidget(proc_param, 0, 1, 2, 1)
         lyo_proc_frame.setContentsMargins(5,5,15,5)
         lyo_proc_frame.setHorizontalSpacing(0)
         proc_frame.setLayout(lyo_proc_frame)
         # stylesheet
         proc_frame.setStyleSheet("#%s {max-height: 180px; min-height: 180px;border: 3px solid #DDD; border-radius: 15px; margin-bottom: 10px;}" %("proc_frame"))
-        self.proc_type.setStyleSheet("#%s {min-width:250px; max-width:250px;}" %("proc_type"))
-        self.proc_method.setStyleSheet("#%s {min-width:250px; max-width:250px;}" %("proc_method"))
-        self.proc_param.setStyleSheet("#%s {border-left: 2px solid #DDD;}" %("proc_param"))
-
-        # new_proc_method = self.new_proc_method(ptype_index)
-        # new_proc_param = self.new_proc_param([ptype_index, 0])
-
-        self.cmb_proc_type.currentIndexChanged.connect(lambda: lyo_proc_frame.replaceWidget(self.proc_method, self.new_proc_method(self.cmb_proc_type.currentIndex())))
-        self.cmb_proc_type.currentIndexChanged.connect(lambda: self.proc_method.deleteLater() )
-
-        # proc_frame_layout = self.mseed2sac_proc_frames[pframe_id].findChildren(QFrame)[0].parent().layout()
-        # new_proc_method = self.new_proc_method(ptype_index)
-        # new_proc_param = self.new_proc_param([ptype_index, 0])
-        # proc_frame_layout.replaceWidget(self.proc_method[pframe_id], new_proc_method)
-        # proc_frame_layout.replaceWidget(self.proc_param[pframe_id], new_proc_param)
-        # self.proc_method[pframe_id].deleteLater()
-        # self.proc_method[pframe_id] = new_proc_method
-        # self.proc_param[pframe_id].deleteLater()
-        # self.proc_param[pframe_id] = new_proc_param
-
-        # self.cmb_proc_method.currentIndexChanged.connect(lambda: self.proc_frame_pmethod_changed(pframe_id))
-        # self.cmb_proc_type.currentIndexChanged.connect(lambda: self.proc_frame_ptype_changed(pframe_id, self.cmb_proc_type.currentIndex()))
+        proc_type.setStyleSheet("#%s {min-width:280px; max-width:280px;}" %("proc_type"))
+        proc_method.setStyleSheet("#%s {min-width:280px; max-width:280px;}" %("proc_method"))
+        proc_param.setStyleSheet("#%s {border-left: 2px solid #DDD;}" %("proc_param"))
+        # Signals and Slots
+        cmb_proc_type = proc_type.layout().itemAt(1).widget()
+        cmb_proc_method = proc_method.layout().itemAt(1).widget()
+        cmb_proc_type.currentIndexChanged.connect(lambda: self.replace_proc_frame(pframe_id))
+        cmb_proc_method.currentIndexChanged.connect(lambda: self.replace_proc_frame(pframe_id))
         return proc_frame
 
 
-    def new_proc_type(self, ptype_index=0):
-        pframe_id = len(self.mseed2sac_proc_frames)
-        proc_num = pframe_id + 1
+    def replace_proc_frame(self, pframe_id):
+        current_proc_frame = self.mseed2sac_proc_frames[pframe_id]
+        proc_type = current_proc_frame.layout().itemAt(0).widget()
+        proc_method = current_proc_frame.layout().itemAt(1).widget()
+        proc_type_index = proc_type.layout().itemAt(1).widget().currentIndex()
+        proc_method_index = proc_method.layout().itemAt(1).widget().currentIndex()
+        if proc_method_index in [0, -1]:
+            proc_method_index = 1
+        new_proc_frame = self.new_proc_frame(pframe_id, pid=[proc_type_index, proc_method_index])
+        self.mseed2sac_proc_frames[pframe_id] = new_proc_frame
+        self.lyo_mseed2sac_proc_frames.replaceWidget(current_proc_frame, new_proc_frame)
+        current_proc_frame.deleteLater()
+
+
+    def update_proc_param_ui(self, pframe_id):
+        current_proc_frame = self.mseed2sac_proc_frames[pframe_id]
+        proc_type = current_proc_frame.layout().itemAt(0).widget()
+        proc_method = current_proc_frame.layout().itemAt(1).widget()
+        proc_param = current_proc_frame.layout().itemAt(2).widget()
+        proc_param_lyo = proc_param.layout()
+        proc_type_index = proc_type.layout().itemAt(1).widget().currentIndex()
+        proc_method_index = proc_method.layout().itemAt(1).widget().currentIndex()
+        pid = [proc_type_index, proc_method_index]
+        if pid == [1,1]: # MSEED to SAC - Method 1
+            chb_mseed2sac_detrend = proc_param.findChild(MyCheckBox, 'chb_mseed2sac_detrend')
+            chb_mseed2sac_taper = proc_param.findChild(MyCheckBox, 'chb_mseed2sac_taper')
+            lbl_mseed2sac_detrendMethod = proc_param.findChild(QLabel, 'lbl_mseed2sac_detrendMethod')
+            cmb_mseed2sac_detrendMethod = proc_param.findChild(QComboBox, 'cmb_mseed2sac_detrendMethod')
+            lbl_mseed2sac_detrendOrder = proc_param.findChild(QLabel, 'lbl_mseed2sac_detrendOrder')
+            sb_mseed2sac_detrendOrder = proc_param.findChild(QSpinBox, 'sb_mseed2sac_detrendOrder')
+            lbl_mseed2sac_dspline = proc_param.findChild(QLabel, 'lbl_mseed2sac_dspline')
+            le_mseed2sac_dspline = proc_param.findChild(QLineEdit, 'le_mseed2sac_dspline')
+            lbl_mseed2sac_taperMethod = proc_param.findChild(QLabel, 'lbl_mseed2sac_taperMethod')
+            cmb_mseed2sac_taperMethod = proc_param.findChild(QComboBox, 'cmb_mseed2sac_taperMethod')
+            lbl_mseed2sac_maxTaperPer = proc_param.findChild(QLabel, 'lbl_mseed2sac_maxTaperPer')
+            dsb_mseed2sac_maxTaperPer = proc_param.findChild(QDoubleSpinBox, 'dsb_mseed2sac_maxTaperPer')
+            # Detrend Parameters
+            if  chb_mseed2sac_detrend.checkState():
+                lbl_mseed2sac_detrendMethod.setEnabled(True)
+                cmb_mseed2sac_detrendMethod.setEnabled(True)
+                if cmb_mseed2sac_detrendMethod.currentIndex() in [2,3]:
+                    lbl_mseed2sac_detrendOrder.setEnabled(True)
+                    sb_mseed2sac_detrendOrder.setEnabled(True)
+                else:
+                    lbl_mseed2sac_detrendOrder.setEnabled(False)
+                    sb_mseed2sac_detrendOrder.setEnabled(False)
+
+                if cmb_mseed2sac_detrendMethod.currentIndex() == 3:
+                    lbl_mseed2sac_dspline.setEnabled(True)
+                    le_mseed2sac_dspline.setEnabled(True)
+                else:
+                    lbl_mseed2sac_dspline.setEnabled(False)
+                    le_mseed2sac_dspline.setEnabled(False)
+            else:
+                lbl_mseed2sac_detrendMethod.setEnabled(False)
+                cmb_mseed2sac_detrendMethod.setEnabled(False)
+                lbl_mseed2sac_detrendOrder.setEnabled(False)
+                sb_mseed2sac_detrendOrder.setEnabled(False)
+                lbl_mseed2sac_dspline.setEnabled(False)
+                le_mseed2sac_dspline.setEnabled(False)
+            # Taper Parameters
+            if chb_mseed2sac_taper.checkState():
+                lbl_mseed2sac_taperMethod.setEnabled(True)
+                cmb_mseed2sac_taperMethod.setEnabled(True)
+                lbl_mseed2sac_maxTaperPer.setEnabled(True)
+                dsb_mseed2sac_maxTaperPer.setEnabled(True)
+            else:
+                lbl_mseed2sac_taperMethod.setEnabled(False)
+                cmb_mseed2sac_taperMethod.setEnabled(False)
+                lbl_mseed2sac_maxTaperPer.setEnabled(False)
+                dsb_mseed2sac_maxTaperPer.setEnabled(False)
+
+
+    def new_proc_type(self, pframe_id, ptype_index=0):
         proc_type = QFrame()
         proc_type.setObjectName("proc_type")
         proc_type.setObjectName(f"proc_type")
@@ -886,104 +923,104 @@ class MSEED_to_SAC(QWidget):
         txt_dec = "  Decimate"
         txt_remresp = "  Remove response"
         txt_bandpass = "  Bandpass filter"
-        lbl_proc_type = QLabel(f"Process #{proc_num}:")
+        lbl_proc_type = QLabel(f"Process #{pframe_id + 1}:")
         lbl_proc_type.setObjectName("lbl_proc_type")
         lbl_proc_type.setStyleSheet("#%s {color: #999;}" %("lbl_proc_type"))
-        self.cmb_proc_type = QComboBox()
-        self.cmb_proc_type.setObjectName("self.cmb_proc_type")
-        self.cmb_proc_type.setEditable(True)
-        self.cmb_proc_type.lineEdit().setAlignment(Qt.AlignCenter)
-        self.cmb_proc_type.addItem(txt_select)
-        self.cmb_proc_type.addItem(txt_mseed2sac)
-        self.cmb_proc_type.addItem(txt_remchn)
-        self.cmb_proc_type.addItem(txt_dec)
-        self.cmb_proc_type.addItem(txt_remresp)
-        self.cmb_proc_type.addItem(txt_bandpass)
+        cmb_proc_type = QComboBox()
+        cmb_proc_type.setObjectName("cmb_proc_type")
+        cmb_proc_type.setEditable(True)
+        cmb_proc_type.lineEdit().setAlignment(Qt.AlignCenter)
+        cmb_proc_type.addItem(txt_select)
+        cmb_proc_type.addItem(txt_mseed2sac)
+        cmb_proc_type.addItem(txt_remchn)
+        cmb_proc_type.addItem(txt_dec)
+        cmb_proc_type.addItem(txt_remresp)
+        cmb_proc_type.addItem(txt_bandpass)
         lyo_proc_type = QHBoxLayout()
         lyo_proc_type.addWidget(lbl_proc_type)
-        lyo_proc_type.addWidget(self.cmb_proc_type)
+        lyo_proc_type.addWidget(cmb_proc_type)
         lyo_proc_type.setAlignment(Qt.AlignVCenter)
         lyo_proc_type.setAlignment(Qt.AlignRight)
         lyo_proc_type.setContentsMargins(20,0,20,0)
         proc_type.setLayout(lyo_proc_type)
-        self.cmb_proc_type.setCurrentIndex(ptype_index)
+        cmb_proc_type.setCurrentIndex(ptype_index)
         proc_type.setStyleSheet("#%s {min-width:250px; max-width:250px;}" %("proc_type"))
-
-        
         return proc_type
 
 
-    def new_proc_method(self, ptype_index=0):
-        pframe_id = len(self.mseed2sac_proc_frames) -1
+    def new_proc_method(self, pid=[0,0]):
         proc_method = QFrame()
         proc_method.setObjectName("proc_method")
-        self.cmb_proc_method = QComboBox()
-        self.cmb_proc_method.setObjectName("self.cmb_proc_method")
+        cmb_proc_method = QComboBox()
+        cmb_proc_method.setObjectName("cmb_proc_method")
+        cmb_proc_method.addItem("---- Select ----")
         lyo_proc_method = QHBoxLayout()
+        ptype_index = pid[0]
+        pmethod_index = pid[1]
         if ptype_index == 1: # mseed to sac
             lbl_mseed2sac_method = QLabel("Method:")
             lbl_mseed2sac_method.setObjectName(f"lbl_mseed2sac_method")
             lbl_mseed2sac_method.setStyleSheet("#%s {color:#999;}" %(f"lbl_mseed2sac_method"))
-            self.cmb_proc_method.setEditable(True)
-            self.cmb_proc_method.lineEdit().setAlignment(Qt.AlignCenter)
-            self.cmb_proc_method.setEditable(True)
-            self.cmb_proc_method.lineEdit().setAlignment(Qt.AlignCenter)
-            self.cmb_proc_method.addItem("---- Select ----")
-            self.cmb_proc_method.addItem("Obspy + SAC") # Method 1
+            cmb_proc_method.setEditable(True)
+            cmb_proc_method.lineEdit().setAlignment(Qt.AlignCenter)
+            cmb_proc_method.setEditable(True)
+            cmb_proc_method.lineEdit().setAlignment(Qt.AlignCenter)
+            cmb_proc_method.addItem("Obspy + SAC") # Method 1
             lyo_proc_method.addWidget(lbl_mseed2sac_method)
-            lyo_proc_method.addWidget(self.cmb_proc_method)
+            lyo_proc_method.addWidget(cmb_proc_method)
         elif ptype_index == 2: # remove channel
             lbl_remchn_method = QLabel("Method:")
             lbl_remchn_method.setObjectName(f"lbl_remchn_method")
             lbl_remchn_method.setStyleSheet("#%s {color:#999;}" %(f"lbl_remchn_method"))
-            self.cmb_proc_method.setEditable(True)
-            self.cmb_proc_method.lineEdit().setAlignment(Qt.AlignCenter)
-            self.cmb_proc_method.addItem("---- Select ----")
-            self.cmb_proc_method.addItem("Python script") # Method 1
+            cmb_proc_method.setEditable(True)
+            cmb_proc_method.lineEdit().setAlignment(Qt.AlignCenter)
+            cmb_proc_method.addItem("Python script") # Method 1
             lyo_proc_method.addWidget(lbl_remchn_method)
-            lyo_proc_method.addWidget(self.cmb_proc_method)
+            lyo_proc_method.addWidget(cmb_proc_method)
         elif ptype_index == 3: # decimate
             lbl_decimate_method = QLabel("Method:")
             lbl_decimate_method.setObjectName(f"lbl_decimate_method")
             lbl_decimate_method.setStyleSheet("#%s {color:#999;}" %(f"lbl_decimate_method"))
-            self.cmb_proc_method.setEditable(True)
-            self.cmb_proc_method.lineEdit().setAlignment(Qt.AlignCenter)
-            self.cmb_proc_method.addItem("---- Select ----")
-            self.cmb_proc_method.addItem("SAC: decimate") # Method 1
+            cmb_proc_method.setEditable(True)
+            cmb_proc_method.lineEdit().setAlignment(Qt.AlignCenter)
+            cmb_proc_method.addItem("SAC: decimate") # Method 1
             lyo_proc_method.addWidget(lbl_decimate_method)
-            lyo_proc_method.addWidget(self.cmb_proc_method)
+            lyo_proc_method.addWidget(cmb_proc_method)
         elif ptype_index == 4: # remove response
             lbl_remresp_method = QLabel("Method:")
             lbl_remresp_method.setObjectName(f"lbl_remresp_method")
             lbl_remresp_method.setStyleSheet("#%s {color:#999;}" %(f"lbl_remresp_method"))
-            self.cmb_proc_method.setEditable(True)
-            self.cmb_proc_method.lineEdit().setAlignment(Qt.AlignCenter)
-            self.cmb_proc_method.addItem("---- Select ----")
-            self.cmb_proc_method.addItem("ObsPy: remove_response") # Method 1
+            cmb_proc_method.setEditable(True)
+            cmb_proc_method.lineEdit().setAlignment(Qt.AlignCenter)
+            cmb_proc_method.addItem("ObsPy: remove_response") # Method 1
             lyo_proc_method.addWidget(lbl_remresp_method)
-            lyo_proc_method.addWidget(self.cmb_proc_method)
+            lyo_proc_method.addWidget(cmb_proc_method)
         elif ptype_index == 5: # bandpass filter
             lbl_bandpass_method = QLabel("Method:")
             lbl_bandpass_method.setObjectName(f"lbl_bandpass_method")
             lbl_bandpass_method.setStyleSheet("#%s {color:#999;}" %(f"lbl_bandpass_method"))
-            self.cmb_proc_method.setEditable(True)
-            self.cmb_proc_method.lineEdit().setAlignment(Qt.AlignCenter)
-            self.cmb_proc_method.addItem("---- Select ----")
-            self.cmb_proc_method.addItem("SAC: bp") # Method 1
+            cmb_proc_method.setEditable(True)
+            cmb_proc_method.lineEdit().setAlignment(Qt.AlignCenter)
+            cmb_proc_method.addItem("SAC: bp") # Method 1
             lyo_proc_method.addWidget(lbl_bandpass_method)
-            lyo_proc_method.addWidget(self.cmb_proc_method)
+            lyo_proc_method.addWidget(cmb_proc_method)
+        else:
+            lbl_bandpass_method = QLabel("Method:")
+            lbl_bandpass_method.setVisible(False)
+            cmb_proc_method.setVisible(False)
+            lyo_proc_method.addWidget(lbl_bandpass_method)
+            lyo_proc_method.addWidget(cmb_proc_method)
 
         lyo_proc_method.setAlignment(Qt.AlignVCenter)
         lyo_proc_method.setAlignment(Qt.AlignRight)
         lyo_proc_method.setContentsMargins(20,0,20,0)
         proc_method.setLayout(lyo_proc_method)
         proc_method.setStyleSheet("#%s {min-width:250px; max-width:250px;}" %("proc_method"))
-        # signals ans slots
-        # self.cmb_proc_method.currentIndexChanged.connect(lambda: self.proc_frame_pmethod_changed(pframe_id))
+        cmb_proc_method.setCurrentIndex(pmethod_index)
         return proc_method
 
 
-    def new_proc_param(self, pid=[0,0], params={}):
+    def new_proc_param(self, pframe_id, pid=[0,0], params={}):
         proc_param = QWidget()
         proc_param.setObjectName(f"proc_param")
         lyo_proc_param = QGridLayout()
@@ -1059,26 +1096,46 @@ class MSEED_to_SAC(QWidget):
             cmb_mseed2sac_detrendMethod.setCurrentIndex(params["cmb_mseed2sac_detrendMethod"])
             sb_mseed2sac_detrendOrder.setValue(params["sb_mseed2sac_detrendOrder"])
             le_mseed2sac_dspline.setText(f"{params['le_mseed2sac_dspline']}")
-            # apply some rules
-            if not chb_mseed2sac_detrend.checkState():
-                lbl_mseed2sac_detrendMethod.setVisible(False)
-                cmb_mseed2sac_detrendMethod.setVisible(False)
-                lbl_mseed2sac_detrendOrder.setVisible(False)
-                sb_mseed2sac_detrendOrder.setVisible(False)
-                lbl_mseed2sac_dspline.setVisible(False)
-                le_mseed2sac_dspline.setVisible(False)
+            # UPDATE UI BASED ON INPUT PARAMETERS
+            # 1) Detrend Parameters
+            if  chb_mseed2sac_detrend.checkState():
+                lbl_mseed2sac_detrendMethod.setEnabled(True)
+                cmb_mseed2sac_detrendMethod.setEnabled(True)
+                if cmb_mseed2sac_detrendMethod.currentIndex() in [2,3]:
+                    lbl_mseed2sac_detrendOrder.setEnabled(True)
+                    sb_mseed2sac_detrendOrder.setEnabled(True)
+                else:
+                    lbl_mseed2sac_detrendOrder.setEnabled(False)
+                    sb_mseed2sac_detrendOrder.setEnabled(False)
+                    
+                if cmb_mseed2sac_detrendMethod.currentIndex() == 3:
+                    lbl_mseed2sac_dspline.setEnabled(True)
+                    le_mseed2sac_dspline.setEnabled(True)
+                else:
+                    lbl_mseed2sac_dspline.setEnabled(False)
+                    le_mseed2sac_dspline.setEnabled(False)
             else:
-                if cmb_mseed2sac_detrendMethod.currentIndex() in [0,1]:
-                    lbl_mseed2sac_detrendOrder.setVisible(False)
-                    sb_mseed2sac_detrendOrder.setVisible(False)
-                if cmb_mseed2sac_detrendMethod.currentIndex() != 3:
-                    lbl_mseed2sac_dspline.setVisible(False)
-                    le_mseed2sac_dspline.setVisible(False)
-            if not chb_mseed2sac_taper.checkState():
-                lbl_mseed2sac_taperMethod.setVisible(False)
-                cmb_mseed2sac_taperMethod.setVisible(False)
-                lbl_mseed2sac_maxTaperPer.setVisible(False)
-                dsb_mseed2sac_maxTaperPer.setVisible(False)
+                lbl_mseed2sac_detrendMethod.setEnabled(False)
+                cmb_mseed2sac_detrendMethod.setEnabled(False)
+                lbl_mseed2sac_detrendOrder.setEnabled(False)
+                sb_mseed2sac_detrendOrder.setEnabled(False)
+                lbl_mseed2sac_dspline.setEnabled(False)
+                le_mseed2sac_dspline.setEnabled(False)
+            # 2) Taper Parameters
+            if chb_mseed2sac_taper.checkState():
+                lbl_mseed2sac_taperMethod.setEnabled(True)
+                cmb_mseed2sac_taperMethod.setEnabled(True)
+                lbl_mseed2sac_maxTaperPer.setEnabled(True)
+                dsb_mseed2sac_maxTaperPer.setEnabled(True)
+            else:
+                lbl_mseed2sac_taperMethod.setEnabled(False)
+                cmb_mseed2sac_taperMethod.setEnabled(False)
+                lbl_mseed2sac_maxTaperPer.setEnabled(False)
+                dsb_mseed2sac_maxTaperPer.setEnabled(False)
+            # signals and slots
+            chb_mseed2sac_detrend.stateChanged.connect(lambda: self.update_proc_param_ui(pframe_id))
+            chb_mseed2sac_taper.stateChanged.connect(lambda: self.update_proc_param_ui(pframe_id))
+            cmb_mseed2sac_detrendMethod.currentIndexChanged.connect(lambda: self.update_proc_param_ui(pframe_id))
         elif pid == [2,1]: # Remove channel - Method 1
             lbl_mseed2sac_similarChannels = QLabel("Similar channels:")
             le_mseed2sac_similarChannels = QLineEdit()
@@ -1192,28 +1249,6 @@ class MSEED_to_SAC(QWidget):
         proc_param.setStyleSheet("#%s {border-left: 2px solid #DDD;}" %("proc_param"))
         return proc_param
 
-    def proc_frame_ptype_changed(self, pframe_id, ptype_index):
-        print(self)
-        # ptype_index = self.proc_type.findChild(QComboBox,'cmb_proc_type').currentIndex()
-        proc_frame_layout = self.mseed2sac_proc_frames[pframe_id].findChildren(QFrame)[0].parent().layout()
-        new_proc_method = self.new_proc_method(ptype_index)
-        new_proc_param = self.new_proc_param([ptype_index, 0])
-        proc_frame_layout.replaceWidget(self.proc_method[pframe_id], new_proc_method)
-        proc_frame_layout.replaceWidget(self.proc_param[pframe_id], new_proc_param)
-        self.proc_method[pframe_id].deleteLater()
-        self.proc_method[pframe_id] = new_proc_method
-        self.proc_param[pframe_id].deleteLater()
-        self.proc_param[pframe_id] = new_proc_param
-
-    def proc_frame_pmethod_changed(self, pframe_id):
-        ptype_index = self.proc_type.findChild(QComboBox,'cmb_proc_type').currentIndex()
-        pmethod_index = self.proc_method.findChild(QComboBox,'cmb_proc_method').currentIndex()
-        pid = [ptype_index, pmethod_index]
-        proc_frame_layout = self.mseed2sac_proc_frames[pframe_id].findChildren(QFrame)[0].parent().layout()
-        new_proc_param = self.new_proc_param(pid)
-        proc_frame_layout.replaceWidget(self.proc_param, new_proc_param)
-        self.proc_param.deleteLater()
-        self.proc_param = new_proc_param
 
     def default_proc_params(self, pid):
         mseed2sac_proc_params = {"pid": [0,0]}
@@ -1630,8 +1665,7 @@ class MainWindow(QMainWindow):
             self.set_btn_qss(btn_mseed2sac, "btn_mseed2sac", (176,40), self.icon_mseed2sac, self.icon_mseed2sac_hover, 1,'#DDDDF9')
             self.set_btn_qss(btn_sac2ncf, "btn_sac2ncf", (176,40), self.icon_sac2ncf, self.icon_sac2ncf_hover, 1,'#DDDDF9')
             self.set_btn_qss(btn_ncf2egf, "btn_ncf2egf", (176,40), self.icon_ncf2egf_selected, self.icon_ncf2egf_hover, 1,'#DDDDF9')
-        else:
-            pass
+
 
     def set_btn_qss(self, btn_obj, btn_obj_name,\
                     btn_size, icon_file, icon_hover_file,\
