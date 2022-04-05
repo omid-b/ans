@@ -1140,8 +1140,10 @@ class MSEED_to_SAC(QWidget):
         elif pid == [2,1]: # Remove channel - Method 1
             lbl_mseed2sac_similarChannels = QLabel("Similar channels:")
             le_mseed2sac_similarChannels = QLineEdit()
+            le_mseed2sac_similarChannels.setObjectName("le_mseed2sac_similarChannels")
             lbl_mseed2sac_channel2keep = QLabel("Channel to keep:")
             le_mseed2sac_channel2keep = QLineEdit()
+            le_mseed2sac_channel2keep.setObjectName("le_mseed2sac_channel2keep")
             # setup layout
             lyo_proc_param.addWidget(lbl_mseed2sac_similarChannels, 0,0)
             lyo_proc_param.addWidget(le_mseed2sac_similarChannels, 0,1)
@@ -1255,8 +1257,8 @@ class MSEED_to_SAC(QWidget):
         mseed2sac_proc_params = {"pid": [0,0]}
         if pid == [1,1]: # MSEED to SAC - Method 1
             mseed2sac_proc_params["pid"] = [1,1]
-            mseed2sac_proc_params["chb_mseed2sac_taper"] = True
-            mseed2sac_proc_params["chb_mseed2sac_detrend"] = True
+            mseed2sac_proc_params["chb_mseed2sac_taper"] = 2
+            mseed2sac_proc_params["chb_mseed2sac_detrend"] = 2
             mseed2sac_proc_params["cmb_mseed2sac_taperMethod"] = 0
             mseed2sac_proc_params["dsb_mseed2sac_maxTaperPer"] = 0.05
             mseed2sac_proc_params["cmb_mseed2sac_detrendMethod"] = 3
@@ -1283,7 +1285,7 @@ class MSEED_to_SAC(QWidget):
         return mseed2sac_proc_params
 
     def get_parameters(self):
-        os.system('clear')
+        os.system('cls')
         parameters = {}
         parameters['mseed2sac_input_mseeds'] = self.le_input_mseeds.text()
         parameters['mseed2sac_output_sacs'] = self.le_output_sacs.text()
@@ -1303,8 +1305,8 @@ class MSEED_to_SAC(QWidget):
                 pid = [proc_type_index, proc_method_index]
                 proc['pid'] = pid
                 if pid == [1,1]: # MSEED to SAC - Method 1
-                    chb_mseed2sac_detrend = bool(proc_param.findChild(MyCheckBox, 'chb_mseed2sac_detrend').checkState())
-                    chb_mseed2sac_taper = bool(proc_param.findChild(MyCheckBox, 'chb_mseed2sac_taper').checkState())
+                    chb_mseed2sac_detrend = proc_param.findChild(MyCheckBox, 'chb_mseed2sac_detrend').checkState()
+                    chb_mseed2sac_taper = proc_param.findChild(MyCheckBox, 'chb_mseed2sac_taper').checkState()
                     cmb_mseed2sac_detrendMethod = proc_param.findChild(QComboBox, 'cmb_mseed2sac_detrendMethod').currentIndex()
                     sb_mseed2sac_detrendOrder = proc_param.findChild(QSpinBox, 'sb_mseed2sac_detrendOrder').value()
                     le_mseed2sac_dspline = proc_param.findChild(QLineEdit, 'le_mseed2sac_dspline').text()
@@ -1317,7 +1319,23 @@ class MSEED_to_SAC(QWidget):
                     proc['le_mseed2sac_dspline'] = le_mseed2sac_dspline
                     proc['cmb_mseed2sac_taperMethod'] = cmb_mseed2sac_taperMethod
                     proc['dsb_mseed2sac_maxTaperPer'] = dsb_mseed2sac_maxTaperPer
-                    
+                elif pid == [2,1]: # Remove channel - Method 1
+                    le_mseed2sac_similarChannels = proc_param.findChild(QLineEdit, 'le_mseed2sac_similarChannels').text()
+                    le_mseed2sac_channel2keep = proc_param.findChild(QLineEdit, 'le_mseed2sac_channel2keep').text()
+                    proc['le_mseed2sac_similarChannels'] = le_mseed2sac_similarChannels
+                    proc['le_mseed2sac_channel2keep'] = le_mseed2sac_channel2keep
+
+                elif pid == [3,1]: # Decimate - Method 1
+                    pass
+                elif pid == [4,1]: # Remove response - Method 1
+                    pass
+                elif pid == [5,1]: # bandpass filter - Method 1
+                    pass
+                for k in proc.keys():
+                    print(k, proc[k])
+                print("\n")
+                parameters['mseed2sac_procs'].append(proc)
+        print(parameters)
                     
 
 
