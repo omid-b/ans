@@ -31,6 +31,7 @@ from PyQt5.QtWidgets import (
     QComboBox,
     QSpinBox,
     QDoubleSpinBox,
+    QDateTimeEdit,
     QVBoxLayout,
     QHBoxLayout,
     QGridLayout,
@@ -450,9 +451,6 @@ class Project_Setting(QWidget):
 
 
 
-
-
-
 class Download(QWidget):
     def __init__(self):
         super().__init__()
@@ -792,7 +790,8 @@ class MSEED_to_SAC(QWidget):
 
         # button signals and slots
         self.btn_mseed2sac_add.clicked.connect(self.add_proc_frame)
-        self.btn_mseed2sac_remove.clicked.connect(self.remove_proc_frame)
+        # self.btn_mseed2sac_remove.clicked.connect(self.remove_proc_frame)
+        self.btn_mseed2sac_remove.clicked.connect(self.get_parameters)
 
 
     def add_proc_frame(self, params={}):
@@ -1069,6 +1068,14 @@ class MSEED_to_SAC(QWidget):
             le_mseed2sac_dspline.setObjectName("le_mseed2sac_dspline")
             le_mseed2sac_dspline.setAttribute(Qt.WA_MacShowFocusRect, 0)
             le_mseed2sac_dspline.setPlaceholderText("Number of samples between nodes (spline method)")
+            # set parameters
+            chb_mseed2sac_detrend.setCheckState(params['chb_mseed2sac_detrend'])
+            chb_mseed2sac_taper.setCheckState(params['chb_mseed2sac_taper'])
+            cmb_mseed2sac_taperMethod.setCurrentIndex(params["cmb_mseed2sac_taperMethod"])
+            dsb_mseed2sac_maxTaperPer.setValue(params["dsb_mseed2sac_maxTaperPer"])
+            cmb_mseed2sac_detrendMethod.setCurrentIndex(params["cmb_mseed2sac_detrendMethod"])
+            sb_mseed2sac_detrendOrder.setValue(params["sb_mseed2sac_detrendOrder"])
+            le_mseed2sac_dspline.setText(f"{params['le_mseed2sac_dspline']}")
             # setup layout
             lyo_proc_param.addWidget(lbl_mseed2sac_detrend, 0,1,1,1)
             lyo_proc_param.addWidget(chb_mseed2sac_detrend, 0,0,1,1)
@@ -1088,14 +1095,6 @@ class MSEED_to_SAC(QWidget):
             lyo_proc_param.setAlignment(Qt.AlignVCenter)
             lyo_proc_param.setAlignment(Qt.AlignHCenter)
             lyo_proc_param.setContentsMargins(50,0,50,0)
-            # set parameters
-            chb_mseed2sac_detrend.setCheckState(params['chb_mseed2sac_detrend'])
-            chb_mseed2sac_taper.setCheckState(params['chb_mseed2sac_taper'])
-            cmb_mseed2sac_taperMethod.setCurrentIndex(params["cmb_mseed2sac_taperMethod"])
-            dsb_mseed2sac_maxTaperPer.setValue(params["dsb_mseed2sac_maxTaperPer"])
-            cmb_mseed2sac_detrendMethod.setCurrentIndex(params["cmb_mseed2sac_detrendMethod"])
-            sb_mseed2sac_detrendOrder.setValue(params["sb_mseed2sac_detrendOrder"])
-            le_mseed2sac_dspline.setText(f"{params['le_mseed2sac_dspline']}")
             # UPDATE UI BASED ON INPUT PARAMETERS
             # 1) Detrend Parameters
             if  chb_mseed2sac_detrend.checkState():
@@ -1136,6 +1135,8 @@ class MSEED_to_SAC(QWidget):
             chb_mseed2sac_detrend.stateChanged.connect(lambda: self.update_proc_param_ui(pframe_id))
             chb_mseed2sac_taper.stateChanged.connect(lambda: self.update_proc_param_ui(pframe_id))
             cmb_mseed2sac_detrendMethod.currentIndexChanged.connect(lambda: self.update_proc_param_ui(pframe_id))
+            chb_mseed2sac_taper.setTristate(False)
+            chb_mseed2sac_detrend.setTristate(False)
         elif pid == [2,1]: # Remove channel - Method 1
             lbl_mseed2sac_similarChannels = QLabel("Similar channels:")
             le_mseed2sac_similarChannels = QLineEdit()
@@ -1280,6 +1281,49 @@ class MSEED_to_SAC(QWidget):
             mseed2sac_proc_params["sb_mseed2sac_bpPoles"] = 3
             mseed2sac_proc_params["sb_mseed2sac_bpPasses"] = 2
         return mseed2sac_proc_params
+
+    def get_parameters(self):
+        os.system('clear')
+        parameters = {}
+        parameters['mseed2sac_input_mseeds'] = self.le_input_mseeds.text()
+        parameters['mseed2sac_output_sacs'] = self.le_output_sacs.text()
+        parameters['mseed2sac_channels'] = self.le_mseed2sac_channels.text()
+
+        parameters['mseed2sac_procs'] = []
+        nprocs = len(self.mseed2sac_proc_frames)
+        for i in range(nprocs):
+            proc_frame = self.mseed2sac_proc_frames[i]
+            proc_type = proc_frame.layout().itemAt(0).widget()
+            proc_method = proc_frame.layout().itemAt(1).widget()
+            proc_param = proc_frame.layout().itemAt(2).widget()
+            proc_type_index = proc_type.layout().itemAt(1).widget().currentIndex()
+            proc_method_index = proc_method.layout().itemAt(1).widget().currentIndex()
+            if proc_type_index > 0 and proc_method_index > 0:
+                proc = {}
+                pid = [proc_type_index, proc_method_index]
+                proc['pid'] = pid
+                if pid == [1,1]: # MSEED to SAC - Method 1
+                    chb_mseed2sac_detrend = bool(proc_param.findChild(MyCheckBox, 'chb_mseed2sac_detrend').checkState())
+                    chb_mseed2sac_taper = bool(proc_param.findChild(MyCheckBox, 'chb_mseed2sac_taper').checkState())
+                    cmb_mseed2sac_detrendMethod = proc_param.findChild(QComboBox, 'cmb_mseed2sac_detrendMethod').currentIndex()
+                    sb_mseed2sac_detrendOrder = proc_param.findChild(QSpinBox, 'sb_mseed2sac_detrendOrder').value()
+                    le_mseed2sac_dspline = proc_param.findChild(QLineEdit, 'le_mseed2sac_dspline').text()
+                    cmb_mseed2sac_taperMethod = proc_param.findChild(QComboBox, 'cmb_mseed2sac_taperMethod').currentIndex()
+                    dsb_mseed2sac_maxTaperPer = proc_param.findChild(QDoubleSpinBox, 'dsb_mseed2sac_maxTaperPer').value()
+                    proc['chb_mseed2sac_detrend'] = chb_mseed2sac_detrend
+                    proc['chb_mseed2sac_taper'] = chb_mseed2sac_taper
+                    proc['cmb_mseed2sac_detrendMethod'] = cmb_mseed2sac_detrendMethod
+                    proc['sb_mseed2sac_detrendOrder'] = sb_mseed2sac_detrendOrder
+                    proc['le_mseed2sac_dspline'] = le_mseed2sac_dspline
+                    proc['cmb_mseed2sac_taperMethod'] = cmb_mseed2sac_taperMethod
+                    proc['dsb_mseed2sac_maxTaperPer'] = dsb_mseed2sac_maxTaperPer
+                    
+                    
+
+
+
+
+
         
 
 
@@ -1627,8 +1671,8 @@ class MainWindow(QMainWindow):
         self.toggle_menu()
 
         # select widget 0
-        self.selected_widget_tab(2)
-        self.body_main.setCurrentIndex(2)
+        self.selected_widget_tab(0)
+        self.body_main.setCurrentIndex(0)
 
         # hide terminal button (for the first versions)
         btn_terminal.setVisible(False)
