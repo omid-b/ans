@@ -1,6 +1,9 @@
 import os
 import sys 
 import re
+import matplotlib.pyplot as plt
+from mpl_toolkits.basemap import Basemap
+from numpy import arange
 from PyQt5.QtCore import (
     Qt,
     QRect,
@@ -10,16 +13,20 @@ from PyQt5.QtCore import (
     pyqtProperty,
     QCoreApplication,
     QSize,
+    QBuffer,
+    QByteArray,
 )
 from PyQt5.QtGui import (
     QColor,
     QIcon,
     QPainter,
     QPalette,
+    QPixmap,
 )
 from PyQt5.QtWidgets import (
     QMainWindow,
     QWidget,
+    QDialog,
     QFrame,
     QPushButton,
     QLabel,
@@ -291,125 +298,114 @@ class MyDialog(QPushButton):
 class Project_Setting(QWidget):
     def __init__(self):
         super().__init__()
-        global le_maindir
-        global le_startdate
-        global le_enddate
-        global le_maxlat
-        global le_minlat
-        global le_minlon
-        global le_maxlon
-        global le_sac
-        global le_gmt
-        global le_perl
         # project general setting (top section)
         # widgets
         lbl_proj = QLabel("Project general setting:")
         lbl_proj.setObjectName("lbl_proj")
         lbl_maindir = QLabel("Main dir:")
         lbl_maindir.setObjectName("lbl_maindir")
-        le_maindir = MyLineEdit()
-        le_maindir.setAttribute(Qt.WA_MacShowFocusRect, 0)
-        le_maindir.setObjectName("le_maindir")
-        le_maindir.setPlaceholderText("Full path to project main directory")
-        le_maindir.textChanged.connect(le_maindir.isdir)
-        browse_maindir = MyDialog(type=3, lineEditObj=le_maindir)
+        self.le_maindir = MyLineEdit()
+        self.le_maindir.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        self.le_maindir.setObjectName("le_maindir")
+        self.le_maindir.setPlaceholderText("Full path to project main directory")
+        self.le_maindir.textChanged.connect(self.le_maindir.isdir)
+        browse_maindir = MyDialog(type=3, lineEditObj=self.le_maindir)
         lbl_startdate = QLabel("Start date:")
         lbl_startdate.setObjectName("lbl_startdate")
-        le_startdate = MyLineEdit()
-        le_startdate.setAttribute(Qt.WA_MacShowFocusRect, 0)
-        le_startdate.setAlignment(Qt.AlignCenter)
-        le_startdate.setObjectName("le_startdate")
-        le_startdate.setPlaceholderText("YYYY-MM-DD")
-        le_startdate.textChanged.connect(le_startdate.isdate)
+        self.le_startdate = MyLineEdit()
+        self.le_startdate.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        self.le_startdate.setAlignment(Qt.AlignCenter)
+        self.le_startdate.setObjectName("le_startdate")
+        self.le_startdate.setPlaceholderText("YYYY-MM-DD")
+        self.le_startdate.textChanged.connect(self.le_startdate.isdate)
         lbl_enddate = QLabel("End date:")
         lbl_enddate.setObjectName("lbl_enddate")
-        le_enddate = MyLineEdit()
-        le_enddate.setAttribute(Qt.WA_MacShowFocusRect, 0)
-        le_enddate.setAlignment(Qt.AlignCenter)
-        le_enddate.setObjectName("le_enddate")
-        le_enddate.setPlaceholderText("YYYY-MM-DD")
-        le_enddate.textChanged.connect(le_enddate.isdate)
+        self.le_enddate = MyLineEdit()
+        self.le_enddate.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        self.le_enddate.setAlignment(Qt.AlignCenter)
+        self.le_enddate.setObjectName("le_enddate")
+        self.le_enddate.setPlaceholderText("YYYY-MM-DD")
+        self.le_enddate.textChanged.connect(self.le_enddate.isdate)
         lbl_studyarea = QLabel("Study area boundaries")
         lbl_studyarea.setObjectName("lbl_studyarea")
-        le_maxlat = MyLineEdit()
-        le_maxlat.setAttribute(Qt.WA_MacShowFocusRect, 0)
-        le_maxlat.setObjectName("le_maxlat")
-        le_maxlat.setAlignment(Qt.AlignCenter)
-        le_maxlat.setPlaceholderText("Max Lat (deg)")
-        le_maxlat.textChanged.connect(le_maxlat.islat)
-        le_minlat = MyLineEdit()
-        le_minlat.setAttribute(Qt.WA_MacShowFocusRect, 0)
-        le_minlat.setObjectName("le_minlat")
-        le_minlat.setAlignment(Qt.AlignCenter)
-        le_minlat.setPlaceholderText("Min Lat (deg)")
-        le_minlat.textChanged.connect(le_minlat.islat)
-        le_minlon = MyLineEdit()
-        le_minlon.setAttribute(Qt.WA_MacShowFocusRect, 0)
-        le_minlon.setObjectName("le_minlon")
-        le_minlon.setAlignment(Qt.AlignCenter)
-        le_minlon.setPlaceholderText("Min Lon (deg)")
-        le_minlon.textChanged.connect(le_minlon.islon)
-        le_maxlon = MyLineEdit()
-        le_maxlon.setAttribute(Qt.WA_MacShowFocusRect, 0)
-        le_maxlon.setObjectName("le_maxlon")
-        le_maxlon.setAlignment(Qt.AlignCenter)
-        le_maxlon.setPlaceholderText("Max Lon (deg)")
-        le_maxlon.textChanged.connect(le_maxlon.islon)
-        btn_showmap = QPushButton("Show map")
-        btn_showmap.setObjectName("btn_showmap")
-        btn_showmap.setEnabled(True)
-        if btn_showmap.isEnabled():
-            btn_showmap.setCursor(Qt.PointingHandCursor)
+        self.le_maxlat = MyLineEdit()
+        self.le_maxlat.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        self.le_maxlat.setObjectName("le_maxlat")
+        self.le_maxlat.setAlignment(Qt.AlignCenter)
+        self.le_maxlat.setPlaceholderText("Max Lat (deg)")
+        self.le_maxlat.textChanged.connect(self.le_maxlat.islat)
+        self.le_minlat = MyLineEdit()
+        self.le_minlat.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        self.le_minlat.setObjectName("le_minlat")
+        self.le_minlat.setAlignment(Qt.AlignCenter)
+        self.le_minlat.setPlaceholderText("Min Lat (deg)")
+        self.le_minlat.textChanged.connect(self.le_minlat.islat)
+        self.le_minlon = MyLineEdit()
+        self.le_minlon.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        self.le_minlon.setObjectName("le_minlon")
+        self.le_minlon.setAlignment(Qt.AlignCenter)
+        self.le_minlon.setPlaceholderText("Min Lon (deg)")
+        self.le_minlon.textChanged.connect(self.le_minlon.islon)
+        self.le_maxlon = MyLineEdit()
+        self.le_maxlon.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        self.le_maxlon.setObjectName("le_maxlon")
+        self.le_maxlon.setAlignment(Qt.AlignCenter)
+        self.le_maxlon.setPlaceholderText("Max Lon (deg)")
+        self.le_maxlon.textChanged.connect(self.le_maxlon.islon)
+        self.btn_showmap = QPushButton("Show map")
+        self.btn_showmap.setObjectName("btn_showmap")
+        self.btn_showmap.setEnabled(False)
+
         lbl_depend = QLabel("Program dependencies:")
         lbl_depend.setObjectName("lbl_depend")
         lbl_sac = QLabel("SAC:")
         lbl_sac.setObjectName("lbl_sac")
-        le_sac = MyLineEdit()
-        le_sac.setAttribute(Qt.WA_MacShowFocusRect, 0)
-        le_sac.setObjectName("le_sac")
-        le_sac.setPlaceholderText("Full path to SAC executable")
-        le_sac.textChanged.connect(le_sac.isfile)
-        browse_sac = MyDialog(type=1, lineEditObj=le_sac)
+        self.le_sac = MyLineEdit()
+        self.le_sac.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        self.le_sac.setObjectName("le_sac")
+        self.le_sac.setPlaceholderText("Full path to SAC executable")
+        self.le_sac.textChanged.connect(self.le_sac.isfile)
+        browse_sac = MyDialog(type=1, lineEditObj=self.le_sac)
 
         lbl_gmt = QLabel("GMT:")
         lbl_gmt.setObjectName("lbl_gmt")
-        le_gmt = MyLineEdit()
-        le_gmt.setAttribute(Qt.WA_MacShowFocusRect, 0)
-        le_gmt.setObjectName("le_gmt")
-        le_gmt.setPlaceholderText("Full path to GMT executable") 
-        le_gmt.textChanged.connect(le_gmt.isfile)
-        browse_gmt = MyDialog(type=1, lineEditObj=le_gmt)
+        self.le_gmt = MyLineEdit()
+        self.le_gmt.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        self.le_gmt.setObjectName("le_gmt")
+        self.le_gmt.setPlaceholderText("Full path to GMT executable") 
+        self.le_gmt.textChanged.connect(self.le_gmt.isfile)
+        browse_gmt = MyDialog(type=1, lineEditObj=self.le_gmt)
 
         lbl_perl = QLabel("Perl:")
         lbl_perl.setObjectName("lbl_perl")
-        le_perl = MyLineEdit()
-        le_perl.setAttribute(Qt.WA_MacShowFocusRect, 0)
-        le_perl.setObjectName("le_perl")
-        le_perl.setPlaceholderText("Full path to the Perl interpreter")
-        le_perl.textChanged.connect(le_perl.isfile)
-        browse_perl = MyDialog(type=1, lineEditObj=le_perl)
+        self.le_perl = MyLineEdit()
+        self.le_perl.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        self.le_perl.setObjectName("le_perl")
+        self.le_perl.setPlaceholderText("Full path to the Perl interpreter")
+        self.le_perl.textChanged.connect(self.le_perl.isfile)
+        browse_perl = MyDialog(type=1, lineEditObj=self.le_perl)
 
         # Design layouts
 
         ## Top Left/Right 
         lyo_tl = QGridLayout()
         lyo_tl.addWidget(lbl_maindir,0,0)
-        lyo_tl.addWidget(le_maindir,0,1)
+        lyo_tl.addWidget(self.le_maindir,0,1)
         lyo_tl.addWidget(browse_maindir,0,2)
         lyo_tl.addWidget(lbl_startdate,1,0)
-        lyo_tl.addWidget(le_startdate,1,1)
+        lyo_tl.addWidget(self.le_startdate,1,1)
         lyo_tl.addWidget(lbl_enddate,2,0)
-        lyo_tl.addWidget(le_enddate,2,1)
+        lyo_tl.addWidget(self.le_enddate,2,1)
         lyo_tl.setContentsMargins(0,0,0,0)
         lyo_tl.setVerticalSpacing(10)
         lyo_tl.setHorizontalSpacing(0)
 
         lyo_tr = QGridLayout()
-        lyo_tr.addWidget(le_maxlat,0,1)
-        lyo_tr.addWidget(le_minlon,1,0)
-        lyo_tr.addWidget(le_maxlon,1,2)
-        lyo_tr.addWidget(le_minlat,2,1)
-        lyo_tr.addWidget(btn_showmap,3,1)
+        lyo_tr.addWidget(self.le_maxlat,0,1)
+        lyo_tr.addWidget(self.le_minlon,1,0)
+        lyo_tr.addWidget(self.le_maxlon,1,2)
+        lyo_tr.addWidget(self.le_minlat,2,1)
+        lyo_tr.addWidget(self.btn_showmap,3,1)
         lyo_tr.setContentsMargins(0,0,0,0)
         lyo_tr.setVerticalSpacing(10)
         lyo_tr.setHorizontalSpacing(0)
@@ -427,13 +423,13 @@ class Project_Setting(QWidget):
         lyo_bottom = QGridLayout()
         lyo_bottom.addWidget(lbl_depend,0,0,1,3)
         lyo_bottom.addWidget(lbl_sac,1,0,1,1)
-        lyo_bottom.addWidget(le_sac,1,1,1,1)
+        lyo_bottom.addWidget(self.le_sac,1,1,1,1)
         lyo_bottom.addWidget(browse_sac,1,2,1,1)
         lyo_bottom.addWidget(lbl_gmt,2,0,1,1)
-        lyo_bottom.addWidget(le_gmt,2,1,1,1)
+        lyo_bottom.addWidget(self.le_gmt,2,1,1,1)
         lyo_bottom.addWidget(browse_gmt,2,2,1,1)
         lyo_bottom.addWidget(lbl_perl,3,0,1,1)
-        lyo_bottom.addWidget(le_perl,3,1,1,1)
+        lyo_bottom.addWidget(self.le_perl,3,1,1,1)
         lyo_bottom.addWidget(browse_perl,3,2,1,1)
         lyo_bottom.setVerticalSpacing(10)
         lyo_bottom.setHorizontalSpacing(10)
@@ -447,7 +443,114 @@ class Project_Setting(QWidget):
         self.layout.setContentsMargins(60,60,60,60)
         self.setLayout(self.layout)
 
+        self.le_minlat.textChanged.connect(lambda: self.showmap_button())
+        self.le_maxlat.textChanged.connect(lambda: self.showmap_button())
+        self.le_minlon.textChanged.connect(lambda: self.showmap_button())
+        self.le_maxlon.textChanged.connect(lambda: self.showmap_button())
+        
+        map_window = OrthoMap()
+        self.btn_showmap.clicked.connect(lambda: map_window.plot(float(self.le_minlat.text()),
+                                                         float(self.le_maxlat.text()),
+                                                         float(self.le_minlon.text()),
+                                                         float(self.le_maxlon.text()) ))
 
+
+
+
+    def get_parameters(self):
+        parameters = {}
+        parameters['le_maindir'] = self.le_maindir.text()
+        parameters['le_startdate'] = self.le_startdate.text()
+        parameters['le_enddate'] = self.le_enddate.text()
+        parameters['le_maxlat'] = self.le_maxlat.text()
+        parameters['le_minlon'] = self.le_minlon.text()
+        parameters['le_maxlon'] = self.le_maxlon.text()
+        parameters['le_minlat'] = self.le_minlat.text()
+        parameters['le_sac'] = self.le_sac.text()
+        parameters['le_gmt'] = self.le_gmt.text()
+        parameters['le_perl'] = self.le_perl.text()
+        print(parameters)
+
+
+    def showmap_button(self):
+        all_filled_in = all([len(self.le_minlat.text()),
+                             len(self.le_maxlat.text()),
+                             len(self.le_minlon.text()),
+                             len(self.le_maxlon.text())])
+        correct_formats = all([self.le_minlat.islat(),
+                               self.le_maxlat.islat(),
+                               self.le_minlon.islon(),
+                               self.le_maxlon.islon()])
+        if all_filled_in and correct_formats:
+            correct_values = all([float(self.le_minlat.text()) < float(self.le_maxlat.text()),
+                                  float(self.le_minlon.text()) < float(self.le_maxlon.text())])
+            if correct_values:
+                self.btn_showmap.setEnabled(True)
+                self.btn_showmap.setCursor(Qt.PointingHandCursor)
+                return True
+            else:
+                self.btn_showmap.setEnabled(False)
+                return False
+        else:
+            self.btn_showmap.setEnabled(False)
+            return False
+
+
+
+
+class OrthoMap(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        app_icon = QIcon()
+        app_icon.addFile(os.path.join(images_dir,'icons','16x16.png'))
+        app_icon.addFile(os.path.join(images_dir,'icons','24x24.png'))
+        app_icon.addFile(os.path.join(images_dir,'icons','32x32.png'))
+        app_icon.addFile(os.path.join(images_dir,'icons','48x48.png'))
+        app_icon.addFile(os.path.join(images_dir,'icons','256x256.png'))
+        self.setWindowIcon(app_icon)
+
+    def plot(self, minlat, maxlat, minlon, maxlon):
+        self.setWindowTitle(f'Show map:  longitude:[{minlon}, {maxlon}]; latitude:[{minlat}, {maxlat}]')
+        plt.close()
+        m = Basemap(llcrnrlon=minlon,llcrnrlat=minlat,urcrnrlon=maxlon,urcrnrlat=maxlat,
+                    projection='cyl',resolution ='i',area_thresh=1000)
+        m.drawcoastlines()
+        m.drawcountries()
+        m.drawmapboundary(fill_color='aqua')
+        m.fillcontinents(color='coral',lake_color='aqua')
+        
+        if (maxlat - minlat) > 40:
+            dparallel = 20
+        elif (maxlat - minlat) > 20:
+            dparallel = 10
+        elif (maxlat - minlat) > 10:
+            dparallel = 5
+        else:
+            dparallel = 2
+
+        if (maxlon - minlon) > 40:
+            dmeridian = 30
+        elif (maxlon - minlon) > 20:
+            dmeridian = 10
+        elif (maxlon - minlon) > 10:
+            dmeridian = 5
+        else:
+            dmeridian = 2
+
+        m.drawparallels(arange(-90,90+dparallel,dparallel), labels=[False, True, False, False])
+        m.drawmeridians(arange(-180,180+dmeridian,dmeridian), labels=[False, False, True, False])
+        img_bytes = QByteArray()
+        img_buffer = QBuffer(img_bytes)
+        img_buffer.open(QBuffer.WriteOnly)
+        plt.tight_layout()
+        plt.savefig(img_buffer, dpi=100, transparent=True)
+        pixmap = QPixmap()
+        pixmap.loadFromData(img_bytes)
+        self.setFixedSize( QSize(pixmap.width(), pixmap.height()) )
+        lbl = QLabel()
+        lbl.setPixmap(pixmap)
+        self.setCentralWidget(lbl)
+        self.show()
 
 
 

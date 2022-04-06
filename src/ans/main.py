@@ -23,6 +23,7 @@ def main():
     app = QApplication(sys.argv)
     win = ANS_GUI()
     win.show()
+    # sys.exit(app.exec_())
     app.exec_()
 
 if __name__ == "__main__":
