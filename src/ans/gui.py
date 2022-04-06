@@ -1163,6 +1163,7 @@ class MSEED_to_SAC(QWidget):
             cmb_mseed2sac_finalSF.addItem("5 Hz")
             cmb_mseed2sac_finalSF.addItem("10 Hz")
             cmb_mseed2sac_finalSF.addItem("20 Hz")
+            cmb_mseed2sac_finalSF.setObjectName('cmb_mseed2sac_finalSF')
             # setup layout
             lyo_proc_param.addWidget(lbl_mseed2sac_finalSF,0,0)
             lyo_proc_param.addWidget(cmb_mseed2sac_finalSF,0,1)
@@ -1182,6 +1183,7 @@ class MSEED_to_SAC(QWidget):
             browse_mseed2sac_stametadir = MyDialog(type=3, lineEditObj=le_mseed2sac_stametadir)
             lbl_mseed2sac_respOutput = QLabel("Output unit:")
             cmb_mseed2sac_respOutput = QComboBox()
+            cmb_mseed2sac_respOutput.setObjectName('cmb_mseed2sac_respOutput')
             cmb_mseed2sac_respOutput.setEditable(True)
             cmb_mseed2sac_respOutput.lineEdit().setAlignment(Qt.AlignCenter)
             cmb_mseed2sac_respOutput.addItem("Displacement (m)")
@@ -1189,6 +1191,7 @@ class MSEED_to_SAC(QWidget):
             cmb_mseed2sac_respOutput.addItem("Acceleration (m/s**2)")
             lbl_mseed2sac_respPreFilter = QLabel("Deconvolution pre-filter:")
             cmb_mseed2sac_respPreFilter = QComboBox()
+            cmb_mseed2sac_respPreFilter.setObjectName('cmb_mseed2sac_respPreFilter')
             cmb_mseed2sac_respPreFilter.setEditable(True)
             cmb_mseed2sac_respPreFilter.lineEdit().setAlignment(Qt.AlignCenter)
             cmb_mseed2sac_respPreFilter.addItem("None")
@@ -1211,21 +1214,25 @@ class MSEED_to_SAC(QWidget):
         elif pid == [5,1]: # bandpass filter - Method 1
             lbl_mseed2sac_bpCP1 = QLabel("Left corner period (s):")
             le_mseed2sac_bpCP1 = MyLineEdit()
+            le_mseed2sac_bpCP1.setObjectName('le_mseed2sac_bpCP1')
             le_mseed2sac_bpCP1.setAlignment(Qt.AlignCenter)
             le_mseed2sac_bpCP1.setPlaceholderText("Bandpass left corner period (s)")
             le_mseed2sac_bpCP1.textChanged.connect(le_mseed2sac_bpCP1.isfloat)
             lbl_mseed2sac_bpCP2 = QLabel("Right corner period (s):")
             le_mseed2sac_bpCP2 = MyLineEdit()
+            le_mseed2sac_bpCP2.setObjectName('le_mseed2sac_bpCP2')
             le_mseed2sac_bpCP2.setAlignment(Qt.AlignCenter)
             le_mseed2sac_bpCP2.setPlaceholderText("Bandpass right corner period (s)")
             le_mseed2sac_bpCP2.textChanged.connect(le_mseed2sac_bpCP2.isfloat)
             lbl_mseed2sac_bpPoles = QLabel("Number of poles (n):")
             sb_mseed2sac_bpPoles = QSpinBox()
+            sb_mseed2sac_bpPoles.setObjectName('sb_mseed2sac_bpPoles')
             sb_mseed2sac_bpPoles.setMinimum(1)
             sb_mseed2sac_bpPoles.setMaximum(10)
             sb_mseed2sac_bpPoles.setSingleStep(1)
             lbl_mseed2sac_bpPasses = QLabel("Number of passes (p):")
             sb_mseed2sac_bpPasses = QSpinBox()
+            sb_mseed2sac_bpPasses.setObjectName('sb_mseed2sac_bpPasses')
             sb_mseed2sac_bpPasses.setMinimum(1)
             sb_mseed2sac_bpPasses.setMaximum(2)
             sb_mseed2sac_bpPasses.setSingleStep(1)
@@ -1284,13 +1291,13 @@ class MSEED_to_SAC(QWidget):
             mseed2sac_proc_params["sb_mseed2sac_bpPasses"] = 2
         return mseed2sac_proc_params
 
+
     def get_parameters(self):
         os.system('cls')
         parameters = {}
         parameters['mseed2sac_input_mseeds'] = self.le_input_mseeds.text()
         parameters['mseed2sac_output_sacs'] = self.le_output_sacs.text()
         parameters['mseed2sac_channels'] = self.le_mseed2sac_channels.text()
-
         parameters['mseed2sac_procs'] = []
         nprocs = len(self.mseed2sac_proc_frames)
         for i in range(nprocs):
@@ -1324,25 +1331,28 @@ class MSEED_to_SAC(QWidget):
                     le_mseed2sac_channel2keep = proc_param.findChild(QLineEdit, 'le_mseed2sac_channel2keep').text()
                     proc['le_mseed2sac_similarChannels'] = le_mseed2sac_similarChannels
                     proc['le_mseed2sac_channel2keep'] = le_mseed2sac_channel2keep
-
                 elif pid == [3,1]: # Decimate - Method 1
-                    pass
+                    cmb_mseed2sac_finalSF = proc_param.findChild(QComboBox, 'cmb_mseed2sac_finalSF').currentIndex()
+                    proc['cmb_mseed2sac_finalSF'] = cmb_mseed2sac_finalSF
                 elif pid == [4,1]: # Remove response - Method 1
-                    pass
+                    le_mseed2sac_stametadir = proc_param.findChild(MyLineEdit, 'le_mseed2sac_stametadir').text()
+                    cmb_mseed2sac_respOutput = proc_param.findChild(QComboBox, 'cmb_mseed2sac_respOutput').currentIndex()
+                    cmb_mseed2sac_respPreFilter = proc_param.findChild(QComboBox, 'cmb_mseed2sac_respPreFilter').currentIndex()
+                    proc['le_mseed2sac_stametadir'] = le_mseed2sac_stametadir
+                    proc['cmb_mseed2sac_respOutput'] = cmb_mseed2sac_respOutput
+                    proc['cmb_mseed2sac_respPreFilter'] = cmb_mseed2sac_respPreFilter
                 elif pid == [5,1]: # bandpass filter - Method 1
-                    pass
-                for k in proc.keys():
-                    print(k, proc[k])
-                print("\n")
+                    le_mseed2sac_bpCP1 = proc_param.findChild(QLineEdit, 'le_mseed2sac_bpCP1').text()
+                    le_mseed2sac_bpCP2 = proc_param.findChild(QLineEdit, 'le_mseed2sac_bpCP2').text()
+                    sb_mseed2sac_bpPoles = proc_param.findChild(QSpinBox, 'sb_mseed2sac_bpPoles').value()
+                    sb_mseed2sac_bpPasses = proc_param.findChild(QSpinBox, 'sb_mseed2sac_bpPasses').value()
+                    proc['le_mseed2sac_bpCP1'] = le_mseed2sac_bpCP1
+                    proc['le_mseed2sac_bpCP2'] = le_mseed2sac_bpCP2
+                    proc['sb_mseed2sac_bpPoles'] = sb_mseed2sac_bpPoles
+                    proc['sb_mseed2sac_bpPasses'] = sb_mseed2sac_bpPasses
                 parameters['mseed2sac_procs'].append(proc)
-        print(parameters)
+        return parameters
                     
-
-
-
-
-
-        
 
 
 
@@ -1351,9 +1361,11 @@ class SAC_to_NCF(QWidget):
         super().__init__()
 
 
+
 class NCF_to_EGF(QWidget):
     def __init__(self):
         super().__init__()
+
 
 
 class MainWindow(QMainWindow):
