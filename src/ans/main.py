@@ -21,7 +21,7 @@ class ANS_GUI(gui.MainWindow):
 
 def main():
     app = QApplication(sys.argv)
-    win = ANS_GUI()
+    win = gui.MainWindow('./')
     win.show()
     sys.exit(app.exec_())
     app.exec_()

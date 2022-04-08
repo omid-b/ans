@@ -52,18 +52,18 @@ def read_config(config_file):
     # setting
     setting = {}
     for param in setting_params:
+        val = config.get('setting',f"{param}")
         if param not in config.options('setting'):
             print(f"read_config(): Config parameter not available in [setting]: '{param}'")
             return False
-        if param in integer_params:
-            setting[f"{param}"] = int(config.get('setting',f"{param}"))
-        elif param in float_params:
-            setting[f"{param}"] = float(config.get('setting',f"{param}"))
-        elif param in intlist_params:
-            setting[f"{param}"] = config.get('setting',f"{param}")
-            setting[f"{param}"] = array(setting[f"{param}"].split(), dtype=int).tolist()
+        if param in integer_params and len(val):
+            setting[f"{param}"] = int(val)
+        elif param in float_params and len(val):
+            setting[f"{param}"] = float(val)
+        elif param in intlist_params and len(val):
+            setting[f"{param}"] = array(val.split(), dtype=int).tolist()
         else:
-            setting[f"{param}"] = config.get('setting',f"{param}")
+            setting[f"{param}"] = val
     # download
     download = {}
     for param in download_params:
@@ -146,90 +146,78 @@ def write_config(config_file, parameters):
 
 class Defaults:
     def __init__(self, maindir):
-        self.maindir = maindir
+        self.maindir = os.path.abspath(maindir)
+
+    
+    def parameters(self):
+        parameters = {}
+        parameters['setting'] = self.setting()
+        parameters['download'] = self.download()
+        parameters['mseed2sac'] = self.mseed2sac()
+        return parameters
+
+
 
     def setting(self):
-        parameters = {}
-        parameters['le_maindir'] = self.maindir
-        parameters['le_startdate'] = ""
-        parameters['le_enddate'] = ""
-        parameters['le_maxlat'] = ""
-        parameters['le_minlon'] = ""
-        parameters['le_maxlon'] = ""
-        parameters['le_minlat'] = ""
+        setting = {}
+        setting['le_maindir'] = self.maindir
+        setting['le_startdate'] = ""
+        setting['le_enddate'] = ""
+        setting['le_maxlat'] = ""
+        setting['le_minlon'] = ""
+        setting['le_maxlon'] = ""
+        setting['le_minlat'] = ""
         if sys.platform in ['darwin', 'linux', 'linux2', 'cygwin']:
-            if os.system('which sac') == 0:
-                parameters['le_sac'] = subprocess.check_output("which sac", shell=True).decode("utf-8").split('\n')[0]
-            else:
-                parameters['le_sac'] = '/usr/local/sac/bin/sac'
-            if os.system('which gmt') == 0:
-                parameters['le_gmt'] = subprocess.check_output("which gmt", shell=True).decode("utf-8").split('\n')[0]
-            else:
-                parameters['le_gmt'] = '/usr/bin/gmt'
-            if os.system('which perl') == 0:
-                parameters['le_perl'] = subprocess.check_output("which perl", shell=True).decode("utf-8").split('\n')[0]
-            else:
-                parameters['le_perl'] = '/usr/bin/perl'
-        elif sys.platform in ['win32']:
-            if os.system('where sac') == 0:
-                parameters['le_sac'] = subprocess.check_output("where sac", shell=True).decode("utf-8").split('\n')[0]
-            else:
-                parameters['le_sac'] = ""
-            if os.system('where gmt') == 0:
-                parameters['le_gmt'] = subprocess.check_output("where gmt", shell=True).decode("utf-8").split('\n')[0]
-            else:
-                parameters['le_gmt'] = ""
-            if os.system('where perl') == 0:
-                parameters['le_perl'] = subprocess.check_output("where perl", shell=True).decode("utf-8").split('\n')[0]
-            else:
-                parameters['le_perl'] = os.path.join("C:","Strawberry","perl","bin","perl.exe")
+            setting['le_sac'] = '/usr/local/sac/bin/sac'
+            setting['le_gmt'] = '/usr/bin/gmt'
+            setting['le_perl'] = '/usr/bin/perl'
         else:
-            parameters['le_sac'] = ""
-            parameters['le_gmt'] = ""
-            parameters['le_perl'] = ""
-        return parameters
+            setting['le_sac'] = ""
+            setting['le_gmt'] = ""
+            setting['le_perl'] = ""
+        return setting
 
 
     def download(self):
-        parameters = {}
+        download = {}
         # data centers
-        parameters['chb_dc_service_iris_edu'] = 2
-        parameters['chb_dc_service_ncedc_org'] = 2
-        parameters['chb_dc_service_scedc_caltech_edu'] = 2
-        parameters['chb_dc_rtserve_beg_utexas_edu'] = 2
-        parameters['chb_dc_eida_bgr_de'] = 2
-        parameters['chb_dc_ws_resif_fr'] = 2
-        parameters['chb_dc_seisrequest_iag_usp_br'] = 2
-        parameters['chb_dc_eida_service_koeri_boun_edu_tr'] = 2
-        parameters['chb_dc_eida_ethz_ch'] = 2
-        parameters['chb_dc_geofon_gfz_potsdam_de'] = 2
-        parameters['chb_dc_ws_icgc_cat'] = 2
-        parameters['chb_dc_eida_ipgp_fr'] = 2
-        parameters['chb_dc_fdsnws_raspberryshakedata_com'] = 2
-        parameters['chb_dc_webservices_ingv_it'] = 2
-        parameters['chb_dc_erde_geophysik_uni_muenchen_de'] = 2
-        parameters['chb_dc_eida_sc3_infp_ro'] = 2
-        parameters['chb_dc_eida_gein_noa_gr'] = 2
-        parameters['chb_dc_www_orfeus_eu_org'] = 2
-        parameters['chb_dc_auspass_edu_au'] = 2
+        download['chb_dc_service_iris_edu'] = 2
+        download['chb_dc_service_ncedc_org'] = 0
+        download['chb_dc_service_scedc_caltech_edu'] = 0
+        download['chb_dc_rtserve_beg_utexas_edu'] = 0
+        download['chb_dc_eida_bgr_de'] = 0
+        download['chb_dc_ws_resif_fr'] = 0
+        download['chb_dc_seisrequest_iag_usp_br'] = 0
+        download['chb_dc_eida_service_koeri_boun_edu_tr'] = 0
+        download['chb_dc_eida_ethz_ch'] = 0
+        download['chb_dc_geofon_gfz_potsdam_de'] = 0
+        download['chb_dc_ws_icgc_cat'] = 0
+        download['chb_dc_eida_ipgp_fr'] = 0
+        download['chb_dc_fdsnws_raspberryshakedata_com'] = 0
+        download['chb_dc_webservices_ingv_it'] = 0
+        download['chb_dc_erde_geophysik_uni_muenchen_de'] = 0
+        download['chb_dc_eida_sc3_infp_ro'] = 0
+        download['chb_dc_eida_gein_noa_gr'] = 0
+        download['chb_dc_www_orfeus_eu_org'] = 0
+        download['chb_dc_auspass_edu_au'] = 0
         # download setting
-        parameters['le_stalist'] = os.path.join(self.maindir, 'stations.dat')
-        parameters['le_stameta'] = os.path.join(self.maindir, 'station_metafiles')
-        parameters['le_stalocs'] = "00 10"
-        parameters['le_stachns'] = "BHZ HHZ"
-        parameters['le_timelen'] = 86400
+        download['le_stalist'] = os.path.join(self.maindir, 'stations.dat')
+        download['le_stameta'] = os.path.join(self.maindir, 'station_metafiles')
+        download['le_stalocs'] = "00 10"
+        download['le_stachns'] = "BHZ HHZ"
+        download['le_timelen'] = 86400
         # download scripts
-        parameters['chb_obspy'] = 2
-        parameters['chb_fetch'] = 2
-        return parameters
+        download['chb_obspy'] = 2
+        download['chb_fetch'] = 2
+        return download
 
 
     def mseed2sac(self):
-        parameters = {}
-        parameters['mseed2sac_input_mseeds'] = os.path.join(self.maindir, 'mseedfiles')
-        parameters['mseed2sac_output_sacs'] = os.path.join(self.maindir, 'sacfiles')
-        parameters['mseed2sac_channels'] = "BHZ HHZ"
-        parameters['mseed2sac_procs'] = []
+        mseed2sac = {}
+        mseed2sac['mseed2sac_input_mseeds'] = os.path.join(self.maindir, 'mseedfiles')
+        mseed2sac['mseed2sac_output_sacs'] = os.path.join(self.maindir, 'sacfiles')
+        mseed2sac['mseed2sac_channels'] = "BHZ HHZ"
+        mseed2sac['mseed2sac_procs'] = []
         # process 1 
         mseed2sac_proc_1 = {}
         mseed2sac_proc_1['pid'] = [1,1] # MSEED to SAC
@@ -256,9 +244,9 @@ class Defaults:
         mseed2sac_proc_4['cmb_mseed2sac_resp_output'] = 1 # velocity
         mseed2sac_proc_4['cmb_mseed2sac_resp_prefilter'] = 1 # [0.001, 0.005, 45, 50]
         # append processes to the list
-        parameters['mseed2sac_procs'].append(mseed2sac_proc_1)
-        parameters['mseed2sac_procs'].append(mseed2sac_proc_2)
-        parameters['mseed2sac_procs'].append(mseed2sac_proc_3)
-        parameters['mseed2sac_procs'].append(mseed2sac_proc_4)
-        return parameters
+        mseed2sac['mseed2sac_procs'].append(mseed2sac_proc_1)
+        mseed2sac['mseed2sac_procs'].append(mseed2sac_proc_2)
+        mseed2sac['mseed2sac_procs'].append(mseed2sac_proc_3)
+        mseed2sac['mseed2sac_procs'].append(mseed2sac_proc_4)
+        return mseed2sac
 
