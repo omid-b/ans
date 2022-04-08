@@ -968,51 +968,51 @@ class MSEED_to_SAC(QWidget):
         if pid == [1,1]: # MSEED to SAC - Method 1
             chb_mseed2sac_detrend = proc_param.findChild(MyCheckBox, 'chb_mseed2sac_detrend')
             chb_mseed2sac_taper = proc_param.findChild(MyCheckBox, 'chb_mseed2sac_taper')
-            lbl_mseed2sac_detrendMethod = proc_param.findChild(QLabel, 'lbl_mseed2sac_detrendMethod')
-            cmb_mseed2sac_detrendMethod = proc_param.findChild(QComboBox, 'cmb_mseed2sac_detrendMethod')
-            lbl_mseed2sac_detrendOrder = proc_param.findChild(QLabel, 'lbl_mseed2sac_detrendOrder')
-            sb_mseed2sac_detrendOrder = proc_param.findChild(QSpinBox, 'sb_mseed2sac_detrendOrder')
+            lbl_mseed2sac_detrend_method = proc_param.findChild(QLabel, 'lbl_mseed2sac_detrend_method')
+            cmb_mseed2sac_detrend_method = proc_param.findChild(QComboBox, 'cmb_mseed2sac_detrend_method')
+            lbl_mseed2sac_detrend_order = proc_param.findChild(QLabel, 'lbl_mseed2sac_detrend_order')
+            sb_mseed2sac_detrend_order = proc_param.findChild(QSpinBox, 'sb_mseed2sac_detrend_order')
             lbl_mseed2sac_dspline = proc_param.findChild(QLabel, 'lbl_mseed2sac_dspline')
             le_mseed2sac_dspline = proc_param.findChild(QLineEdit, 'le_mseed2sac_dspline')
-            lbl_mseed2sac_taperMethod = proc_param.findChild(QLabel, 'lbl_mseed2sac_taperMethod')
-            cmb_mseed2sac_taperMethod = proc_param.findChild(QComboBox, 'cmb_mseed2sac_taperMethod')
-            lbl_mseed2sac_maxTaperPer = proc_param.findChild(QLabel, 'lbl_mseed2sac_maxTaperPer')
-            dsb_mseed2sac_maxTaperPer = proc_param.findChild(QDoubleSpinBox, 'dsb_mseed2sac_maxTaperPer')
+            lbl_mseed2sac_taper_method = proc_param.findChild(QLabel, 'lbl_mseed2sac_taper_method')
+            cmb_mseed2sac_taper_method = proc_param.findChild(QComboBox, 'cmb_mseed2sac_taper_method')
+            lbl_mseed2sac_max_taper = proc_param.findChild(QLabel, 'lbl_mseed2sac_max_taper')
+            dsb_mseed2sac_max_taper = proc_param.findChild(QDoubleSpinBox, 'dsb_mseed2sac_max_taper')
             # Detrend Parameters
             if  chb_mseed2sac_detrend.checkState():
-                lbl_mseed2sac_detrendMethod.setEnabled(True)
-                cmb_mseed2sac_detrendMethod.setEnabled(True)
-                if cmb_mseed2sac_detrendMethod.currentIndex() in [2,3]:
-                    lbl_mseed2sac_detrendOrder.setEnabled(True)
-                    sb_mseed2sac_detrendOrder.setEnabled(True)
+                lbl_mseed2sac_detrend_method.setEnabled(True)
+                cmb_mseed2sac_detrend_method.setEnabled(True)
+                if cmb_mseed2sac_detrend_method.currentIndex() in [2,3]:
+                    lbl_mseed2sac_detrend_order.setEnabled(True)
+                    sb_mseed2sac_detrend_order.setEnabled(True)
                 else:
-                    lbl_mseed2sac_detrendOrder.setEnabled(False)
-                    sb_mseed2sac_detrendOrder.setEnabled(False)
+                    lbl_mseed2sac_detrend_order.setEnabled(False)
+                    sb_mseed2sac_detrend_order.setEnabled(False)
 
-                if cmb_mseed2sac_detrendMethod.currentIndex() == 3:
+                if cmb_mseed2sac_detrend_method.currentIndex() == 3:
                     lbl_mseed2sac_dspline.setEnabled(True)
                     le_mseed2sac_dspline.setEnabled(True)
                 else:
                     lbl_mseed2sac_dspline.setEnabled(False)
                     le_mseed2sac_dspline.setEnabled(False)
             else:
-                lbl_mseed2sac_detrendMethod.setEnabled(False)
-                cmb_mseed2sac_detrendMethod.setEnabled(False)
-                lbl_mseed2sac_detrendOrder.setEnabled(False)
-                sb_mseed2sac_detrendOrder.setEnabled(False)
+                lbl_mseed2sac_detrend_method.setEnabled(False)
+                cmb_mseed2sac_detrend_method.setEnabled(False)
+                lbl_mseed2sac_detrend_order.setEnabled(False)
+                sb_mseed2sac_detrend_order.setEnabled(False)
                 lbl_mseed2sac_dspline.setEnabled(False)
                 le_mseed2sac_dspline.setEnabled(False)
             # Taper Parameters
             if chb_mseed2sac_taper.checkState():
-                lbl_mseed2sac_taperMethod.setEnabled(True)
-                cmb_mseed2sac_taperMethod.setEnabled(True)
-                lbl_mseed2sac_maxTaperPer.setEnabled(True)
-                dsb_mseed2sac_maxTaperPer.setEnabled(True)
+                lbl_mseed2sac_taper_method.setEnabled(True)
+                cmb_mseed2sac_taper_method.setEnabled(True)
+                lbl_mseed2sac_max_taper.setEnabled(True)
+                dsb_mseed2sac_max_taper.setEnabled(True)
             else:
-                lbl_mseed2sac_taperMethod.setEnabled(False)
-                cmb_mseed2sac_taperMethod.setEnabled(False)
-                lbl_mseed2sac_maxTaperPer.setEnabled(False)
-                dsb_mseed2sac_maxTaperPer.setEnabled(False)
+                lbl_mseed2sac_taper_method.setEnabled(False)
+                cmb_mseed2sac_taper_method.setEnabled(False)
+                lbl_mseed2sac_max_taper.setEnabled(False)
+                dsb_mseed2sac_max_taper.setEnabled(False)
 
 
     def new_proc_type(self, pframe_id, ptype_index=0):
@@ -1137,34 +1137,34 @@ class MSEED_to_SAC(QWidget):
             chb_mseed2sac_detrend.setObjectName("chb_mseed2sac_detrend")
             lbl_mseed2sac_detrend = QLabel("Detrend")
             lbl_mseed2sac_detrend.setObjectName("lbl_mseed2sac_detrend")
-            lbl_mseed2sac_taperMethod = QLabel("Taper method:")
-            lbl_mseed2sac_taperMethod.setObjectName("lbl_mseed2sac_taperMethod")
-            cmb_mseed2sac_taperMethod = QComboBox()
-            cmb_mseed2sac_taperMethod.setObjectName("cmb_mseed2sac_taperMethod")
-            cmb_mseed2sac_taperMethod.addItem("ObsPy: taper(type='hann')")
-            lbl_mseed2sac_maxTaperPer = QLabel("Taper max perc:")
-            lbl_mseed2sac_maxTaperPer.setObjectName("lbl_mseed2sac_maxTaperPer")
-            dsb_mseed2sac_maxTaperPer = QDoubleSpinBox()
-            dsb_mseed2sac_maxTaperPer.setMinimum(0.0)
-            dsb_mseed2sac_maxTaperPer.setMaximum(0.5)
-            dsb_mseed2sac_maxTaperPer.setDecimals(3)
-            dsb_mseed2sac_maxTaperPer.setSingleStep(0.001)
-            dsb_mseed2sac_maxTaperPer.setObjectName("dsb_mseed2sac_maxTaperPer")
-            lbl_mseed2sac_detrendMethod = QLabel("Detrend method:")
-            lbl_mseed2sac_detrendMethod.setObjectName("lbl_mseed2sac_detrendMethod")
-            cmb_mseed2sac_detrendMethod = QComboBox()
-            cmb_mseed2sac_detrendMethod.setObjectName("cmb_mseed2sac_detrendMethod")
-            cmb_mseed2sac_detrendMethod.addItem("Demean")
-            cmb_mseed2sac_detrendMethod.addItem("Linear")
-            cmb_mseed2sac_detrendMethod.addItem("Polynomial")
-            cmb_mseed2sac_detrendMethod.addItem("Spline")
-            lbl_mseed2sac_detrendOrder = QLabel("Detrend order:")
-            lbl_mseed2sac_detrendOrder.setObjectName("lbl_mseed2sac_detrendOrder")
-            sb_mseed2sac_detrendOrder = QSpinBox()
-            sb_mseed2sac_detrendOrder.setObjectName("sb_mseed2sac_detrendOrder")
-            sb_mseed2sac_detrendOrder.setMinimum(3)
-            sb_mseed2sac_detrendOrder.setMaximum(5)
-            sb_mseed2sac_detrendOrder.setSingleStep(1)
+            lbl_mseed2sac_taper_method = QLabel("Taper method:")
+            lbl_mseed2sac_taper_method.setObjectName("lbl_mseed2sac_taper_method")
+            cmb_mseed2sac_taper_method = QComboBox()
+            cmb_mseed2sac_taper_method.setObjectName("cmb_mseed2sac_taper_method")
+            cmb_mseed2sac_taper_method.addItem("ObsPy: taper(type='hann')")
+            lbl_mseed2sac_max_taper = QLabel("Taper max perc:")
+            lbl_mseed2sac_max_taper.setObjectName("lbl_mseed2sac_max_taper")
+            dsb_mseed2sac_max_taper = QDoubleSpinBox()
+            dsb_mseed2sac_max_taper.setMinimum(0.0)
+            dsb_mseed2sac_max_taper.setMaximum(0.5)
+            dsb_mseed2sac_max_taper.setDecimals(3)
+            dsb_mseed2sac_max_taper.setSingleStep(0.001)
+            dsb_mseed2sac_max_taper.setObjectName("dsb_mseed2sac_max_taper")
+            lbl_mseed2sac_detrend_method = QLabel("Detrend method:")
+            lbl_mseed2sac_detrend_method.setObjectName("lbl_mseed2sac_detrend_method")
+            cmb_mseed2sac_detrend_method = QComboBox()
+            cmb_mseed2sac_detrend_method.setObjectName("cmb_mseed2sac_detrend_method")
+            cmb_mseed2sac_detrend_method.addItem("Demean")
+            cmb_mseed2sac_detrend_method.addItem("Linear")
+            cmb_mseed2sac_detrend_method.addItem("Polynomial")
+            cmb_mseed2sac_detrend_method.addItem("Spline")
+            lbl_mseed2sac_detrend_order = QLabel("Detrend order:")
+            lbl_mseed2sac_detrend_order.setObjectName("lbl_mseed2sac_detrend_order")
+            sb_mseed2sac_detrend_order = QSpinBox()
+            sb_mseed2sac_detrend_order.setObjectName("sb_mseed2sac_detrend_order")
+            sb_mseed2sac_detrend_order.setMinimum(3)
+            sb_mseed2sac_detrend_order.setMaximum(5)
+            sb_mseed2sac_detrend_order.setSingleStep(1)
             lbl_mseed2sac_dspline = QLabel("dspline:")
             lbl_mseed2sac_dspline.setObjectName("lbl_mseed2sac_dspline")
             le_mseed2sac_dspline = QLineEdit()
@@ -1174,26 +1174,26 @@ class MSEED_to_SAC(QWidget):
             # set parameters
             chb_mseed2sac_detrend.setCheckState(params['chb_mseed2sac_detrend'])
             chb_mseed2sac_taper.setCheckState(params['chb_mseed2sac_taper'])
-            cmb_mseed2sac_taperMethod.setCurrentIndex(params["cmb_mseed2sac_taperMethod"])
-            dsb_mseed2sac_maxTaperPer.setValue(params["dsb_mseed2sac_maxTaperPer"])
-            cmb_mseed2sac_detrendMethod.setCurrentIndex(params["cmb_mseed2sac_detrendMethod"])
-            sb_mseed2sac_detrendOrder.setValue(params["sb_mseed2sac_detrendOrder"])
+            cmb_mseed2sac_taper_method.setCurrentIndex(params["cmb_mseed2sac_taper_method"])
+            dsb_mseed2sac_max_taper.setValue(params["dsb_mseed2sac_max_taper"])
+            cmb_mseed2sac_detrend_method.setCurrentIndex(params["cmb_mseed2sac_detrend_method"])
+            sb_mseed2sac_detrend_order.setValue(params["sb_mseed2sac_detrend_order"])
             le_mseed2sac_dspline.setText(f"{params['le_mseed2sac_dspline']}")
             # setup layout
             lyo_proc_param.addWidget(lbl_mseed2sac_detrend, 0,1,1,1)
             lyo_proc_param.addWidget(chb_mseed2sac_detrend, 0,0,1,1)
-            lyo_proc_param.addWidget(lbl_mseed2sac_detrendMethod, 1,0,1,2)
-            lyo_proc_param.addWidget(cmb_mseed2sac_detrendMethod, 1,2)
-            lyo_proc_param.addWidget(lbl_mseed2sac_detrendOrder, 2,0,1,2)
-            lyo_proc_param.addWidget(sb_mseed2sac_detrendOrder, 2,2)
+            lyo_proc_param.addWidget(lbl_mseed2sac_detrend_method, 1,0,1,2)
+            lyo_proc_param.addWidget(cmb_mseed2sac_detrend_method, 1,2)
+            lyo_proc_param.addWidget(lbl_mseed2sac_detrend_order, 2,0,1,2)
+            lyo_proc_param.addWidget(sb_mseed2sac_detrend_order, 2,2)
             lyo_proc_param.addWidget(lbl_mseed2sac_dspline, 3,0,1,2)
             lyo_proc_param.addWidget(le_mseed2sac_dspline, 3,2)
             lyo_proc_param.addWidget(lbl_mseed2sac_taper, 0,4,1,1)
             lyo_proc_param.addWidget(chb_mseed2sac_taper, 0,3,1,1)
-            lyo_proc_param.addWidget(lbl_mseed2sac_taperMethod, 1,3,1,2)
-            lyo_proc_param.addWidget(cmb_mseed2sac_taperMethod, 1,5)
-            lyo_proc_param.addWidget(lbl_mseed2sac_maxTaperPer, 2,3,1,2)
-            lyo_proc_param.addWidget(dsb_mseed2sac_maxTaperPer, 2,5)
+            lyo_proc_param.addWidget(lbl_mseed2sac_taper_method, 1,3,1,2)
+            lyo_proc_param.addWidget(cmb_mseed2sac_taper_method, 1,5)
+            lyo_proc_param.addWidget(lbl_mseed2sac_max_taper, 2,3,1,2)
+            lyo_proc_param.addWidget(dsb_mseed2sac_max_taper, 2,5)
             lyo_proc_param.setHorizontalSpacing(20)
             lyo_proc_param.setAlignment(Qt.AlignVCenter)
             lyo_proc_param.setAlignment(Qt.AlignHCenter)
@@ -1201,80 +1201,80 @@ class MSEED_to_SAC(QWidget):
             # UPDATE UI BASED ON INPUT PARAMETERS
             # 1) Detrend Parameters
             if  chb_mseed2sac_detrend.checkState():
-                lbl_mseed2sac_detrendMethod.setEnabled(True)
-                cmb_mseed2sac_detrendMethod.setEnabled(True)
-                if cmb_mseed2sac_detrendMethod.currentIndex() in [2,3]:
-                    lbl_mseed2sac_detrendOrder.setEnabled(True)
-                    sb_mseed2sac_detrendOrder.setEnabled(True)
+                lbl_mseed2sac_detrend_method.setEnabled(True)
+                cmb_mseed2sac_detrend_method.setEnabled(True)
+                if cmb_mseed2sac_detrend_method.currentIndex() in [2,3]:
+                    lbl_mseed2sac_detrend_order.setEnabled(True)
+                    sb_mseed2sac_detrend_order.setEnabled(True)
                 else:
-                    lbl_mseed2sac_detrendOrder.setEnabled(False)
-                    sb_mseed2sac_detrendOrder.setEnabled(False)
+                    lbl_mseed2sac_detrend_order.setEnabled(False)
+                    sb_mseed2sac_detrend_order.setEnabled(False)
                     
-                if cmb_mseed2sac_detrendMethod.currentIndex() == 3:
+                if cmb_mseed2sac_detrend_method.currentIndex() == 3:
                     lbl_mseed2sac_dspline.setEnabled(True)
                     le_mseed2sac_dspline.setEnabled(True)
                 else:
                     lbl_mseed2sac_dspline.setEnabled(False)
                     le_mseed2sac_dspline.setEnabled(False)
             else:
-                lbl_mseed2sac_detrendMethod.setEnabled(False)
-                cmb_mseed2sac_detrendMethod.setEnabled(False)
-                lbl_mseed2sac_detrendOrder.setEnabled(False)
-                sb_mseed2sac_detrendOrder.setEnabled(False)
+                lbl_mseed2sac_detrend_method.setEnabled(False)
+                cmb_mseed2sac_detrend_method.setEnabled(False)
+                lbl_mseed2sac_detrend_order.setEnabled(False)
+                sb_mseed2sac_detrend_order.setEnabled(False)
                 lbl_mseed2sac_dspline.setEnabled(False)
                 le_mseed2sac_dspline.setEnabled(False)
             # 2) Taper Parameters
             if chb_mseed2sac_taper.checkState():
-                lbl_mseed2sac_taperMethod.setEnabled(True)
-                cmb_mseed2sac_taperMethod.setEnabled(True)
-                lbl_mseed2sac_maxTaperPer.setEnabled(True)
-                dsb_mseed2sac_maxTaperPer.setEnabled(True)
+                lbl_mseed2sac_taper_method.setEnabled(True)
+                cmb_mseed2sac_taper_method.setEnabled(True)
+                lbl_mseed2sac_max_taper.setEnabled(True)
+                dsb_mseed2sac_max_taper.setEnabled(True)
             else:
-                lbl_mseed2sac_taperMethod.setEnabled(False)
-                cmb_mseed2sac_taperMethod.setEnabled(False)
-                lbl_mseed2sac_maxTaperPer.setEnabled(False)
-                dsb_mseed2sac_maxTaperPer.setEnabled(False)
+                lbl_mseed2sac_taper_method.setEnabled(False)
+                cmb_mseed2sac_taper_method.setEnabled(False)
+                lbl_mseed2sac_max_taper.setEnabled(False)
+                dsb_mseed2sac_max_taper.setEnabled(False)
             # signals and slots
             chb_mseed2sac_detrend.stateChanged.connect(lambda: self.update_proc_param_ui(pframe_id))
             chb_mseed2sac_taper.stateChanged.connect(lambda: self.update_proc_param_ui(pframe_id))
-            cmb_mseed2sac_detrendMethod.currentIndexChanged.connect(lambda: self.update_proc_param_ui(pframe_id))
+            cmb_mseed2sac_detrend_method.currentIndexChanged.connect(lambda: self.update_proc_param_ui(pframe_id))
             chb_mseed2sac_taper.setTristate(False)
             chb_mseed2sac_detrend.setTristate(False)
         elif pid == [2,1]: # Remove channel - Method 1
-            lbl_mseed2sac_similarChannels = QLabel("Similar channels:")
-            le_mseed2sac_similarChannels = QLineEdit()
-            le_mseed2sac_similarChannels.setObjectName("le_mseed2sac_similarChannels")
+            lbl_mseed2sac_similar_channels = QLabel("Similar channels:")
+            le_mseed2sac_similar_channels = QLineEdit()
+            le_mseed2sac_similar_channels.setObjectName("le_mseed2sac_similar_channels")
             lbl_mseed2sac_channel2keep = QLabel("Channel to keep:")
             le_mseed2sac_channel2keep = QLineEdit()
             le_mseed2sac_channel2keep.setObjectName("le_mseed2sac_channel2keep")
             # setup layout
-            lyo_proc_param.addWidget(lbl_mseed2sac_similarChannels, 0,0)
-            lyo_proc_param.addWidget(le_mseed2sac_similarChannels, 0,1)
+            lyo_proc_param.addWidget(lbl_mseed2sac_similar_channels, 0,0)
+            lyo_proc_param.addWidget(le_mseed2sac_similar_channels, 0,1)
             lyo_proc_param.addWidget(lbl_mseed2sac_channel2keep, 1,0)
             lyo_proc_param.addWidget(le_mseed2sac_channel2keep, 1,1)
             lyo_proc_param.setAlignment(Qt.AlignVCenter)
             lyo_proc_param.setAlignment(Qt.AlignHCenter)
             lyo_proc_param.setContentsMargins(65,0,55,0)
             # set parameters
-            le_mseed2sac_similarChannels.setText(f"{params['le_mseed2sac_similarChannels']}")
+            le_mseed2sac_similar_channels.setText(f"{params['le_mseed2sac_similar_channels']}")
             le_mseed2sac_channel2keep.setText(f"{params['le_mseed2sac_channel2keep']}")
         elif pid == [3,1]: # Decimate - Method 1
             lbl_mseed2sac_finalSF = QLabel("Final sampling frequency:")
-            cmb_mseed2sac_finalSF = QComboBox()
-            cmb_mseed2sac_finalSF.addItem("1 Hz")
-            cmb_mseed2sac_finalSF.addItem("2 Hz")
-            cmb_mseed2sac_finalSF.addItem("5 Hz")
-            cmb_mseed2sac_finalSF.addItem("10 Hz")
-            cmb_mseed2sac_finalSF.addItem("20 Hz")
-            cmb_mseed2sac_finalSF.setObjectName('cmb_mseed2sac_finalSF')
+            cmb_mseed2sac_final_sf = QComboBox()
+            cmb_mseed2sac_final_sf.addItem("1 Hz")
+            cmb_mseed2sac_final_sf.addItem("2 Hz")
+            cmb_mseed2sac_final_sf.addItem("5 Hz")
+            cmb_mseed2sac_final_sf.addItem("10 Hz")
+            cmb_mseed2sac_final_sf.addItem("20 Hz")
+            cmb_mseed2sac_final_sf.setObjectName('cmb_mseed2sac_final_sf')
             # setup layout
             lyo_proc_param.addWidget(lbl_mseed2sac_finalSF,0,0)
-            lyo_proc_param.addWidget(cmb_mseed2sac_finalSF,0,1)
+            lyo_proc_param.addWidget(cmb_mseed2sac_final_sf,0,1)
             lyo_proc_param.setAlignment(Qt.AlignVCenter)
             lyo_proc_param.setAlignment(Qt.AlignHCenter)
             lyo_proc_param.setContentsMargins(65,0,55,0)
             # set parameters
-            cmb_mseed2sac_finalSF.setCurrentIndex(params['cmb_mseed2sac_finalSF'])
+            cmb_mseed2sac_final_sf.setCurrentIndex(params['cmb_mseed2sac_final_sf'])
         elif pid == [4,1]: # Remove response - Method 1
             lbl_mseed2sac_stametadir = QLabel("Station meta files dir:")
             le_mseed2sac_stametadir = MyLineEdit()
@@ -1284,79 +1284,79 @@ class MSEED_to_SAC(QWidget):
             le_mseed2sac_stametadir.isdir()
             le_mseed2sac_stametadir.textChanged.connect(le_mseed2sac_stametadir.isdir)
             browse_mseed2sac_stametadir = MyDialog(type=3, lineEditObj=le_mseed2sac_stametadir)
-            lbl_mseed2sac_respOutput = QLabel("Output unit:")
-            cmb_mseed2sac_respOutput = QComboBox()
-            cmb_mseed2sac_respOutput.setObjectName('cmb_mseed2sac_respOutput')
-            cmb_mseed2sac_respOutput.setEditable(True)
-            cmb_mseed2sac_respOutput.lineEdit().setAlignment(Qt.AlignCenter)
-            cmb_mseed2sac_respOutput.addItem("Displacement (m)")
-            cmb_mseed2sac_respOutput.addItem("Velocity (m/s)")
-            cmb_mseed2sac_respOutput.addItem("Acceleration (m/s**2)")
-            lbl_mseed2sac_respPreFilter = QLabel("Deconvolution pre-filter:")
-            cmb_mseed2sac_respPreFilter = QComboBox()
-            cmb_mseed2sac_respPreFilter.setObjectName('cmb_mseed2sac_respPreFilter')
-            cmb_mseed2sac_respPreFilter.setEditable(True)
-            cmb_mseed2sac_respPreFilter.lineEdit().setAlignment(Qt.AlignCenter)
-            cmb_mseed2sac_respPreFilter.addItem("None")
-            cmb_mseed2sac_respPreFilter.addItem("[0.001, 0.005, 45, 50]")
+            lbl_mseed2sac_resp_output = QLabel("Output unit:")
+            cmb_mseed2sac_resp_output = QComboBox()
+            cmb_mseed2sac_resp_output.setObjectName('cmb_mseed2sac_resp_output')
+            cmb_mseed2sac_resp_output.setEditable(True)
+            cmb_mseed2sac_resp_output.lineEdit().setAlignment(Qt.AlignCenter)
+            cmb_mseed2sac_resp_output.addItem("Displacement (m)")
+            cmb_mseed2sac_resp_output.addItem("Velocity (m/s)")
+            cmb_mseed2sac_resp_output.addItem("Acceleration (m/s**2)")
+            lbl_mseed2sac_resp_prefilter = QLabel("Deconvolution pre-filter:")
+            cmb_mseed2sac_resp_prefilter = QComboBox()
+            cmb_mseed2sac_resp_prefilter.setObjectName('cmb_mseed2sac_resp_prefilter')
+            cmb_mseed2sac_resp_prefilter.setEditable(True)
+            cmb_mseed2sac_resp_prefilter.lineEdit().setAlignment(Qt.AlignCenter)
+            cmb_mseed2sac_resp_prefilter.addItem("None")
+            cmb_mseed2sac_resp_prefilter.addItem("[0.001, 0.005, 45, 50]")
             # setup layout
             lyo_proc_param.addWidget(lbl_mseed2sac_stametadir, 0,0)
             lyo_proc_param.addWidget(le_mseed2sac_stametadir, 0,1)
             lyo_proc_param.addWidget(browse_mseed2sac_stametadir, 0,2)
-            lyo_proc_param.addWidget(lbl_mseed2sac_respOutput, 1,0)
-            lyo_proc_param.addWidget(cmb_mseed2sac_respOutput, 1,1)
-            lyo_proc_param.addWidget(lbl_mseed2sac_respPreFilter, 2,0)
-            lyo_proc_param.addWidget(cmb_mseed2sac_respPreFilter, 2,1)
+            lyo_proc_param.addWidget(lbl_mseed2sac_resp_output, 1,0)
+            lyo_proc_param.addWidget(cmb_mseed2sac_resp_output, 1,1)
+            lyo_proc_param.addWidget(lbl_mseed2sac_resp_prefilter, 2,0)
+            lyo_proc_param.addWidget(cmb_mseed2sac_resp_prefilter, 2,1)
             lyo_proc_param.setAlignment(Qt.AlignVCenter)
             lyo_proc_param.setAlignment(Qt.AlignHCenter)
             lyo_proc_param.setContentsMargins(65,0,55,0)
             # set parameters
             le_mseed2sac_stametadir.setText(f"{params['le_mseed2sac_stametadir']}")
-            cmb_mseed2sac_respOutput.setCurrentIndex(params['cmb_mseed2sac_respOutput'])
-            cmb_mseed2sac_respPreFilter.setCurrentIndex(params['cmb_mseed2sac_respPreFilter'])
+            cmb_mseed2sac_resp_output.setCurrentIndex(params['cmb_mseed2sac_resp_output'])
+            cmb_mseed2sac_resp_prefilter.setCurrentIndex(params['cmb_mseed2sac_resp_prefilter'])
         elif pid == [5,1]: # bandpass filter - Method 1
-            lbl_mseed2sac_bpCP1 = QLabel("Left corner period (s):")
-            le_mseed2sac_bpCP1 = MyLineEdit()
-            le_mseed2sac_bpCP1.setObjectName('le_mseed2sac_bpCP1')
-            le_mseed2sac_bpCP1.setAlignment(Qt.AlignCenter)
-            le_mseed2sac_bpCP1.setPlaceholderText("Bandpass left corner period (s)")
-            le_mseed2sac_bpCP1.textChanged.connect(le_mseed2sac_bpCP1.isfloat)
-            lbl_mseed2sac_bpCP2 = QLabel("Right corner period (s):")
-            le_mseed2sac_bpCP2 = MyLineEdit()
-            le_mseed2sac_bpCP2.setObjectName('le_mseed2sac_bpCP2')
-            le_mseed2sac_bpCP2.setAlignment(Qt.AlignCenter)
-            le_mseed2sac_bpCP2.setPlaceholderText("Bandpass right corner period (s)")
-            le_mseed2sac_bpCP2.textChanged.connect(le_mseed2sac_bpCP2.isfloat)
-            lbl_mseed2sac_bpPoles = QLabel("Number of poles (n):")
-            sb_mseed2sac_bpPoles = QSpinBox()
-            sb_mseed2sac_bpPoles.setObjectName('sb_mseed2sac_bpPoles')
-            sb_mseed2sac_bpPoles.setMinimum(1)
-            sb_mseed2sac_bpPoles.setMaximum(10)
-            sb_mseed2sac_bpPoles.setSingleStep(1)
-            lbl_mseed2sac_bpPasses = QLabel("Number of passes (p):")
-            sb_mseed2sac_bpPasses = QSpinBox()
-            sb_mseed2sac_bpPasses.setObjectName('sb_mseed2sac_bpPasses')
-            sb_mseed2sac_bpPasses.setMinimum(1)
-            sb_mseed2sac_bpPasses.setMaximum(2)
-            sb_mseed2sac_bpPasses.setSingleStep(1)
+            lbl_mseed2sac_bp_cp1 = QLabel("Left corner period (s):")
+            le_mseed2sac_bp_cp1 = MyLineEdit()
+            le_mseed2sac_bp_cp1.setObjectName('le_mseed2sac_bp_cp1')
+            le_mseed2sac_bp_cp1.setAlignment(Qt.AlignCenter)
+            le_mseed2sac_bp_cp1.setPlaceholderText("Bandpass left corner period (s)")
+            le_mseed2sac_bp_cp1.textChanged.connect(le_mseed2sac_bp_cp1.isfloat)
+            lbl_mseed2sac_bp_cp2 = QLabel("Right corner period (s):")
+            le_mseed2sac_bp_cp2 = MyLineEdit()
+            le_mseed2sac_bp_cp2.setObjectName('le_mseed2sac_bp_cp2')
+            le_mseed2sac_bp_cp2.setAlignment(Qt.AlignCenter)
+            le_mseed2sac_bp_cp2.setPlaceholderText("Bandpass right corner period (s)")
+            le_mseed2sac_bp_cp2.textChanged.connect(le_mseed2sac_bp_cp2.isfloat)
+            lbl_mseed2sac_bp_poles = QLabel("Number of poles (n):")
+            sb_mseed2sac_bp_poles = QSpinBox()
+            sb_mseed2sac_bp_poles.setObjectName('sb_mseed2sac_bp_poles')
+            sb_mseed2sac_bp_poles.setMinimum(1)
+            sb_mseed2sac_bp_poles.setMaximum(10)
+            sb_mseed2sac_bp_poles.setSingleStep(1)
+            lbl_mseed2sac_bp_passes = QLabel("Number of passes (p):")
+            sb_mseed2sac_bp_passes = QSpinBox()
+            sb_mseed2sac_bp_passes.setObjectName('sb_mseed2sac_bp_passes')
+            sb_mseed2sac_bp_passes.setMinimum(1)
+            sb_mseed2sac_bp_passes.setMaximum(2)
+            sb_mseed2sac_bp_passes.setSingleStep(1)
             # setup layout
-            lyo_proc_param.addWidget(lbl_mseed2sac_bpCP1, 0,0)
-            lyo_proc_param.addWidget(le_mseed2sac_bpCP1, 0,1)
-            lyo_proc_param.addWidget(lbl_mseed2sac_bpCP2, 1,0)
-            lyo_proc_param.addWidget(le_mseed2sac_bpCP2, 1,1)
-            lyo_proc_param.addWidget(lbl_mseed2sac_bpPoles, 0,2)
-            lyo_proc_param.addWidget(sb_mseed2sac_bpPoles, 0,3)
-            lyo_proc_param.addWidget(lbl_mseed2sac_bpPasses, 1,2)
-            lyo_proc_param.addWidget(sb_mseed2sac_bpPasses, 1,3)
+            lyo_proc_param.addWidget(lbl_mseed2sac_bp_cp1, 0,0)
+            lyo_proc_param.addWidget(le_mseed2sac_bp_cp1, 0,1)
+            lyo_proc_param.addWidget(lbl_mseed2sac_bp_cp2, 1,0)
+            lyo_proc_param.addWidget(le_mseed2sac_bp_cp2, 1,1)
+            lyo_proc_param.addWidget(lbl_mseed2sac_bp_poles, 0,2)
+            lyo_proc_param.addWidget(sb_mseed2sac_bp_poles, 0,3)
+            lyo_proc_param.addWidget(lbl_mseed2sac_bp_passes, 1,2)
+            lyo_proc_param.addWidget(sb_mseed2sac_bp_passes, 1,3)
             lyo_proc_param.setAlignment(Qt.AlignVCenter)
             lyo_proc_param.setAlignment(Qt.AlignHCenter)
             lyo_proc_param.setVerticalSpacing(15)
             lyo_proc_param.setContentsMargins(50,0,50,0)
             # set parameters
-            le_mseed2sac_bpCP1.setText(f"{params['le_mseed2sac_bpCP1']}")
-            le_mseed2sac_bpCP2.setText(f"{params['le_mseed2sac_bpCP2']}")
-            sb_mseed2sac_bpPoles.setValue(params['sb_mseed2sac_bpPoles'])
-            sb_mseed2sac_bpPasses.setValue(params['sb_mseed2sac_bpPasses'])
+            le_mseed2sac_bp_cp1.setText(f"{params['le_mseed2sac_bp_cp1']}")
+            le_mseed2sac_bp_cp2.setText(f"{params['le_mseed2sac_bp_cp2']}")
+            sb_mseed2sac_bp_poles.setValue(params['sb_mseed2sac_bp_poles'])
+            sb_mseed2sac_bp_passes.setValue(params['sb_mseed2sac_bp_passes'])
 
         proc_param.setLayout(lyo_proc_param)
         proc_param.setStyleSheet("#%s {border-left: 2px solid #DDD;}" %("proc_param"))
@@ -1369,29 +1369,29 @@ class MSEED_to_SAC(QWidget):
             mseed2sac_proc_params["pid"] = [1,1]
             mseed2sac_proc_params["chb_mseed2sac_taper"] = 2
             mseed2sac_proc_params["chb_mseed2sac_detrend"] = 2
-            mseed2sac_proc_params["cmb_mseed2sac_taperMethod"] = 0
-            mseed2sac_proc_params["dsb_mseed2sac_maxTaperPer"] = 0.05
-            mseed2sac_proc_params["cmb_mseed2sac_detrendMethod"] = 3
-            mseed2sac_proc_params["sb_mseed2sac_detrendOrder"] = 4
+            mseed2sac_proc_params["cmb_mseed2sac_taper_method"] = 0
+            mseed2sac_proc_params["dsb_mseed2sac_max_taper"] = 0.05
+            mseed2sac_proc_params["cmb_mseed2sac_detrend_method"] = 3
+            mseed2sac_proc_params["sb_mseed2sac_detrend_order"] = 4
             mseed2sac_proc_params["le_mseed2sac_dspline"] = 864000
         elif pid == [2,1]: # Remove extra channel - Method 1
             mseed2sac_proc_params["pid"] = [2,1]
-            mseed2sac_proc_params["le_mseed2sac_similarChannels"] = "BHZ HHZ"
+            mseed2sac_proc_params["le_mseed2sac_similar_channels"] = "BHZ HHZ"
             mseed2sac_proc_params["le_mseed2sac_channel2keep"] = "HHZ"
         elif pid == [3,1]: # Decimate - Method 1
             mseed2sac_proc_params["pid"] = [3,1]
-            mseed2sac_proc_params["cmb_mseed2sac_finalSF"] = 0
+            mseed2sac_proc_params["cmb_mseed2sac_final_sf"] = 0
         elif pid == [4,1]: # Remove response - Method 1
             mseed2sac_proc_params["pid"] = [4,1]
-            mseed2sac_proc_params["le_mseed2sac_stametadir"] = os.path.abspath("./station_meta")
-            mseed2sac_proc_params["cmb_mseed2sac_respOutput"] = 1
-            mseed2sac_proc_params["cmb_mseed2sac_respPreFilter"] = 1
+            mseed2sac_proc_params["le_mseed2sac_stametadir"] = os.path.abspath("./station_metafiles")
+            mseed2sac_proc_params["cmb_mseed2sac_resp_output"] = 1
+            mseed2sac_proc_params["cmb_mseed2sac_resp_prefilter"] = 1
         elif pid == [5,1]: # Bandpass filter - Method 1
             mseed2sac_proc_params["pid"] = [5,1]
-            mseed2sac_proc_params["le_mseed2sac_bpCP1"] = "4"
-            mseed2sac_proc_params["le_mseed2sac_bpCP2"] = "500"
-            mseed2sac_proc_params["sb_mseed2sac_bpPoles"] = 3
-            mseed2sac_proc_params["sb_mseed2sac_bpPasses"] = 2
+            mseed2sac_proc_params["le_mseed2sac_bp_cp1"] = "4"
+            mseed2sac_proc_params["le_mseed2sac_bp_cp2"] = "500"
+            mseed2sac_proc_params["sb_mseed2sac_bp_poles"] = 3
+            mseed2sac_proc_params["sb_mseed2sac_bp_passes"] = 2
         return mseed2sac_proc_params
 
 
@@ -1417,42 +1417,42 @@ class MSEED_to_SAC(QWidget):
                 if pid == [1,1]: # MSEED to SAC - Method 1
                     chb_mseed2sac_detrend = proc_param.findChild(MyCheckBox, 'chb_mseed2sac_detrend').checkState()
                     chb_mseed2sac_taper = proc_param.findChild(MyCheckBox, 'chb_mseed2sac_taper').checkState()
-                    cmb_mseed2sac_detrendMethod = proc_param.findChild(QComboBox, 'cmb_mseed2sac_detrendMethod').currentIndex()
-                    sb_mseed2sac_detrendOrder = proc_param.findChild(QSpinBox, 'sb_mseed2sac_detrendOrder').value()
+                    cmb_mseed2sac_detrend_method = proc_param.findChild(QComboBox, 'cmb_mseed2sac_detrend_method').currentIndex()
+                    sb_mseed2sac_detrend_order = proc_param.findChild(QSpinBox, 'sb_mseed2sac_detrend_order').value()
                     le_mseed2sac_dspline = proc_param.findChild(QLineEdit, 'le_mseed2sac_dspline').text()
-                    cmb_mseed2sac_taperMethod = proc_param.findChild(QComboBox, 'cmb_mseed2sac_taperMethod').currentIndex()
-                    dsb_mseed2sac_maxTaperPer = proc_param.findChild(QDoubleSpinBox, 'dsb_mseed2sac_maxTaperPer').value()
+                    cmb_mseed2sac_taper_method = proc_param.findChild(QComboBox, 'cmb_mseed2sac_taper_method').currentIndex()
+                    dsb_mseed2sac_max_taper = proc_param.findChild(QDoubleSpinBox, 'dsb_mseed2sac_max_taper').value()
                     proc['chb_mseed2sac_detrend'] = chb_mseed2sac_detrend
                     proc['chb_mseed2sac_taper'] = chb_mseed2sac_taper
-                    proc['cmb_mseed2sac_detrendMethod'] = cmb_mseed2sac_detrendMethod
-                    proc['sb_mseed2sac_detrendOrder'] = sb_mseed2sac_detrendOrder
+                    proc['cmb_mseed2sac_detrend_method'] = cmb_mseed2sac_detrend_method
+                    proc['sb_mseed2sac_detrend_order'] = sb_mseed2sac_detrend_order
                     proc['le_mseed2sac_dspline'] = le_mseed2sac_dspline
-                    proc['cmb_mseed2sac_taperMethod'] = cmb_mseed2sac_taperMethod
-                    proc['dsb_mseed2sac_maxTaperPer'] = dsb_mseed2sac_maxTaperPer
+                    proc['cmb_mseed2sac_taper_method'] = cmb_mseed2sac_taper_method
+                    proc['dsb_mseed2sac_max_taper'] = dsb_mseed2sac_max_taper
                 elif pid == [2,1]: # Remove channel - Method 1
-                    le_mseed2sac_similarChannels = proc_param.findChild(QLineEdit, 'le_mseed2sac_similarChannels').text()
+                    le_mseed2sac_similar_channels = proc_param.findChild(QLineEdit, 'le_mseed2sac_similar_channels').text()
                     le_mseed2sac_channel2keep = proc_param.findChild(QLineEdit, 'le_mseed2sac_channel2keep').text()
-                    proc['le_mseed2sac_similarChannels'] = le_mseed2sac_similarChannels
+                    proc['le_mseed2sac_similar_channels'] = le_mseed2sac_similar_channels
                     proc['le_mseed2sac_channel2keep'] = le_mseed2sac_channel2keep
                 elif pid == [3,1]: # Decimate - Method 1
-                    cmb_mseed2sac_finalSF = proc_param.findChild(QComboBox, 'cmb_mseed2sac_finalSF').currentIndex()
-                    proc['cmb_mseed2sac_finalSF'] = cmb_mseed2sac_finalSF
+                    cmb_mseed2sac_final_sf = proc_param.findChild(QComboBox, 'cmb_mseed2sac_final_sf').currentIndex()
+                    proc['cmb_mseed2sac_final_sf'] = cmb_mseed2sac_final_sf
                 elif pid == [4,1]: # Remove response - Method 1
                     le_mseed2sac_stametadir = proc_param.findChild(MyLineEdit, 'le_mseed2sac_stametadir').text()
-                    cmb_mseed2sac_respOutput = proc_param.findChild(QComboBox, 'cmb_mseed2sac_respOutput').currentIndex()
-                    cmb_mseed2sac_respPreFilter = proc_param.findChild(QComboBox, 'cmb_mseed2sac_respPreFilter').currentIndex()
+                    cmb_mseed2sac_resp_output = proc_param.findChild(QComboBox, 'cmb_mseed2sac_resp_output').currentIndex()
+                    cmb_mseed2sac_resp_prefilter = proc_param.findChild(QComboBox, 'cmb_mseed2sac_resp_prefilter').currentIndex()
                     proc['le_mseed2sac_stametadir'] = le_mseed2sac_stametadir
-                    proc['cmb_mseed2sac_respOutput'] = cmb_mseed2sac_respOutput
-                    proc['cmb_mseed2sac_respPreFilter'] = cmb_mseed2sac_respPreFilter
+                    proc['cmb_mseed2sac_resp_output'] = cmb_mseed2sac_resp_output
+                    proc['cmb_mseed2sac_resp_prefilter'] = cmb_mseed2sac_resp_prefilter
                 elif pid == [5,1]: # bandpass filter - Method 1
-                    le_mseed2sac_bpCP1 = proc_param.findChild(QLineEdit, 'le_mseed2sac_bpCP1').text()
-                    le_mseed2sac_bpCP2 = proc_param.findChild(QLineEdit, 'le_mseed2sac_bpCP2').text()
-                    sb_mseed2sac_bpPoles = proc_param.findChild(QSpinBox, 'sb_mseed2sac_bpPoles').value()
-                    sb_mseed2sac_bpPasses = proc_param.findChild(QSpinBox, 'sb_mseed2sac_bpPasses').value()
-                    proc['le_mseed2sac_bpCP1'] = le_mseed2sac_bpCP1
-                    proc['le_mseed2sac_bpCP2'] = le_mseed2sac_bpCP2
-                    proc['sb_mseed2sac_bpPoles'] = sb_mseed2sac_bpPoles
-                    proc['sb_mseed2sac_bpPasses'] = sb_mseed2sac_bpPasses
+                    le_mseed2sac_bp_cp1 = proc_param.findChild(QLineEdit, 'le_mseed2sac_bp_cp1').text()
+                    le_mseed2sac_bp_cp2 = proc_param.findChild(QLineEdit, 'le_mseed2sac_bp_cp2').text()
+                    sb_mseed2sac_bp_poles = proc_param.findChild(QSpinBox, 'sb_mseed2sac_bp_poles').value()
+                    sb_mseed2sac_bp_passes = proc_param.findChild(QSpinBox, 'sb_mseed2sac_bp_passes').value()
+                    proc['le_mseed2sac_bp_cp1'] = le_mseed2sac_bp_cp1
+                    proc['le_mseed2sac_bp_cp2'] = le_mseed2sac_bp_cp2
+                    proc['sb_mseed2sac_bp_poles'] = sb_mseed2sac_bp_poles
+                    proc['sb_mseed2sac_bp_passes'] = sb_mseed2sac_bp_passes
                 parameters['mseed2sac_procs'].append(proc)
         return parameters
                     
