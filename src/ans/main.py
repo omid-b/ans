@@ -19,18 +19,12 @@ class ANS_GUI(gui.MainWindow):
         super().__init__()
 
 
-
 def main():
-    # app = QApplication(sys.argv)
-    # win = ANS_GUI()
-    # win.show()
-    # sys.exit(app.exec_())
-    # app.exec_()
-    inp = config.read_config('ans_test.conf')
-    if inp:
-        print(inp)
-    else:
-        print("False")
+    app = QApplication(sys.argv)
+    win = ANS_GUI()
+    win.show()
+    sys.exit(app.exec_())
+    app.exec_()
 
 if __name__ == "__main__":
     main(**vars(args))

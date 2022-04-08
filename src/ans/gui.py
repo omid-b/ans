@@ -1799,8 +1799,8 @@ class MainWindow(QMainWindow):
 
         # fix failing to update self on Mac!
         QCoreApplication.processEvents()
-        self.header_left.setStyleSheet("max-width: 190px")
-        self.body_menu.setStyleSheet("max-width: 190px")
+        self.header_left.setStyleSheet("max-width: 160px")
+        self.body_menu.setStyleSheet("max-width: 160px")
         self.toggle_menu()
 
         # select widget 0

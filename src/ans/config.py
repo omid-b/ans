@@ -30,13 +30,11 @@ integer_params = ["chb_dc_service_iris_edu","chb_dc_service_ncedc_org","chb_dc_s
                   "cmb_mseed2sac_final_sf","cmb_mseed2sac_resp_output","cmb_mseed2sac_resp_prefilter",
                   "sb_mseed2sac_bp_poles","sb_mseed2sac_bp_passes", "le_timelen", "le_mseed2sac_dspline"]
 
-
 float_params = ["dsb_mseed2sac_max_taper", "sb_mseed2sac_bp_cp1", "sb_mseed2sac_bp_cp2",
                 "le_minlat","le_maxlat","le_minlon","le_maxlon"]
 
-
-
 intlist_params = ["pid"]
+
 
 
 def read_config(config_file):
@@ -81,7 +79,6 @@ def read_config(config_file):
             download[f"{param}"] = array(download[f"{param}"].split(), dtype=int).tolist()
         else:
             download[f"{param}"] = config.get('download',f"{param}")
-
     # mseed2sac
     mseed2sac = {}
     for param in mseed2sac_params:
@@ -113,11 +110,37 @@ def read_config(config_file):
 
 
 
-def write_config(config_file):
-    pass
-
-
-    
+def write_config(config_file, parameters):
+    if not parameters:
+        return False
+    fopen = open(config_file, "w") 
+    # setting
+    fopen.write("[setting]\n")
+    for key in parameters['setting'].keys():
+        fopen.write(f"{key} = {parameters['setting'][key]}\n")
+    # download
+    fopen.write("\n[download]\n")
+    for key in parameters['download'].keys():
+        fopen.write(f"{key} = {parameters['download'][key]}\n")
+    # mseed2sac
+    fopen.write("\n[mseed2sac]\n")
+    fopen.write(f"mseed2sac_input_mseeds = {parameters['mseed2sac']['mseed2sac_input_mseeds']}\n")
+    fopen.write(f"mseed2sac_output_sacs = {parameters['mseed2sac']['mseed2sac_output_sacs']}\n")
+    fopen.write(f"mseed2sac_channels = {parameters['mseed2sac']['mseed2sac_channels']}\n")
+    nprocs = len(parameters['mseed2sac']['mseed2sac_procs'])
+    proc_sections = []
+    for i in range(nprocs):
+        proc_sections.append(f"mseed2sac_proc_{i+1}")
+    fopen.write(f"mseed2sac_procs = {' '.join(proc_sections)}\n")
+    for i, section in enumerate(proc_sections):
+        fopen.write(f"\n[{section}]\n")
+        for key in parameters['mseed2sac']['mseed2sac_procs'][i].keys():
+            if key in intlist_params:
+                fopen.write(f"{key} = {' '.join(array(parameters['mseed2sac']['mseed2sac_procs'][i][key], dtype=str))}\n")
+            else:
+                fopen.write(f"{key} = {parameters['mseed2sac']['mseed2sac_procs'][i][key]}\n")
+    fopen.close()
+    return True
 
 
 
@@ -192,8 +215,8 @@ class Defaults:
         # download setting
         parameters['le_stalist'] = os.path.join(self.maindir, 'stations.dat')
         parameters['le_stameta'] = os.path.join(self.maindir, 'station_metafiles')
-        parameters['le_stalocs'] = ["00","10"]
-        parameters['le_stachns'] = ["BHZ","HHZ"]
+        parameters['le_stalocs'] = "00 10"
+        parameters['le_stachns'] = "BHZ HHZ"
         parameters['le_timelen'] = 86400
         # download scripts
         parameters['chb_obspy'] = 2
@@ -205,7 +228,7 @@ class Defaults:
         parameters = {}
         parameters['mseed2sac_input_mseeds'] = os.path.join(self.maindir, 'mseedfiles')
         parameters['mseed2sac_output_sacs'] = os.path.join(self.maindir, 'sacfiles')
-        parameters['mseed2sac_channels'] = ["BHZ","HHZ"]
+        parameters['mseed2sac_channels'] = "BHZ HHZ"
         parameters['mseed2sac_procs'] = []
         # process 1 
         mseed2sac_proc_1 = {}
@@ -220,7 +243,7 @@ class Defaults:
         # process 2
         mseed2sac_proc_2 = {}
         mseed2sac_proc_2['pid'] = [2,1] # Remove channel
-        mseed2sac_proc_2['le_mseed2sac_similar_channels'] = ["BHZ","HHZ"]
+        mseed2sac_proc_2['le_mseed2sac_similar_channels'] = "BHZ HHZ"
         mseed2sac_proc_2['le_mseed2sac_channel2keep'] = "HHZ"
         # process 3  
         mseed2sac_proc_3 = {}
