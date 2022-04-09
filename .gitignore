@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+test/
+tests/
+
 .DS_Store
 ._.DS_Store
 **/.DS_Store
