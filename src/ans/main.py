@@ -52,9 +52,9 @@ def main():
     parser.add_argument('--version', action='version', version=f'%(prog)s {version}')
     parser._positionals.title = 'list of modules'
     ###
-    subparsers = parser.add_subparsers(dest='command')
+    commands = parser.add_subparsers(dest='command')
     # MODULE 1: init
-    init_cmd = subparsers.add_parser('init', help='initialize ans project',
+    init_cmd = commands.add_parser('init', help='initialize ans project',
     description="Initialize a project directory. Example: $ ans init <PATH>")
     init_cmd.add_argument(
         type=str,
@@ -64,7 +64,7 @@ def main():
         default='.'
     )
     # MODULE 2: setting
-    setting_cmd = subparsers.add_parser('setting', help='configure project settings',
+    setting_cmd = commands.add_parser('setting', help='configure project settings',
     description="Configure project settings")
     setting_cmd.add_argument(
         '--maindir',
@@ -74,8 +74,37 @@ def main():
         default='.'
     )
     # MODULE 3: download
-    download_cmd = subparsers.add_parser('download', help='download module',
+    download_cmd = commands.add_parser('download', help='download module',
     description="Download station list, station meta files, and mseed files.")
+    download_subcmd = download_cmd.add_subparsers(dest='subcommand')
+    download_stations = download_subcmd.add_parser('stations', help="download station list",
+        description="Download station list")
+    download_metafiles = download_subcmd.add_parser('metafiles', help="download station meta files",
+        description="Download station meta files (*.xml files). These files are mainly used to remove instrument response.")
+    download_mseeds = download_subcmd.add_parser('mseeds', help="download mseed data files",
+        description="Download '*.mseed' data files")
+
+    download_stations.add_argument(
+        '--maindir',
+        type=str,
+        help='path to the main project directory (default=".")',
+        action='store',
+        default='.'
+    )
+    download_metafiles.add_argument(
+        '--maindir',
+        type=str,
+        help='path to the main project directory (default=".")',
+        action='store',
+        default='.'
+    )
+    download_mseeds.add_argument(
+        '--maindir',
+        type=str,
+        help='path to the main project directory (default=".")',
+        action='store',
+        default='.'
+    )
     download_cmd.add_argument(
         '--maindir',
         type=str,
@@ -84,7 +113,7 @@ def main():
         default='.'
     )
     # MODULE 4: mseed2sac
-    mseed2sac_cmd = subparsers.add_parser('mseed2sac', help='mseed2sac processes module',
+    mseed2sac_cmd = commands.add_parser('mseed2sac', help='mseed2sac processes module',
     description="mseed2sac processes module.")
     mseed2sac_cmd.add_argument(
         '--maindir',
@@ -94,7 +123,7 @@ def main():
         default='.'
     )
     # MODULE 5: sac2ncf
-    sac2ncf_cmd = subparsers.add_parser('sac2ncf', help='sac2ncf processes module',
+    sac2ncf_cmd = commands.add_parser('sac2ncf', help='sac2ncf processes module',
     description="sac2ncf processes module.")
     sac2ncf_cmd.add_argument(
         '--maindir',
@@ -104,15 +133,13 @@ def main():
         default='.'
     )
     # MODULE 6: ncf2egf
-    ncf2egf_cmd = subparsers.add_parser('ncf2egf', help='ncf2egf processes module',
+    ncf2egf_cmd = commands.add_parser('ncf2egf', help='ncf2egf processes module',
     description="ncf2egf processes module.")
-    ncf2egf_cmd.add_argument(
-        '--maindir',
-        type=str,
-        help='path to the main project directory (default=".")',
-        action='store',
-        default='.'
-    )
+
+    # MODULE 7: egf2fan
+    egf2fan_cmd = commands.add_parser('egf2fan', help='ncf2egf processes module',
+    description="ncf2egf processes module.")
+
 
     #########################
     #    PARSE ARGUMENTS
@@ -121,7 +148,7 @@ def main():
     if args.about or len(sys.argv) == 1:
         print(f"{about}\n")
         sys.exit(0)
-    print(f"Project directory: {os.path.abspath(args.maindir)}")
+    print(f"Project directory: {os.path.abspath(args.maindir)}\n")
     # init
     args.maindir = os.path.abspath(args.maindir)
     if args.command == 'init':
@@ -129,7 +156,8 @@ def main():
             os.mkdir(args.maindir)
         defaults = config.Defaults(args.maindir)
         parameters = defaults.parameters()
-        config.write_config(os.path.join(args.maindir,'ans.conf'), parameters)
+        config.write_config(args.maindir, parameters)
+        print("Project directory was successfully initialized!\n")
     # setting
     if args.command == 'setting':
         setting_gui(args.maindir)

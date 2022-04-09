@@ -37,10 +37,12 @@ intlist_params = ["pid"]
 
 
 
-def read_config(config_file):
+def read_config(maindir):
+    maindir = os.path.abspath(maindir)
+    config_file = os.path.join(maindir, 'ans.conf')
     try:
         config = configparser.ConfigParser()
-        config.read(os.path.abspath(config_file))
+        config.read(config_file)
     except Exception as e:
         print(f"Error reading config file!\n{e}\n")
         return False
@@ -110,7 +112,9 @@ def read_config(config_file):
 
 
 
-def write_config(config_file, parameters):
+def write_config(maindir, parameters):
+    maindir = os.path.abspath(maindir)
+    config_file = os.path.join(maindir, 'ans.conf')
     if not parameters:
         return False
     fopen = open(config_file, "w") 

@@ -1829,7 +1829,7 @@ class MainWindow(QMainWindow):
         #### EXTRA STEPS BEFORE RUNNIG THE APP ####
         input_config = os.path.join(self.maindir,'ans.conf')
         if os.path.isfile(input_config):
-            parameters = config.read_config(input_config)
+            parameters = config.read_config(self.maindir)
             self.set_UI_parameters(parameters)
         else:
             print(f"\nError! Could not find 'ans.conf' in project directory.\n")
@@ -1854,8 +1854,7 @@ class MainWindow(QMainWindow):
         parameters['setting'] = self.setting.get_parameters()
         parameters['download'] = self.download.get_parameters()
         parameters['mseed2sac'] = self.mseed2sac.get_parameters()
-        output_config = os.path.join(self.maindir,'ans.conf')
-        config.write_config(output_config, parameters)
+        config.write_config(self.maindir, parameters)
         sys.exit(0)
 
 
