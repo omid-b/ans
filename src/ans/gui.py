@@ -1515,7 +1515,7 @@ class MainWindow(QMainWindow):
     def __init__(self, maindir):
         super().__init__()
         self.maindir = os.path.abspath(maindir)
-        self.setMinimumSize(1000, 600)
+        self.setMinimumSize(1070, 600)
         app_icon = QIcon()
         app_icon.addFile(os.path.join(images_dir,'icons','16x16.png'))
         app_icon.addFile(os.path.join(images_dir,'icons','24x24.png'))
@@ -1831,6 +1831,9 @@ class MainWindow(QMainWindow):
         if os.path.isfile(input_config):
             parameters = config.read_config(input_config)
             self.set_UI_parameters(parameters)
+        else:
+            print(f"\nError! Could not find 'ans.conf' in project directory.\n")
+            sys.exit(0)
         
         # hide terminal button (for the first versions)
         self.btn_terminal.setVisible(False)
@@ -1853,11 +1856,11 @@ class MainWindow(QMainWindow):
         parameters['mseed2sac'] = self.mseed2sac.get_parameters()
         output_config = os.path.join(self.maindir,'ans.conf')
         config.write_config(output_config, parameters)
-        exit(0)
+        sys.exit(0)
 
 
     def discard_button(self):
-        exit(0)
+        sys.exit(0)
 
 
     def revert_button(self):
