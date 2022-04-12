@@ -4,6 +4,7 @@ import os
 from . import gui
 from . import config
 from . import dependency
+from . import download
 import argparse
 from PyQt5.QtWidgets import QApplication
 
@@ -77,21 +78,14 @@ def main():
     download_cmd = commands.add_parser('download', help='download module',
     description="Download station list, station meta files, and mseed files.")
     download_subcmd = download_cmd.add_subparsers(dest='subcommand')
-    download_stations = download_subcmd.add_parser('stations', help="download station list",
-        description="Download station list")
-    download_metafiles = download_subcmd.add_parser('metafiles', help="download station meta files",
-        description="Download station meta files (*.xml files). These files are mainly used to remove instrument response.")
-    download_mseeds = download_subcmd.add_parser('mseeds', help="download mseed data files",
-        description="Download '*.mseed' data files")
+
+    download_stations = download_subcmd.add_parser('stations', help="download station list & meta files",
+        description="Download station list & meta (*.xml) files")
+
+    download_mseeds = download_subcmd.add_parser('metafiles', help="download meta files",
+        description="Download '*.xml' meta files")
 
     download_stations.add_argument(
-        '--maindir',
-        type=str,
-        help='path to the main project directory (default=".")',
-        action='store',
-        default='.'
-    )
-    download_metafiles.add_argument(
         '--maindir',
         type=str,
         help='path to the main project directory (default=".")',
@@ -154,6 +148,8 @@ def main():
     if args.command == 'init':
         if not os.path.isdir(args.maindir):
             os.mkdir(args.maindir)
+        if not os.path.isdir(os.path.join(args.maindir, '.ans')):
+            os.mkdir(os.path.join(args.maindir, '.ans'))
         defaults = config.Defaults(args.maindir)
         parameters = defaults.parameters()
         config.write_config(args.maindir, parameters)
@@ -163,7 +159,12 @@ def main():
         setting_gui(args.maindir)
     # download
     if args.command == 'download':
-        print(dev)
+        if args.subcommand == 'stations':
+            download.download_stations(args.maindir)
+        elif args.subcommand == 'metafiles':
+            download.download_metafiles(args.maindir)
+        elif args.subcommand == 'mseeds':
+            print(dev)
     # mseed2sac
     if args.command == 'mseed2sac':
         print(dev)

@@ -46,6 +46,9 @@ def read_config(maindir):
     except Exception as e:
         print(f"Error reading config file!\n{e}\n")
         return False
+    if not os.path.isfile(config_file):
+        print("Error! Could not find 'ans.conf' in project directory.\n")
+        exit(1)
     # all main sections available?
     for section in ["setting","download","mseed2sac"]:
         if section not in config.sections():
