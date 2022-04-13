@@ -79,13 +79,23 @@ def main():
     description="Download station list, station meta files, and mseed files.")
     download_subcmd = download_cmd.add_subparsers(dest='subcommand')
 
-    download_stations = download_subcmd.add_parser('stations', help="download station list & meta files",
-        description="Download station list & meta (*.xml) files")
+    download_stations = download_subcmd.add_parser('stations', help="download station list",
+        description="Download station list")
 
-    download_mseeds = download_subcmd.add_parser('metafiles', help="download meta files",
+    download_metafiles = download_subcmd.add_parser('metafiles', help="download station meta files",
         description="Download '*.xml' meta files")
 
+    download_mseeds = download_subcmd.add_parser('mseeds', help="download mseed files",
+        description="Download '*.mseed' data files")
+
     download_stations.add_argument(
+        '--maindir',
+        type=str,
+        help='path to the main project directory (default=".")',
+        action='store',
+        default='.'
+    )
+    download_metafiles.add_argument(
         '--maindir',
         type=str,
         help='path to the main project directory (default=".")',
@@ -164,7 +174,7 @@ def main():
         elif args.subcommand == 'metafiles':
             download.download_metafiles(args.maindir)
         elif args.subcommand == 'mseeds':
-            print(dev)
+            download.download_mseeds(args.maindir)
     # mseed2sac
     if args.command == 'mseed2sac':
         print(dev)

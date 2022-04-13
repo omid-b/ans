@@ -175,13 +175,33 @@ class Defaults:
         setting['le_maxlon'] = ""
         setting['le_minlat'] = ""
         if sys.platform in ['darwin', 'linux', 'linux2', 'cygwin']:
-            setting['le_sac'] = '/usr/local/sac/bin/sac'
-            setting['le_gmt'] = '/usr/bin/gmt'
+            if os.path.isfile("/usr/local/sac/bin/sac"):
+                SAC = "/usr/local/sac/bin/sac"
+            elif os.path.isfile("/usr/local/bin/sac"):
+                SAC = "/usr/local/bin/sac"
+            elif os.path.isfile("/usr/bin/sac"):
+                SAC = "/usr/bin/sac"
+            else:
+                SAC = "sac"
+
+            if os.path.isfile("/usr/local/gmt/bin/gmt"):
+                GMT = "/usr/local/gmt/bin/gmt"
+            if os.path.isfile("/usr/gmt/bin/gmt"):
+                GMT = "/usr/local/gmt/bin/gmt"
+            elif os.path.isfile("/usr/local/bin/gmt"):
+                GMT = "/usr/local/bin/gmt"
+            elif os.path.isfile("/usr/bin/gmt"):
+                GMT = "/usr/bin/gmt"
+            else:
+                GMT = "gmt"
+                
+            setting['le_sac'] = SAC
+            setting['le_gmt'] = GMT
             setting['le_perl'] = '/usr/bin/perl'
         else:
-            setting['le_sac'] = ""
-            setting['le_gmt'] = ""
-            setting['le_perl'] = ""
+            setting['le_sac'] = "sac"
+            setting['le_gmt'] = "gmt"
+            setting['le_perl'] = "perl"
         return setting
 
 

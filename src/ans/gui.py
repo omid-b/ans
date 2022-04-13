@@ -276,7 +276,6 @@ class MyDialog(QPushButton):
             caption="Select directory",
             directory=os.getcwd(),
         )
-        print(response)
         if self.lineEditObj != None and response != "":
             ret = os.path.abspath(response)
             self.lineEditObj.setText(ret)
@@ -463,7 +462,7 @@ class Setting(QWidget):
         setting = {}
         setting['le_maindir'] = self.le_maindir.text()
         if self.le_startdate.isdate() and self.le_enddate.isdate():
-            if UTCDateTime(self.le_startdate.text()) < UTCDateTime(self.le_enddate.text()):
+            if UTCDateTime(self.le_startdate.text()) <= UTCDateTime(self.le_enddate.text()):
                 setting['le_startdate'] = self.le_startdate.text()
                 setting['le_enddate'] = self.le_enddate.text()
             else:
@@ -771,10 +770,10 @@ class Download(QWidget):
         lyo_bottom.addWidget(lbl_stalist, 1,0,1,1)
         lyo_bottom.addWidget(self.le_stalist, 1,1,1,1)
         lyo_bottom.addWidget(browse_stalist, 1,2,1,1)
-        lyo_bottom.addWidget(self.chb_obspy,1,3,1,1)
-        lyo_bottom.addWidget(lbl_obspy,1,4,1,1)
-        lyo_bottom.addWidget(self.chb_fetch,2,3,1,1)
-        lyo_bottom.addWidget(lbl_fetch,2,4,1,1)
+        lyo_bottom.addWidget(self.chb_fetch,1,3,1,1)
+        lyo_bottom.addWidget(lbl_fetch,1,4,1,1)
+        lyo_bottom.addWidget(self.chb_obspy,2,3,1,1)
+        lyo_bottom.addWidget(lbl_obspy,2,4,1,1)
         lyo_bottom.addWidget(lbl_stameta, 2,0,1,1)
         lyo_bottom.addWidget(self.le_stameta, 2,1,1,1)
         lyo_bottom.addWidget(browse_stameta, 2,2,1,1)
@@ -1854,7 +1853,9 @@ class MainWindow(QMainWindow):
         parameters['setting'] = self.setting.get_parameters()
         parameters['download'] = self.download.get_parameters()
         parameters['mseed2sac'] = self.mseed2sac.get_parameters()
-        config.write_config(self.maindir, parameters)
+        config.write_config(parameters['setting']['le_maindir'], parameters)
+        if not os.path.isdir(os.path.join(parameters['setting']['le_maindir'], '.ans')):
+            os.mkdir(os.path.join(parameters['setting']['le_maindir'], '.ans'))
         sys.exit(0)
 
 

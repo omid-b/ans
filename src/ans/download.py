@@ -1,9 +1,15 @@
-import os
-from urllib import request
 from . import config
+
+import os
 import obspy
 import shutil
 import subprocess
+from urllib import request
+
+from obspy.clients.fdsn.client import Client
+from obspy.clients.fdsn.mass_downloader import RectangularDomain
+from obspy.clients.fdsn.mass_downloader import Restrictions
+from obspy.clients.fdsn.mass_downloader import MassDownloader
 
 
 pkg_dir, _ = os.path.split(__file__)
@@ -16,7 +22,7 @@ def download_stations(maindir):
     maindir = os.path.abspath(maindir)
     stalist = os.path.split(config.read_config(maindir)['download']['le_stalist'])[1]
     print(f"  Generating list of stations: '{stalist}'")
-    stations = Stations(maindir) 
+    stations = STATIONS(maindir) 
     datacenters = stations.get_datacenters()
     stalist = stations.request_stalist()
     stations.write_stalist(stalist, datacenters)
@@ -25,68 +31,73 @@ def download_stations(maindir):
 
 def download_metafiles(maindir):
     maindir = os.path.abspath(maindir)
-    stations = Stations(maindir) 
+    stations = STATIONS(maindir) 
     stations.download_xml_files()
     print("\nDone!\n")
 
 
+def download_mseeds(maindir):
+    mseeds = MSEEDS(maindir)
+    mseeds.download_all()
+    print("\nDone!\n")
+
 #========================#
 
 
-class Stations:
+class STATIONS:
 
     def __init__(self,maindir):
         self.maindir = os.path.abspath(maindir)
-        self.config = config.read_config(self.maindir)
-        self.stalist_file = self.config['download']['le_stalist']
+        self.conf = config.read_config(self.maindir)
+        self.stalist_file = self.conf['download']['le_stalist']
         self.stalist_fname = os.path.split(self.stalist_file)[1]
 
 
     def get_datacenters(self):
         datacenters = []
-        if self.config['download']['chb_dc_auspass_edu_au']:
+        if self.conf['download']['chb_dc_auspass_edu_au']:
             datacenters.append("http://auspass.edu.au:8080/fdsnws/station/1")
-        if self.config['download']['chb_dc_eida_sc3_infp_ro']:
+        if self.conf['download']['chb_dc_eida_sc3_infp_ro']:
             datacenters.append("http://eida-sc3.infp.ro/fdsnws/station/1")
-        if self.config['download']['chb_dc_eida_service_koeri_boun_edu_tr']:
+        if self.conf['download']['chb_dc_eida_service_koeri_boun_edu_tr']:
             datacenters.append("http://eida-service.koeri.boun.edu.tr/fdsnws/station/1")
-        if self.config['download']['chb_dc_eida_bgr_de']:
+        if self.conf['download']['chb_dc_eida_bgr_de']:
             datacenters.append("http://eida.bgr.de/fdsnws/station/1")
-        if self.config['download']['chb_dc_eida_ethz_ch']:
+        if self.conf['download']['chb_dc_eida_ethz_ch']:
             datacenters.append("http://eida.ethz.ch/fdsnws/station/1")
-        if self.config['download']['chb_dc_eida_gein_noa_gr']:
+        if self.conf['download']['chb_dc_eida_gein_noa_gr']:
             datacenters.append("http://eida.gein.noa.gr/fdsnws/station/1")
-        if self.config['download']['chb_dc_eida_ipgp_fr']:
+        if self.conf['download']['chb_dc_eida_ipgp_fr']:
             datacenters.append("http://eida.ipgp.fr/fdsnws/station/1")
-        if self.config['download']['chb_dc_erde_geophysik_uni_muenchen_de']:
+        if self.conf['download']['chb_dc_erde_geophysik_uni_muenchen_de']:
             datacenters.append("http://erde.geophysik.uni-muenchen.de/fdsnws/station/1")
-        if self.config['download']['chb_dc_geofon_gfz_potsdam_de']:
+        if self.conf['download']['chb_dc_geofon_gfz_potsdam_de']:
             datacenters.append("http://geofon.gfz-potsdam.de/fdsnws/station/1")
-        if self.config['download']['chb_dc_rtserve_beg_utexas_edu']:
+        if self.conf['download']['chb_dc_rtserve_beg_utexas_edu']:
             datacenters.append("http://rtserve.beg.utexas.edu/fdsnws/station/1")
-        if self.config['download']['chb_dc_seisrequest_iag_usp_br']:
+        if self.conf['download']['chb_dc_seisrequest_iag_usp_br']:
             datacenters.append("http://seisrequest.iag.usp.br/fdsnws/station/1")
-        if self.config['download']['chb_dc_service_iris_edu']:
+        if self.conf['download']['chb_dc_service_iris_edu']:
             datacenters.append("http://service.iris.edu/fdsnws/station/1")
-        if self.config['download']['chb_dc_service_ncedc_org']:
+        if self.conf['download']['chb_dc_service_ncedc_org']:
             datacenters.append("http://service.ncedc.org/fdsnws/station/1")
-        if self.config['download']['chb_dc_service_scedc_caltech_edu']:
+        if self.conf['download']['chb_dc_service_scedc_caltech_edu']:
             datacenters.append("http://service.scedc.caltech.edu/fdsnws/station/1")
-        if self.config['download']['chb_dc_webservices_ingv_it']:
+        if self.conf['download']['chb_dc_webservices_ingv_it']:
             datacenters.append("http://webservices.ingv.it/fdsnws/station/1")
-        if self.config['download']['chb_dc_ws_icgc_cat']:
+        if self.conf['download']['chb_dc_ws_icgc_cat']:
             datacenters.append("http://ws.icgc.cat/fdsnws/station/1")
-        if self.config['download']['chb_dc_ws_resif_fr']:
+        if self.conf['download']['chb_dc_ws_resif_fr']:
             datacenters.append("http://ws.resif.fr/fdsnws/station/1")
-        if self.config['download']['chb_dc_www_orfeus_eu_org']:
+        if self.conf['download']['chb_dc_www_orfeus_eu_org']:
             datacenters.append("http://www.orfeus-eu.org/fdsnws/station/1")
-        if self.config['download']['chb_dc_fdsnws_raspberryshakedata_com']:
+        if self.conf['download']['chb_dc_fdsnws_raspberryshakedata_com']:
             datacenters.append("https://fdsnws.raspberryshakedata.com/fdsnws/station/1")
         return datacenters
 
 
     def get_channels(self):
-        channels = self.config['download']['le_stachns'].split()
+        channels = self.conf['download']['le_stachns'].split()
         if not len(channels):
             print("Error! Station channels to download are not specified!\n")
             exit(1)
@@ -94,8 +105,8 @@ class Stations:
 
 
     def get_dates(self):
-        startdate = self.config['setting']['le_startdate']
-        enddate = self.config['setting']['le_enddate']
+        startdate = self.conf['setting']['le_startdate']
+        enddate = self.conf['setting']['le_enddate']
         if not len(startdate) or not len(enddate):
             print("Error! Project start/end dates are not specified!\n")
             exit(1)
@@ -103,14 +114,14 @@ class Stations:
 
 
     def get_latitudes(self):
-        minlat = self.config['setting']['le_minlat']
-        maxlat = self.config['setting']['le_maxlat']
+        minlat = self.conf['setting']['le_minlat']
+        maxlat = self.conf['setting']['le_maxlat']
         return [minlat, maxlat]
 
 
     def get_longitude(self):
-        minlon = self.config['setting']['le_minlon']
-        maxlon = self.config['setting']['le_maxlon']
+        minlon = self.conf['setting']['le_minlon']
+        maxlon = self.conf['setting']['le_maxlon']
         return [minlon, maxlon]
 
 
@@ -162,11 +173,11 @@ class Stations:
 
     def write_stalist(self, stalist, datacenters):
         nsta = len(stalist['sta'])
-        output_lines = ["#Network | Station | Latitude | Longitude | Elevation | Sitename | StartTime | EndTime", "",
-        "# Datacenters:"]
+        output_lines = ["#Datacenters:"]
         for dc in datacenters:
             output_lines.append(f"#{dc}")
         output_lines.append("")
+        output_lines.append("#Network | Station | Latitude | Longitude | Elevation | Sitename | StartTime | EndTime")
         for i in range(nsta):
             net = str(stalist['net'][i]).strip()
             sta = str(stalist['sta'][i]).strip()
@@ -232,9 +243,9 @@ class Stations:
         channels = self.get_channels()
         stalist = self.read_stalist()
         download_list = self.gen_download_list(stalist)
-        PERL = self.config['setting']['le_perl']
+        PERL = self.conf['setting']['le_perl']
         # make (or remake) metafilesdir
-        metafilesdir = self.config['download']['le_stameta']
+        metafilesdir = self.conf['download']['le_stameta']
         if os.path.isdir(metafilesdir):
             shutil.rmtree(metafilesdir)
         os.mkdir(metafilesdir)
@@ -253,13 +264,6 @@ class Stations:
                 print(f" meta data ({j+1} of {len(download_list[i])}):  {net}.{sta}.{chn}")
                 subprocess.call(bash_cmd, shell=True)
 
-        # # generate/update station file
-        # if os.path.isfile(self.stalist_file):
-        #     shutil.copyfile(self.stalist_file,
-        #     os.path.join(self.maindir,f"{self.stalist_fname}.backup"))
-        # self.write_stalist(stalist)
-        # print(f"\nNumber of stations: {len(stalist['net'])}\n")
-        # print(f"\nDone!\n")
 
 
     def gen_download_list(self, stalist):
@@ -268,7 +272,7 @@ class Stations:
         dates = self.get_dates()
         region_lat = self.get_latitudes()
         region_lon = self.get_longitude()
-        metafilesdir = self.config['download']['le_stameta']
+        metafilesdir = self.conf['download']['le_stameta']
         download_list = [[] for i in range(len(channels))]
         for k, chn in enumerate(channels):
             for datacenter in datacenters:
@@ -291,4 +295,226 @@ class Stations:
                     if os.path.isfile(stations_xml):
                         os.remove(stations_xml)
         return download_list
+
+
+
+#------------#
+
+
+class MSEEDS:
+    def __init__(self, maindir):
+        self.maindir = os.path.abspath(maindir)
+        self.conf = config.read_config(self.maindir)
+        self.mseeds_dir = os.path.join(self.maindir, "mseeds")
+        self.channels = self.conf['download']['le_stachns'].split()
+        self.locations = self.conf['download']['le_stalocs'].split()
+        self.timelen = self.conf['download']['le_timelen']
+        self.locations.insert(0, "")
+        self.stalist_file = self.conf['download']['le_stalist']
+        self.startdate = self.conf['setting']['le_startdate']
+        self.enddate = self.conf['setting']['le_enddate']
+        if not len(self.startdate) or not len(self.enddate):
+            print("Error! Project start and end dates are not specified!\n")
+            exit(1)
+        if not len(f"{self.timelen}"):
+            print("Error! Parameter 'Timeseries length' is not specified!\n")
+            exit(1)
+        if not len(self.channels):
+            print("Error! Station channels to download are not specified!\n")
+            exit(1)
+
+
+    def get_datacenters(self):
+        datacenters = []
+        if self.conf['download']['chb_dc_auspass_edu_au']:
+            datacenters.append("AUSPASS")
+        if self.conf['download']['chb_dc_eida_sc3_infp_ro']:
+            datacenters.append("NIEP")
+        if self.conf['download']['chb_dc_eida_service_koeri_boun_edu_tr']:
+            datacenters.append("KOERI")
+        if self.conf['download']['chb_dc_eida_bgr_de']:
+            datacenters.append("BGR")
+        if self.conf['download']['chb_dc_eida_ethz_ch']:
+            datacenters.append("ETH")
+        if self.conf['download']['chb_dc_eida_gein_noa_gr']:
+            datacenters.append("NOA")
+        if self.conf['download']['chb_dc_erde_geophysik_uni_muenchen_de']:
+            datacenters.append("LMU")
+        if self.conf['download']['chb_dc_geofon_gfz_potsdam_de']:
+            datacenters.append("GEOFON")
+        if self.conf['download']['chb_dc_rtserve_beg_utexas_edu']:
+            datacenters.append("TEXNET")
+        if self.conf['download']['chb_dc_seisrequest_iag_usp_br']:
+            datacenters.append("USP")
+        if self.conf['download']['chb_dc_service_iris_edu']:
+            datacenters.append("IRIS")
+            datacenters.append("IRISPH5")
+        if self.conf['download']['chb_dc_service_ncedc_org']:
+            datacenters.append("NCEDC")
+        if self.conf['download']['chb_dc_service_scedc_caltech_edu']:
+            datacenters.append("SCEDC")
+        if self.conf['download']['chb_dc_webservices_ingv_it']:
+            datacenters.append("INGV")
+        if self.conf['download']['chb_dc_ws_icgc_cat']:
+            datacenters.append("ICGC")
+        if self.conf['download']['chb_dc_ws_resif_fr']:
+            datacenters.append("RESIF")
+            datacenters.append("RESIFPH5")
+        if self.conf['download']['chb_dc_www_orfeus_eu_org']:
+            datacenters.append("ODC")
+            datacenters.append("ORFEUS")
+        if self.conf['download']['chb_dc_fdsnws_raspberryshakedata_com']:
+            datacenters.append("RASPISHAKE")
+        return datacenters
+
+
+    def get_utc_times(self):
+        utc_times = []
+        starttime = obspy.UTCDateTime(f"{self.startdate}T00:00:00Z")
+        endtime = obspy.UTCDateTime(f"{self.enddate}T23:59:59Z")
+        while starttime < endtime:
+            utc_times.append([starttime, starttime + self.timelen])
+            starttime += self.timelen
+        return utc_times
+
+
+    def get_iris_times(self):
+        iris_times = []
+        utc_times = self.get_utc_times()
+        for i, tt in enumerate(utc_times):
+            starttime = ','.join(str(tt[0]).split('Z')[0].split('T'))
+            endtime = ','.join(str(tt[1]).split('Z')[0].split('T'))
+            iris_times.append([starttime, endtime])
+        return iris_times
+
+
+    def get_mseed_event_dirs(self):
+        mseed_folder_names = []
+        utc_times = self.get_utc_times()
+        for tt in utc_times:
+            year = f"{tt[0].year}"
+            jday = "%03d" %(tt[0].julday)
+            hour = "%02d" %(tt[0].hour)
+            minute = "%02d" %(tt[0].minute)
+            second = "%02d" %(tt[0].second)
+            mseed_folder_names.append(f"{year[2:]}{jday}{hour}{minute}{second}")
+        return mseed_folder_names
+
+
+    def get_mseed_filename(self,net,sta,chn,loc,utc_times):
+        filename = "%s.%s.%s.%s__%4d%02d%02dT%02d%02d%02dZ__%4d%02d%02dT%02d%02d%02dZ.mseed" % (
+        net,sta,loc,chn,
+        utc_times[0].year,
+        utc_times[0].month,
+        utc_times[0].day,
+        utc_times[0].hour,
+        utc_times[0].minute,
+        utc_times[0].second,
+        utc_times[1].year,
+        utc_times[1].month,
+        utc_times[1].day,
+        utc_times[1].hour,
+        utc_times[1].minute,
+        utc_times[1].second)
+        return filename
+
+
+    def check_IRIS_availability(self,net,sta,chn,loc,iris_times):
+        PERL = self.conf['setting']['le_perl']
+        # a trick to find out if data is available: If metafile is created, data is available!
+        metafile = os.path.join(self.maindir,'.ans', 'check_iris.tmp')
+        if os.path.isfile(metafile):
+            os.remove(metafile)
+        if len(loc):
+            shell_cmd = f"{PERL} {fetch_data_script} -S {sta} -N {net} -C {chn} -L {loc} -s {iris_times[0]} -e {iris_times[1]} --lon -180:180 --lat -90:90 -m {metafile} -q\n"
+        else:
+            shell_cmd = f"{PERL} {fetch_data_script} -S {sta} -N {net} -C {chn} -s {iris_times[0]} -e {iris_times[1]} --lon -180:180 --lat -90:90 -m {metafile} -q\n"
+        subprocess.call(shell_cmd, shell=True)
+        if os.path.isfile(metafile):
+            os.remove(metafile)
+            return True
+        else:
+            return False
+
+
+    def download_mseed_IRIS(self,net,sta,chn,loc,iris_times,download_dir):
+        PERL = self.conf['setting']['le_perl']
+        utc_starttime = obspy.UTCDateTime(f"{'T'.join(iris_times[0].split(','))}Z")
+        utc_endtime = obspy.UTCDateTime(f"{'T'.join(iris_times[1].split(','))}Z")
+        utc_times = [utc_starttime, utc_endtime]
+        mseed = os.path.join(download_dir ,self.get_mseed_filename(net,sta,chn,loc,utc_times))
+        if self.check_IRIS_availability(net,sta,chn,loc,iris_times):
+            if len(loc):
+                shell_cmd = f"{PERL} {fetch_data_script} -S {sta} -N {net} -C {chn} -L {loc} -s {iris_times[0]} -e {iris_times[1]} --lon -180:180 --lat -90:90 -o {mseed} -v\n"
+            else:
+                shell_cmd = f"{PERL} {fetch_data_script} -S {sta} -N {net} -C {chn} -s {iris_times[0]} -e {iris_times[1]} --lon -180:180 --lat -90:90 -o {mseed} -v\n"
+            if not os.path.isfile(mseed):
+                subprocess.call(shell_cmd, shell=True)
+        else:
+            pass
+
+
+    def download_mseed_FDSN(self,net,sta,chn,loc,utc_times,download_dir):
+        os.chdir(self.maindir)
+        domain = RectangularDomain(minlatitude=-90, maxlatitude=90,minlongitude=-180, maxlongitude=180)
+        restrictions = Restrictions(
+        starttime=utc_times[0],
+        endtime=utc_times[1],
+        chunklength_in_sec=self.timelen,
+        network=net,
+        station=sta,
+        location=loc,
+        channel=chn,
+        reject_channels_with_gaps=False,  # we will take care of data fragmentation later!
+        minimum_length=0.0,  # all data is usefull!
+        minimum_interstation_distance_in_m=0)
+        datacenters = self.get_datacenters()
+        for datacenter in datacenters:
+            mseed_filename = self.get_mseed_filename(net,sta,chn,loc,utc_times)
+            if mseed_filename not in os.listdir(download_dir):
+                xml_file = os.path.join(download_dir,f"{net}.{sta}.xml")
+                xml_file_renamed = os.path.join(download_dir,f"{net}.{sta}.{chn}")
+                try:
+                    client = Client(datacenter)
+                    mdl = MassDownloader(providers=[client])
+                    mdl.download(domain, restrictions, mseed_storage=download_dir,
+                    stationxml_storage=download_dir, print_report=False)
+                except:
+                    pass
+                if os.path.isfile(xml_file):
+                    metafile = os.path.join(self.conf['download']['le_stameta'], f"{net}.{sta}.{chn}")
+                    if os.path.isfile(metafile):
+                        os.remove(xml_file) # not useful for response removal in most cases!
+                    else:
+                        os.rename(xml_file, xml_file_renamed) # keep it if metafile was not previousely downloaded
+
+
+    def download_all(self):
+        stations = STATIONS(self.maindir)
+        stalist = stations.read_stalist()
+        sta = stalist['sta']
+        net = stalist['net']
+        if not os.path.isdir(self.mseeds_dir):
+            os.mkdir(self.mseeds_dir)
+        mseed_events = self.get_mseed_event_dirs()
+        utc_times = self.get_utc_times()
+        iris_times = self.get_iris_times()
+        for i, event in enumerate(mseed_events):
+            download_dir = os.path.join(self.mseeds_dir, event)
+            if not os.path.isdir(download_dir):
+                os.mkdir(download_dir)
+            ###Download####
+            for loc in self.locations:
+                for chn in self.channels:
+                    for k in range(len(sta)):
+                        if "IRIS" in self.get_datacenters() and self.conf['download']['chb_fetch']:
+                            self.download_mseed_IRIS(net[k],sta[k],chn,loc,iris_times[i],download_dir)
+                        if len(self.get_datacenters()) and self.conf['download']['chb_obspy']:
+                            self.download_mseed_FDSN(net[k],sta[k],chn,loc,utc_times[i],download_dir)
+            ###############
+            if not len(os.listdir(download_dir)):
+                shutil.rmtree(download_dir)
+
+
+
 

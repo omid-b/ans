@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+ <FDSNStationXML xmlns="http://www.fdsn.org/xml/station/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:iris="http://www.fdsn.org/xml/station/1/iris" xsi:schemaLocation="http://www.fdsn.org/xml/station/1 http://www.fdsn.org/xml/station/fdsn-station-1.1.xsd" schemaVersion="1.1">
+  <Source>IRIS-DMC</Source>
+  <Sender>IRIS-DMC</Sender>
+  <Module>IRIS WEB SERVICE: fdsnws-station | version: 1.1.48</Module>
+  <ModuleURI>http://service.iris.edu/fdsnws/station/1/query?starttime=2016-01-01T00:00:00&amp;endtime=2016-01-02T23:59:59&amp;minlat=20.0&amp;maxlat=50.0&amp;minlon=40.0&amp;maxlon=65.0&amp;channel=HHZ</ModuleURI>
+  <Created>2022-04-13T18:37:31.1360</Created>
+  <Network code="GO" startDate="1988-01-01T00:00:00.0000" restrictedStatus="open">
+   <Description>National Seismic Network of Georgia ()</Description>
+   <TotalNumberStations>18</TotalNumberStations>
+   <SelectedNumberStations>12</SelectedNumberStations>
+   <Station code="AKH" startDate="2008-09-10T11:00:00.0000" restrictedStatus="open" iris:alternateNetworkCodes="_FDSN-ALL,.UNRESTRICTED">
+    <Latitude>41.41</Latitude>
+    <Longitude>43.492901</Longitude>
+    <Elevation>1720.0</Elevation>
+    <Site>
+     <Name>Akhalkalaki</Name>
+    </Site>
+    <TotalNumberChannels>3</TotalNumberChannels>
+    <SelectedNumberChannels>0</SelectedNumberChannels>
+   </Station>
+   <Station code="BATM" startDate="2012-11-12T22:00:00.0000" restrictedStatus="open" iris:alternateNetworkCodes="_FDSN-ALL,_REALTIME,.UNRESTRICTED">
+    <Latitude>41.604</Latitude>
+    <Longitude>41.6936</Longitude>
+    <Elevation>298.0</Elevation>
+    <Site>
+     <Name>Batumi</Name>
+    </Site>
+    <TotalNumberChannels>3</TotalNumberChannels>
+    <SelectedNumberChannels>0</SelectedNumberChannels>
+   </Station>
+   <Station code="BGD" startDate="2010-10-11T07:14:00.0000" restrictedStatus="open" iris:alternateNetworkCodes="_FDSN-ALL,_REALTIME,.UNRESTRICTED">
+    <Latitude>41.2645</Latitude>
+    <Longitude>43.598598</Longitude>
+    <Elevation>1978.0</Elevation>
+    <Site>
+     <Name>Ninotsminda</Name>
+    </Site>
+    <TotalNumberChannels>3</TotalNumberChannels>
+    <SelectedNumberChannels>0</SelectedNumberChannels>
+   </Station>
+   <Station code="CHVG" startDate="2011-11-20T00:00:00.0000" restrictedStatus="open" iris:alternateNetworkCodes="_FDSN-ALL,.UNRESTRICTED">
+    <Latitude>42.71833</Latitude>
+    <Longitude>42.08411</Longitude>
+    <Elevation>390.0</Elevation>
+    <Site>
+     <Name>CHKVALERI</Name>
+    </Site>
+    <TotalNumberChannels>3</TotalNumberChannels>
+    <SelectedNumberChannels>0</SelectedNumberChannels>
+   </Station>
+   <Station code="DDFL" startDate="2012-11-12T22:00:00.0000" restrictedStatus="open" iris:alternateNetworkCodes="_FDSN-ALL,.UNRESTRICTED">
+    <Latitude>41.445801</Latitude>
+    <Longitude>46.118301</Longitude>
+    <Elevation>1342.0</Elevation>
+    <Site>
+     <Name>Dedoflistskaro</Name>
+    </Site>
+    <TotalNumberChannels>3</TotalNumberChannels>
+    <SelectedNumberChannels>0</SelectedNumberChannels>
+   </Station>
+   <Station code="DGRG" startDate="2010-01-01T00:00:00.0000" restrictedStatus="open" iris:alternateNetworkCodes="_FDSN-ALL,_REALTIME,.UNRESTRICTED">
+    <Latitude>41.450722</Latitude>
+    <Longitude>45.373169</Longitude>
+    <Elevation>690.0</Elevation>
+    <Site>
+     <Name>DGRG  -  DAVID-GAREJI</Name>
+    </Site>
+    <TotalNumberChannels>3</TotalNumberChannels>
+    <SelectedNumberChannels>0</SelectedNumberChannels>
+   </Station>
+   <Station code="GUDG" startDate="2012-11-07T08:01:00.0000" restrictedStatus="open" iris:alternateNetworkCodes="_FDSN-ALL,.UNRESTRICTED">
+    <Latitude>42.4646</Latitude>
+    <Longitude>44.4772</Longitude>
+    <Elevation>2012.0</Elevation>
+    <Site>
+     <Name>Gudauri</Name>
+    </Site>
+    <TotalNumberChannels>3</TotalNumberChannels>
+    <SelectedNumberChannels>0</SelectedNumberChannels>
+   </Station>
+   <Station code="LGD" startDate="2010-03-04T00:00:00.0000" restrictedStatus="open" iris:alternateNetworkCodes="_FDSN-ALL,.UNRESTRICTED">
+    <Latitude>41.834301</Latitude>
+    <Longitude>46.242199</Longitude>
+    <Elevation>406.0</Elevation>
+    <Site>
+     <Name>Lagodekhi</Name>
+    </Site>
+    <TotalNumberChannels>3</TotalNumberChannels>
+    <SelectedNumberChannels>0</SelectedNumberChannels>
+   </Station>
+   <Station code="ONI" startDate="2012-11-12T22:00:00.0000" restrictedStatus="open" iris:alternateNetworkCodes="_FDSN-ALL,.UNRESTRICTED">
+    <Latitude>42.5905</Latitude>
+    <Longitude>43.452499</Longitude>
+    <Elevation>810.0</Elevation>
+    <Site>
+     <Name>Oni</Name>
+    </Site>
+    <TotalNumberChannels>12</TotalNumberChannels>
+    <SelectedNumberChannels>0</SelectedNumberChannels>
+   </Station>
+   <Station code="SEAG" startDate="2009-04-23T16:00:00.0000" restrictedStatus="open" iris:alternateNetworkCodes="_FDSN-ALL,_REALTIME,.UNRESTRICTED">
+    <Latitude>41.763599</Latitude>
+    <Longitude>44.8036</Longitude>
+    <Elevation>607.0</Elevation>
+    <Site>
+     <Name>TbilisiSea</Name>
+    </Site>
+    <TotalNumberChannels>3</TotalNumberChannels>
+    <SelectedNumberChannels>0</SelectedNumberChannels>
+   </Station>
+   <Station code="TBLG" startDate="2010-01-01T00:00:00.0000" endDate="2035-01-01T00:00:00.0000" restrictedStatus="open" iris:alternateNetworkCodes="_FDSN-ALL,.UNRESTRICTED">
+    <Latitude>41.730919</Latitude>
+    <Longitude>44.73819</Longitude>
+    <Elevation>510.0</Elevation>
+    <Site>
+     <Name>Delisi, Georgia</Name>
+    </Site>
+    <CreationDate>2010-01-01T00:00:00.0000</CreationDate>
+    <TotalNumberChannels>3</TotalNumberChannels>
+    <SelectedNumberChannels>0</SelectedNumberChannels>
+   </Station>
+   <Station code="TRLG" startDate="2012-08-18T11:00:00.0000" restrictedStatus="open" iris:alternateNetworkCodes="_FDSN-ALL,.UNRESTRICTED">
+    <Latitude>41.5392</Latitude>
+    <Longitude>44.101799</Longitude>
+    <Elevation>1600.0</Elevation>
+    <Site>
+     <Name>Trialeti</Name>
+    </Site>
+    <CreationDate>2012-08-18T11:00:00.0000</CreationDate>
+    <TotalNumberChannels>3</TotalNumberChannels>
+    <SelectedNumberChannels>0</SelectedNumberChannels>
+   </Station>
+  </Network>
+  <Network code="IU" startDate="1988-01-01T00:00:00.0000" restrictedStatus="open">
+   <Description>Global Seismograph Network - IRIS/USGS (GSN)</Description>
+   <Identifier type="DOI">10.7914/SN/IU
+   </Identifier>
+   <TotalNumberStations>127</TotalNumberStations>
+   <SelectedNumberStations>1</SelectedNumberStations>
+   <Station code="GNI" startDate="1991-07-10T00:00:00.0000" restrictedStatus="open" iris:alternateNetworkCodes="_FDSN,_FDSN-ALL,_GSN,_GSN-BROADBAND,_REALTIME,_STS-1,.UNRESTRICTED">
+    <Description>(GSN) IRIS/USGS (IU) and WSSP</Description>
+    <Latitude>40.148</Latitude>
+    <Longitude>44.741</Longitude>
+    <Elevation>1609.0</Elevation>
+    <Site>
+     <Name>Garni, Armenia</Name>
+    </Site>
+    <CreationDate>1991-07-10T00:00:00.0000</CreationDate>
+    <TotalNumberChannels>220</TotalNumberChannels>
+    <SelectedNumberChannels>0</SelectedNumberChannels>
+   </Station>
+  </Network>
+  <Network code="KO" startDate="2001-01-01T00:00:00.0000" restrictedStatus="open">
+   <Description>Bogazici University Kandilli Observatory And Earthquake Research Institute (KOERI)</Description>
+   <Identifier type="DOI">10.7914/SN/KO
+   </Identifier>
+   <TotalNumberStations>11</TotalNumberStations>
+   <SelectedNumberStations>2</SelectedNumberStations>
+   <Station code="GURO" startDate="2011-10-25T00:00:00.0000" restrictedStatus="open" iris:alternateNetworkCodes="_FDSN-ALL,_REALTIME,.UNRESTRICTED">
+    <Latitude>38.5509</Latitude>
+    <Longitude>42.032219</Longitude>
+    <Elevation>1388.0</Elevation>
+    <Site>
+     <Name></Name>
+    </Site>
+    <CreationDate>2011-10-25T00:00:00.0000</CreationDate>
+    <TotalNumberChannels>6</TotalNumberChannels>
+    <SelectedNumberChannels>0</SelectedNumberChannels>
+   </Station>
+   <Station code="KARS" startDate="2010-10-13T00:00:00.0000" restrictedStatus="open" iris:alternateNetworkCodes="_FDSN-ALL,.UNRESTRICTED">
+    <Latitude>40.6152</Latitude>
+    <Longitude>43.0937</Longitude>
+    <Elevation>1747.0</Elevation>
+    <Site>
+     <Name>Kars-Turkey</Name>
+    </Site>
+    <CreationDate>2010-10-13T00:00:00.0000</CreationDate>
+    <TotalNumberChannels>6</TotalNumberChannels>
+    <SelectedNumberChannels>0</SelectedNumberChannels>
+   </Station>
+  </Network>
+  <Network code="KW" startDate="1997-01-01T00:00:00.0000" restrictedStatus="open">
+   <Description>Kuwait National Seismic Network ()</Description>
+   <TotalNumberStations>1</TotalNumberStations>
+   <SelectedNumberStations>1</SelectedNumberStations>
+   <Station code="MIB" startDate="2010-05-02T00:00:00.0000" restrictedStatus="open" iris:alternateNetworkCodes="_INT-NON_FDSN,.UNRESTRICTED">
+    <Latitude>29.8032</Latitude>
+    <Longitude>47.338799</Longitude>
+    <Elevation>125.0</Elevation>
+    <Site>
+     <Name>Mutribah, Kuwait</Name>
+    </Site>
+    <CreationDate>2010-05-02T00:00:00.0000</CreationDate>
+    <TotalNumberChannels>9</TotalNumberChannels>
+    <SelectedNumberChannels>0</SelectedNumberChannels>
+   </Station>
+  </Network>
+  <Network code="MP" startDate="2014-01-01T00:00:00.0000" restrictedStatus="partial">
+   <Description>Iraqi Seismic Observatory (ISO)</Description>
+   <Identifier type="DOI">10.7914/SN/MP
+   </Identifier>
+   <TotalNumberStations>6</TotalNumberStations>
+   <SelectedNumberStations>3</SelectedNumberStations>
+   <Station code="AMR2" startDate="2015-11-07T00:00:00.0000" restrictedStatus="open" iris:alternateNetworkCodes="_REALTIME,.RESTRICTED">
+    <Latitude>31.989901</Latitude>
+    <Longitude>47.190201</Longitude>
+    <Elevation>9.0</Elevation>
+    <Site>
+     <Name>Amara, Iraq</Name>
+    </Site>
+    <CreationDate>2015-11-07T00:00:00.0000</CreationDate>
+    <TotalNumberChannels>6</TotalNumberChannels>
+    <SelectedNumberChannels>0</SelectedNumberChannels>
+   </Station>
+   <Station code="BSR2" startDate="2015-09-05T00:00:00.0000" restrictedStatus="open" iris:alternateNetworkCodes="_REALTIME,.RESTRICTED">
+    <Latitude>30.2927</Latitude>
+    <Longitude>47.619099</Longitude>
+    <Elevation>16.0</Elevation>
+    <Site>
+     <Name>Basra, Iraq</Name>
+    </Site>
+    <CreationDate>2015-09-05T00:00:00.0000</CreationDate>
+    <TotalNumberChannels>3</TotalNumberChannels>
+    <SelectedNumberChannels>0</SelectedNumberChannels>
+   </Station>
+   <Station code="NSR1" startDate="2014-08-01T00:00:00.0000" restrictedStatus="closed" iris:alternateNetworkCodes=".RESTRICTED">
+    <Latitude>31.7416</Latitude>
+    <Longitude>46.115101</Longitude>
+    <Elevation>12.0</Elevation>
+    <Site>
+     <Name>Nasiriya, Iraq</Name>
+    </Site>
+    <CreationDate>2014-08-01T00:00:00.0000</CreationDate>
+    <TotalNumberChannels>3</TotalNumberChannels>
+    <SelectedNumberChannels>0</SelectedNumberChannels>
+   </Station>
+  </Network>
+ </FDSNStationXML>

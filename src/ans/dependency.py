@@ -8,7 +8,7 @@ def perl_warnings():
     stderr=subprocess.STDOUT,
     stdout=subprocess.DEVNULL)
     if value != 0:
-        msg = "WARNING! perl is not installed on your machine; module 'download' will not work."
+        msg = "WARNING! command 'perl' is not recognized on this terminal enviroment."
         warnings.append(msg)
     return warnings
 
@@ -18,7 +18,7 @@ def gmt_warnings():
     stderr=subprocess.STDOUT,
     stdout=subprocess.DEVNULL)
     if value != 0:
-        msg = "WARNING! GMT (Generic-mapping-tools) might not be installed on your machine; module 'plot' might not work."
+        msg = "WARNING! command 'gmt' is not recognized on this terminal enviroment."
         warnings.append(msg)
     return warnings
 
@@ -27,8 +27,8 @@ def sac_warnings():
     value = subprocess.call('which sac ',shell=True,
     stderr=subprocess.STDOUT,
     stdout=subprocess.DEVNULL)
-    if not os.path.isfile("/usr/local/sac/bin/sac") and value != 0:
-        msg = "WARNING! SAC (Seismic Analysis Code) might not be installed on your machine!"
+    if value != 0:
+        msg = "WARNING! command 'sac' is not recognized on this terminal enviroment."
         warnings.append(msg)
     return warnings
 
