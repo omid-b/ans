@@ -1,0 +1,5 @@
+global-exclude *.py[cod]
+global-exclude .DS_Store
+include src/ans/gui.qss
+include src/ans/data/*
+include src/ans/data/images/*

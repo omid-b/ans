@@ -3,6 +3,7 @@ import sys
 import re
 
 from . import config
+
 from obspy import UTCDateTime
 
 import matplotlib.pyplot as plt

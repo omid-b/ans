@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 import sys
 import os
+
+
+import argparse
+from PyQt5.QtWidgets import QApplication
+
 from . import gui
 from . import config
 from . import dependency
 from . import download
-import argparse
-from PyQt5.QtWidgets import QApplication
-
 
 # global variables
 version = "0.0.0"
@@ -29,7 +31,7 @@ elif sys.platform == "win32":
     os.system('cls')
 dependency.print_warnings()
 
-def setting_gui(maindir):
+def config_gui(maindir):
     app = QApplication(sys.argv)
     win = gui.MainWindow(maindir)
     win.show()
@@ -64,10 +66,10 @@ def main():
         action='store',
         default='.'
     )
-    # MODULE 2: setting
-    setting_cmd = commands.add_parser('setting', help='configure project settings',
-    description="Configure project settings")
-    setting_cmd.add_argument(
+    # MODULE 2: config
+    config_cmd = commands.add_parser('config', help='configure project settings',
+    description="Configure project settings in a GUI")
+    config_cmd.add_argument(
         '--maindir',
         type=str,
         help='path to the main project directory (default=".")',
@@ -152,6 +154,7 @@ def main():
     if args.about or len(sys.argv) == 1:
         print(f"{about}\n")
         sys.exit(0)
+    
     print(f"Project directory: {os.path.abspath(args.maindir)}\n")
     # init
     args.maindir = os.path.abspath(args.maindir)
@@ -164,9 +167,9 @@ def main():
         parameters = defaults.parameters()
         config.write_config(args.maindir, parameters)
         print("Project directory was successfully initialized!\n")
-    # setting
-    if args.command == 'setting':
-        setting_gui(args.maindir)
+    # config
+    if args.command == 'config':
+        config_gui(args.maindir)
     # download
     if args.command == 'download':
         if args.subcommand == 'stations':

@@ -26,7 +26,8 @@ def download_stations(maindir):
     datacenters = stations.get_datacenters()
     stalist = stations.request_stalist()
     stations.write_stalist(stalist, datacenters)
-    print("\nDone!\n")
+    nsta = len(stations.read_stalist()['sta'])
+    print(f"  #Stations: {nsta}\n\nDone!\n")
 
 
 def download_metafiles(maindir):
@@ -108,7 +109,7 @@ class STATIONS:
         startdate = self.conf['setting']['le_startdate']
         enddate = self.conf['setting']['le_enddate']
         if not len(startdate) or not len(enddate):
-            print("Error! Project start/end dates are not specified!\n")
+            print("\nError! Project start/end dates are not specified!\n")
             exit(1)
         return [startdate, enddate]
 
@@ -244,11 +245,10 @@ class STATIONS:
         stalist = self.read_stalist()
         download_list = self.gen_download_list(stalist)
         PERL = self.conf['setting']['le_perl']
-        # make (or remake) metafilesdir
+        # make metafilesdir
         metafilesdir = self.conf['download']['le_stameta']
-        if os.path.isdir(metafilesdir):
-            shutil.rmtree(metafilesdir)
-        os.mkdir(metafilesdir)
+        if not os.path.isdir(metafilesdir):
+            os.mkdir(metafilesdir)
 
         # start downloading
         starttime = f"{dates[0]},00:00:00"
@@ -276,7 +276,7 @@ class STATIONS:
         download_list = [[] for i in range(len(channels))]
         for k, chn in enumerate(channels):
             for datacenter in datacenters:
-                stations_xml = os.path.join(metafilesdir, f"{self.stalist_fname}.{chn}_{datacenter.split('/')[2]}.xml")
+                stations_xml = os.path.join(self.maindir, '.ans', f"{self.stalist_fname}.{chn}_{datacenter.split('/')[2]}.xml")
                 url = f"{datacenter}/query?starttime={dates[0]}T00:00:00&endtime={dates[1]}T23:59:59&minlat={region_lat[0]}&maxlat={region_lat[1]}&minlon={region_lon[0]}&maxlon={region_lon[1]}&channel={chn}"
                 try:
                     req = request.Request(url)

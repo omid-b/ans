@@ -8,7 +8,7 @@ def perl_warnings():
     stderr=subprocess.STDOUT,
     stdout=subprocess.DEVNULL)
     if value != 0:
-        msg = "WARNING! command 'perl' is not recognized on this terminal enviroment."
+        msg = "WARNING! Command 'perl' is not recognized on this terminal enviroment."
         warnings.append(msg)
     return warnings
 
@@ -18,7 +18,7 @@ def gmt_warnings():
     stderr=subprocess.STDOUT,
     stdout=subprocess.DEVNULL)
     if value != 0:
-        msg = "WARNING! command 'gmt' is not recognized on this terminal enviroment."
+        msg = "WARNING! Command 'gmt' is not recognized on this terminal enviroment."
         warnings.append(msg)
     return warnings
 
@@ -28,7 +28,7 @@ def sac_warnings():
     stderr=subprocess.STDOUT,
     stdout=subprocess.DEVNULL)
     if value != 0:
-        msg = "WARNING! command 'sac' is not recognized on this terminal enviroment."
+        msg = "WARNING! Command 'sac' is not recognized on this terminal enviroment."
         warnings.append(msg)
     return warnings
 
