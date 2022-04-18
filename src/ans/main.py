@@ -12,7 +12,7 @@ from . import dependency
 from . import download
 
 # global variables
-version = "0.0.0"
+version = "0.0.1"
 about = "ANS: ambient noise seismology, is a python wrapper \
 for a selection of ambient noise seismology codes and procedures. \
 \n\nContact information:\

@@ -241,8 +241,8 @@ class Defaults:
 
     def mseed2sac(self):
         mseed2sac = {}
-        mseed2sac['mseed2sac_input_mseeds'] = os.path.join(self.maindir, 'mseedfiles')
-        mseed2sac['mseed2sac_output_sacs'] = os.path.join(self.maindir, 'sacfiles')
+        mseed2sac['mseed2sac_input_mseeds'] = os.path.join(self.maindir, 'mseeds')
+        mseed2sac['mseed2sac_output_sacs'] = os.path.join(self.maindir, 'sacs')
         mseed2sac['mseed2sac_channels'] = "BHZ HHZ"
         mseed2sac['mseed2sac_procs'] = []
         # process 1 
