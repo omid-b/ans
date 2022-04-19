@@ -845,17 +845,6 @@ class MSEED2SAC(QWidget):
             icon_remove_hover = icon_remove_hover.replace('\\','/')
 
         self.mseed2sac_proc_frames = []
-
-        self.le_mseed2sac_input_mseeds = QLineEdit()
-        self.le_mseed2sac_input_mseeds.setObjectName("le_mseed2sac_input_mseeds")
-        self.le_mseed2sac_input_mseeds.setAttribute(Qt.WA_MacShowFocusRect, 0)
-        self.le_mseed2sac_input_mseeds.setPlaceholderText("Full path to input MSEED dataset dir")   
-        self.browse_input_mseeds = MyDialog(type=3, lineEditObj=self.le_mseed2sac_input_mseeds)
-        self.le_mseed2sac_output_sacs = QLineEdit()
-        self.le_mseed2sac_output_sacs.setObjectName("le_mseed2sac_output_sacs")
-        self.le_mseed2sac_output_sacs.setAttribute(Qt.WA_MacShowFocusRect, 0)
-        self.le_mseed2sac_output_sacs.setPlaceholderText("Full path to input/output SAC dataset dir")
-        self.browse_output_sacs = MyDialog(type=3, lineEditObj=self.le_mseed2sac_output_sacs)
         self.lbl_mseed2sac_channels = QLabel("Channels:")
         self.le_mseed2sac_channels = QLineEdit()
         self.le_mseed2sac_channels.setObjectName("le_mseed2sac_channels")
@@ -863,14 +852,8 @@ class MSEED2SAC(QWidget):
         self.le_mseed2sac_channels.setPlaceholderText("Station channels to process, separated by space")
 
         self.lyo_top = QGridLayout()
-        self.lyo_top.addWidget(QLabel("Input MSEED dataset dir:"), 0,0)
-        self.lyo_top.addWidget(self.le_mseed2sac_input_mseeds, 0,1)
-        self.lyo_top.addWidget(self.browse_input_mseeds, 0,2)
-        self.lyo_top.addWidget(QLabel("Input/output SAC dataset dir:"), 1,0)
-        self.lyo_top.addWidget(self.le_mseed2sac_output_sacs, 1,1)
-        self.lyo_top.addWidget(self.browse_output_sacs, 1,2)
-        self.lyo_top.addWidget(QLabel("Channels:"), 2,0)
-        self.lyo_top.addWidget(self.le_mseed2sac_channels, 2,1)
+        self.lyo_top.addWidget(QLabel("Channels to process:"), 0,0)
+        self.lyo_top.addWidget(self.le_mseed2sac_channels, 0,1)
         self.lyo_top.setContentsMargins(10,0,10,0)
 
         self.scroll = QScrollArea()
@@ -1438,8 +1421,6 @@ class MSEED2SAC(QWidget):
 
     def get_parameters(self):
         mseed2sac = {}
-        mseed2sac['mseed2sac_input_mseeds'] = self.le_mseed2sac_input_mseeds.text()
-        mseed2sac['mseed2sac_output_sacs'] = self.le_mseed2sac_output_sacs.text()
         mseed2sac['mseed2sac_channels'] = self.le_mseed2sac_channels.text()
         mseed2sac['mseed2sac_procs'] = []
         nprocs = self.get_num_procs()
@@ -1910,8 +1891,6 @@ class MainWindow(QMainWindow):
         self.download.findChild(MyLineEdit, 'le_stachns').setText(parameters['download']['le_stachns'])
         self.download.findChild(MyLineEdit, 'le_timelen').setText(f"{parameters['download']['le_timelen']}")
         # mseed2sac
-        self.mseed2sac.findChild(QLineEdit, 'le_mseed2sac_input_mseeds').setText(parameters['mseed2sac']['mseed2sac_input_mseeds'])
-        self.mseed2sac.findChild(QLineEdit, 'le_mseed2sac_output_sacs').setText(parameters['mseed2sac']['mseed2sac_output_sacs'])
         self.mseed2sac.findChild(QLineEdit, 'le_mseed2sac_channels').setText(parameters['mseed2sac']['mseed2sac_channels'])
         # mseed2sac: remove old processes
         old_nprocs = self.mseed2sac.get_num_procs()

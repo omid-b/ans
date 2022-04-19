@@ -123,6 +123,18 @@ def main():
     mseed2sac_cmd = commands.add_parser('mseed2sac', help='mseed2sac processes module',
     description="mseed2sac processes module.")
     mseed2sac_cmd.add_argument(
+        'mseeds_dir',
+        type=str,
+        help='path to the downloaded mseed dataset directory',
+        action='store',
+    )
+    mseed2sac_cmd.add_argument(
+        'sacs_dir',
+        type=str,
+        help='path to the output sac dataset directory',
+        action='store',
+    )
+    mseed2sac_cmd.add_argument(
         '--maindir',
         type=str,
         help='path to the main project directory (default=".")',
@@ -181,7 +193,7 @@ def main():
             download.download_mseeds(args.maindir)
     # mseed2sac
     if args.command == 'mseed2sac':
-        mseed2sac.mseed2sac_run_all(args.maindir)
+        mseed2sac.mseed2sac_run_all(args.maindir, args.mseeds_dir, args.sacs_dir)
     # sac2ncf
     if args.command == 'sac2ncf':
         print(dev)

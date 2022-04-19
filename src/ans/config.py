@@ -16,7 +16,7 @@ download_params = ["chb_dc_service_iris_edu","chb_dc_service_ncedc_org","chb_dc_
                    "chb_dc_eida_gein_noa_gr","chb_dc_www_orfeus_eu_org","chb_dc_auspass_edu_au",
                    "le_stalist","le_stameta","le_stalocs","le_stachns","le_timelen","chb_obspy","chb_fetch"]
 
-mseed2sac_params = ["mseed2sac_input_mseeds","mseed2sac_output_sacs","mseed2sac_channels","mseed2sac_procs"]
+mseed2sac_params = ["mseed2sac_channels","mseed2sac_procs"]
 
 integer_params = ["chb_dc_service_iris_edu","chb_dc_service_ncedc_org","chb_dc_service_scedc_caltech_edu",
                   "chb_dc_rtserve_beg_utexas_edu","chb_dc_eida_bgr_de","chb_dc_ws_resif_fr",
@@ -131,8 +131,6 @@ def write_config(maindir, parameters):
         fopen.write(f"{key} = {parameters['download'][key]}\n")
     # mseed2sac
     fopen.write("\n[mseed2sac]\n")
-    fopen.write(f"mseed2sac_input_mseeds = {parameters['mseed2sac']['mseed2sac_input_mseeds']}\n")
-    fopen.write(f"mseed2sac_output_sacs = {parameters['mseed2sac']['mseed2sac_output_sacs']}\n")
     fopen.write(f"mseed2sac_channels = {parameters['mseed2sac']['mseed2sac_channels']}\n")
     nprocs = len(parameters['mseed2sac']['mseed2sac_procs'])
     proc_sections = []
@@ -241,8 +239,6 @@ class Defaults:
 
     def mseed2sac(self):
         mseed2sac = {}
-        mseed2sac['mseed2sac_input_mseeds'] = os.path.join(self.maindir, 'mseeds')
-        mseed2sac['mseed2sac_output_sacs'] = os.path.join(self.maindir, 'sacs')
         mseed2sac['mseed2sac_channels'] = "BHZ HHZ"
         mseed2sac['mseed2sac_procs'] = []
         # process 1 
