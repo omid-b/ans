@@ -10,6 +10,7 @@ from . import gui
 from . import config
 from . import dependency
 from . import download
+from . import mseed2sac
 
 # global variables
 version = "0.0.1"
@@ -180,7 +181,7 @@ def main():
             download.download_mseeds(args.maindir)
     # mseed2sac
     if args.command == 'mseed2sac':
-        print(dev)
+        mseed2sac.mseed2sac_run_all(args.maindir)
     # sac2ncf
     if args.command == 'sac2ncf':
         print(dev)
