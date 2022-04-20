@@ -20,6 +20,8 @@ fetch_data_script = os.path.join(pkg_dir, "data", "FetchData-2018.337")
 
 def download_stations(maindir):
     maindir = os.path.abspath(maindir)
+    if not os.path.isdir(os.path.join(maindir, '.ans')):
+        os.mkdir(os.path.join(maindir, '.ans'))
     stalist = os.path.split(config.read_config(maindir)['download']['le_stalist'])[1]
     print(f"  Generating list of stations: '{stalist}'")
     stations = STATIONS(maindir) 
@@ -32,12 +34,17 @@ def download_stations(maindir):
 
 def download_metafiles(maindir):
     maindir = os.path.abspath(maindir)
+    if not os.path.isdir(os.path.join(maindir, '.ans')):
+        os.mkdir(os.path.join(maindir, '.ans'))
     stations = STATIONS(maindir) 
     stations.download_xml_files()
     print("\nDone!\n")
 
 
 def download_mseeds(maindir):
+    maindir = os.path.abspath(maindir)
+    if not os.path.isdir(os.path.join(maindir, '.ans')):
+        os.mkdir(os.path.join(maindir, '.ans'))
     mseeds = MSEEDS(maindir)
     mseeds.download_all()
     print("\nDone!\n")

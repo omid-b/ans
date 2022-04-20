@@ -14,33 +14,69 @@ regex_events = re.compile('^[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0
 
 def mseed2sac_run_all(maindir, input_mseeds_dir, output_sacs_dir):
     conf = config.read_config(maindir)
+    SAC = conf['setting']['le_sac']
+    if not os.path.isfile(SAC):
+        print(f"Error! could not find SAC software in the following path:\n{SAC}")
+        exit(1)
     input_mseeds_dir = os.path.abspath(input_mseeds_dir)
     output_sacs_dir = os.path.abspath(output_sacs_dir)
     mseeds = generate_mseed_list(input_mseeds_dir)
 
     initialize_sac_directories(output_sacs_dir, mseeds)
 
+    num_success = 0
     for mseed in mseeds:
         event_name = get_event_name(mseed)
         sacfile = os.path.join(output_sacs_dir, event_name, get_sac_name(mseed))
-        success = True
-        for process in conf['mseed2sac']['mseed2sac_procs']:
-            pid = process['pid']
-            if success and pid == [1,1]:
-                # input_mseed_file, output_sac_file,
-                # detrend=True, detrend_method='spline', detrend_order=4, dspline=86400,
-                # taper=True, taper_type='hann', taper_max_perc=0.050,
-                # SAC='/usr/local/sac/bin/sac'
-                detrend = is_true(process)
+        if not os.path.isfile(sacfile):
+            print(f"\nsac file: {os.path.split(sacfile)[1]}")
+            success = True
+            for i, process in enumerate(conf['mseed2sac']['mseed2sac_procs']):
+                pid = process['pid']
+                if success and pid == [1,1]:
+                    print(f"    Process #{i+1}: MSEED to SAC")
+                    detrend = is_true(process['chb_mseed2sac_detrend'])
+                    taper = is_true(process['chb_mseed2sac_taper'])
+                    detrend_method = process['cmb_mseed2sac_detrend_method']
+                    detrend_order = int(process['sb_mseed2sac_detrend_order'])
+                    dspline = int(process['le_mseed2sac_dspline'])
+                    taper_type = process['cmb_mseed2sac_taper_method']
+                    taper_max_perc = float(process['dsb_mseed2sac_max_taper'])
+                    
+                    if detrend_method == 0:
+                        detrend_method = "demean"
+                    elif detrend_method == 1:
+                        detrend_method = "linear"
+                    elif detrend_method == 2:
+                        detrend_method = "polynomial"
+                    elif detrend_method == 3:
+                        detrend_method = "spline"
+                    
+                    if taper_type == 0:
+                        taper_type = 'hann'
 
-            elif success and pid == [2,1]:
-                pass
-            elif success and pid == [3,1]:
-                pass
-            elif success and pid == [4,1]:
-                pass
-        if not success and os.path.isfile(sacfile):
-            os.remove(sacfile)
+                    success = proc.mseed2sac(mseed, sacfile,
+                    detrend=detrend, detrend_method=detrend_method,
+                    detrend_order=detrend_order, dspline=dspline,
+                    taper=taper, taper_type=taper_type, taper_max_perc=taper_max_perc,
+                    SAC=SAC)
+
+                elif success and pid == [2,1]:
+                    print(f"    Process #{i+1}: Remove extra channel")
+                elif success and pid == [3,1]:
+                    print(f"    Process #{i+1}: Decimate")
+                elif success and pid == [4,1]:
+                    print(f"    Process #{i+1}: Remove instrument response")
+                elif success and pid == [5,1]:
+                    print(f"    Process #{i+1}: Bandpass filter")
+
+            if not success and os.path.isfile(sacfile):
+                os.remove(sacfile)
+                print("* Process failed! Output file was removed.")
+            else:
+                num_success += 1
+
+    print(f"\nTotal number of MSEED files: {len(mseeds)}\nNumber of successfully processed SAC files: {num_success}\n\nDone!\n")
 
     # finalize_sac_directories(output_sacs_dir, mseeds)
 
