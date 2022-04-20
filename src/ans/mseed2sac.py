@@ -20,7 +20,9 @@ def mseed2sac_run_all(maindir, input_mseeds_dir, output_sacs_dir):
         exit(1)
     input_mseeds_dir = os.path.abspath(input_mseeds_dir)
     output_sacs_dir = os.path.abspath(output_sacs_dir)
-    mseeds = generate_mseed_list(input_mseeds_dir)
+    channels = conf['mseed2sac']['mseed2sac_channels'].split()
+    print('Channels to process:', ' '.join(channels))
+    mseeds = generate_mseed_list(input_mseeds_dir, channels)
 
     initialize_sac_directories(output_sacs_dir, mseeds)
 
@@ -63,6 +65,12 @@ def mseed2sac_run_all(maindir, input_mseeds_dir, output_sacs_dir):
 
                 elif success and pid == [2,1]:
                     print(f"    Process #{i+1}: Remove extra channel")
+                    event_folder = os.path.join(output_sacs_dir, get_event_name(mseed))
+                    similar_channels = process['le_mseed2sac_similar_channels'].split()
+                    channel2keep = process['le_mseed2sac_channel2keep']
+                    proc.sac_remove_extra_channels(sacs_event_dir=event_folder,
+                                                   similar_channels=similar_channels,
+                                                   channel2keep=channel2keep, SAC=SAC)
                 elif success and pid == [3,1]:
                     print(f"    Process #{i+1}: Decimate")
                 elif success and pid == [4,1]:
@@ -72,11 +80,10 @@ def mseed2sac_run_all(maindir, input_mseeds_dir, output_sacs_dir):
 
             if not success and os.path.isfile(sacfile):
                 os.remove(sacfile)
-                print("* Process failed! Output file was removed.")
             else:
                 num_success += 1
 
-    print(f"\nTotal number of MSEED files: {len(mseeds)}\nNumber of successfully processed SAC files: {num_success}\n\nDone!\n")
+    print(f"\nSAC dataset: {output_sacs_dir}\nTotal number of MSEED files: {len(mseeds)}\nNumber of new output SAC files: {num_success}\n\nDone!\n")
 
     # finalize_sac_directories(output_sacs_dir, mseeds)
 
@@ -85,17 +92,19 @@ def mseed2sac_run_all(maindir, input_mseeds_dir, output_sacs_dir):
 
 
 
-def generate_mseed_list(mseeds_dir):
+def generate_mseed_list(mseeds_dir, channels):
     mseed_list = []
     if not os.path.isdir(mseeds_dir):
-        print()
+        print("\nError! Could not find mseeds_dir:\n{mseeds_dir}\n\n")
     for x in os.listdir(mseeds_dir):
 
         if os.path.isdir(os.path.join(mseeds_dir, x)):
             if regex_events.match(x):
                 for xx in os.listdir(os.path.join(mseeds_dir, x)):
                     if regex_mseeds.match(xx):
-                        mseed_list.append(os.path.join(mseeds_dir, x, xx)) 
+                        chn = xx.split('_')[0].split('.')[-1]
+                        if chn in channels:
+                            mseed_list.append(os.path.join(mseeds_dir, x, xx)) 
         else:
             if regex_mseeds.match(x):
                 mseed_list.append(os.path.join(mseeds_dir, x))

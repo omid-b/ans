@@ -5,6 +5,7 @@ import sys
 import obspy
 import numpy as np
 import subprocess
+import glob
 
 
 def mseed2sac(input_mseed_file, output_sac_file,
@@ -86,7 +87,42 @@ def mseed2sac(input_mseed_file, output_sac_file,
 
 def sac_remove_extra_channels(sacs_event_dir, similar_channels, channel2keep,
     SAC='/usr/local/sac/bin/sac'):
-    pass
+    event_name = os.path.basename(sacs_event_dir)
+    os.chdir(sacs_event_dir)
+    sta_uniq = []
+    for chn in similar_channels:
+        for x in glob.glob(f'{event_name}_*.{chn}'):
+            sta = x.split('_')[1].split('.')[0]
+            if sta not in sta_uniq:
+                sta_uniq.append(sta)
+    print(sta_uniq)
+    sta = []
+    stachn = []
+
+    # j = 0
+    # sta = []
+    # stachn = []
+    # while j < len(sacfiles[i]):
+    #     sacfile = os.path.join(datasets, events[i], sacfiles[i][j])
+    #     st = obspy.read(sacfile, format='SAC', headersonly=True)
+    #     sta.append(st[0].stats.station)
+    #     stachn.append(st[0].stats.station+'.'+st[0].stats.channel)
+    #     j += 1
+
+    # k = 0
+    # while k < len(sta):
+    #     similar_stachn = []
+    #     for x in similar_channels:
+    #         similar_stachn.append(sta[k]+'.'+x)
+    #     n = 0
+    #     for x1 in similar_stachn:
+    #         if x1 in stachn:
+    #             n += 1
+
+    #     if n > 1 and stachn[k] != sta[k]+'.'+keep_channel:
+    #         os.remove(os.path.join(datasets, events[i], sacfiles[i][k]))
+    #     k += 1
+
 
 
 
