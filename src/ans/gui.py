@@ -687,6 +687,15 @@ class Download(QWidget):
         # self.le_stameta.textChanged.connect(self.le_stameta.isdir)
         browse_stameta = MyDialog(type=3, lineEditObj=self.le_stameta)
         #
+        lbl_mseeds = QLabel("MSEED dataset dir:")
+        lbl_mseeds.setObjectName("lbl_mseeds")
+        self.le_mseeds = MyLineEdit()
+        self.le_mseeds.setAttribute(Qt.WA_MacShowFocusRect, 0)
+        self.le_mseeds.setObjectName("le_mseeds")
+        self.le_mseeds.setPlaceholderText("Full path MSEED dataset directory")
+        # self.le_mseeds.textChanged.connect(self.le_mseeds.isdir)
+        browse_mseeds = MyDialog(type=3, lineEditObj=self.le_mseeds)
+        #
         lbl_stalocs = QLabel("Station location codes:")
         lbl_stalocs.setObjectName("lbl_stalocs")
         self.le_stalocs = MyLineEdit()
@@ -778,12 +787,17 @@ class Download(QWidget):
         lyo_bottom.addWidget(lbl_stameta, 2,0,1,1)
         lyo_bottom.addWidget(self.le_stameta, 2,1,1,1)
         lyo_bottom.addWidget(browse_stameta, 2,2,1,1)
-        lyo_bottom.addWidget(lbl_stalocs, 3,0,1,1)
-        lyo_bottom.addWidget(self.le_stalocs, 3,1,1,2)
-        lyo_bottom.addWidget(lbl_stachns, 4,0,1,1)
-        lyo_bottom.addWidget(self.le_stachns, 4,1,1,2)
-        lyo_bottom.addWidget(lbl_timelen, 5,0,1,1)
-        lyo_bottom.addWidget(self.le_timelen, 5,1,1,2)
+
+        lyo_bottom.addWidget(lbl_mseeds, 3,0,1,1)
+        lyo_bottom.addWidget(self.le_mseeds, 3,1,1,1)
+        lyo_bottom.addWidget(browse_mseeds, 3,2,1,1)
+
+        lyo_bottom.addWidget(lbl_stalocs, 4,0,1,1)
+        lyo_bottom.addWidget(self.le_stalocs, 4,1,1,2)
+        lyo_bottom.addWidget(lbl_stachns, 5,0,1,1)
+        lyo_bottom.addWidget(self.le_stachns, 5,1,1,2)
+        lyo_bottom.addWidget(lbl_timelen, 6,0,1,1)
+        lyo_bottom.addWidget(self.le_timelen, 6,1,1,2)
         lyo_bottom.setSpacing(10)
         lyo_bottom.setContentsMargins(30,30,50,30)
 
@@ -817,6 +831,7 @@ class Download(QWidget):
         download['chb_fetch'] = self.chb_fetch.checkState()
         download['le_stalist'] = self.le_stalist.text()
         download['le_stameta'] = self.le_stameta.text()
+        download['le_mseeds'] = self.le_mseeds.text()
         download['le_stalocs'] = self.le_stalocs.text()
         download['le_stachns'] = self.le_stachns.text()
         try:
@@ -1394,20 +1409,20 @@ class MSEED2SAC(QWidget):
             mseed2sac_proc_params["chb_mseed2sac_taper"] = 2
             mseed2sac_proc_params["chb_mseed2sac_detrend"] = 2
             mseed2sac_proc_params["cmb_mseed2sac_taper_method"] = 0
-            mseed2sac_proc_params["dsb_mseed2sac_max_taper"] = 0.05
+            mseed2sac_proc_params["dsb_mseed2sac_max_taper"] = 0.005
             mseed2sac_proc_params["cmb_mseed2sac_detrend_method"] = 3
             mseed2sac_proc_params["sb_mseed2sac_detrend_order"] = 4
             mseed2sac_proc_params["le_mseed2sac_dspline"] = 864000
         elif pid == [2,1]: # Remove extra channel - Method 1
             mseed2sac_proc_params["pid"] = [2,1]
             mseed2sac_proc_params["le_mseed2sac_similar_channels"] = "BHZ HHZ"
-            mseed2sac_proc_params["le_mseed2sac_channel2keep"] = "HHZ"
+            mseed2sac_proc_params["le_mseed2sac_channel2keep"] = "BHZ"
         elif pid == [3,1]: # Decimate - Method 1
             mseed2sac_proc_params["pid"] = [3,1]
             mseed2sac_proc_params["cmb_mseed2sac_final_sf"] = 0
         elif pid == [4,1]: # Remove response - Method 1
             mseed2sac_proc_params["pid"] = [4,1]
-            mseed2sac_proc_params["le_mseed2sac_stametadir"] = os.path.abspath("./station_metafiles")
+            mseed2sac_proc_params["le_mseed2sac_stametadir"] = os.path.abspath("./metafiles")
             mseed2sac_proc_params["cmb_mseed2sac_resp_output"] = 1
             mseed2sac_proc_params["cmb_mseed2sac_resp_prefilter"] = 1
         elif pid == [5,1]: # Bandpass filter - Method 1
@@ -1887,6 +1902,7 @@ class MainWindow(QMainWindow):
         self.download.findChild(MyCheckBox, 'chb_fetch').setCheckState(parameters['download']['chb_fetch'])
         self.download.findChild(MyLineEdit, 'le_stalist').setText(parameters['download']['le_stalist'])
         self.download.findChild(MyLineEdit, 'le_stameta').setText(parameters['download']['le_stameta'])
+        self.download.findChild(MyLineEdit, 'le_mseeds').setText(parameters['download']['le_mseeds'])
         self.download.findChild(MyLineEdit, 'le_stalocs').setText(parameters['download']['le_stalocs'])
         self.download.findChild(MyLineEdit, 'le_stachns').setText(parameters['download']['le_stachns'])
         self.download.findChild(MyLineEdit, 'le_timelen').setText(f"{parameters['download']['le_timelen']}")

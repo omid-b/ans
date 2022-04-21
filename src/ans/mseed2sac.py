@@ -20,13 +20,17 @@ def mseed2sac_run_all(maindir, input_mseeds_dir, output_sacs_dir):
         exit(1)
     input_mseeds_dir = os.path.abspath(input_mseeds_dir)
     output_sacs_dir = os.path.abspath(output_sacs_dir)
+
+    # shutil.rmtree(output_sacs_dir) # REMOVE LATER!!!!!!!!!!!!!!
+
     channels = conf['mseed2sac']['mseed2sac_channels'].split()
     print('Channels to process:', ' '.join(channels))
     mseeds = generate_mseed_list(input_mseeds_dir, channels)
 
     initialize_sac_directories(output_sacs_dir, mseeds)
 
-    num_success = 0
+    num_outputs = 0
+    num_deleted = 0
     for mseed in mseeds:
         event_name = get_event_name(mseed)
         sacfile = os.path.join(output_sacs_dir, event_name, get_sac_name(mseed))
@@ -68,24 +72,86 @@ def mseed2sac_run_all(maindir, input_mseeds_dir, output_sacs_dir):
                     event_folder = os.path.join(output_sacs_dir, get_event_name(mseed))
                     similar_channels = process['le_mseed2sac_similar_channels'].split()
                     channel2keep = process['le_mseed2sac_channel2keep']
-                    proc.sac_remove_extra_channels(sacs_event_dir=event_folder,
+                    num_deleted += proc.sac_remove_extra_channels(sacs_event_dir=event_folder,
                                                    similar_channels=similar_channels,
-                                                   channel2keep=channel2keep, SAC=SAC)
+                                                   channel2keep=channel2keep)
+
                 elif success and pid == [3,1]:
                     print(f"    Process #{i+1}: Decimate")
+
+                    final_sampling_freq = process['cmb_mseed2sac_final_sf']
+                    if final_sampling_freq == 1:
+                        final_sampling_freq = 2
+                    elif final_sampling_freq == 2:
+                        final_sampling_freq = 5
+                    elif final_sampling_freq == 3:
+                        final_sampling_freq = 10
+                    elif final_sampling_freq == 4:
+                        final_sampling_freq = 20
+                    else:
+                        final_sampling_freq = 1
+
+                    success = proc.sac_decimate(sacfile, sacfile, final_sampling_freq,
+                    SAC=SAC)
+
                 elif success and pid == [4,1]:
                     print(f"    Process #{i+1}: Remove instrument response")
+
+                    # find appropriate xml file
+                    xmldir = process['le_mseed2sac_stametadir']
+                    xmldir_2 = os.path.join(maindir, 'mseeds', get_event_name(mseed))
+                    unit = process['cmb_mseed2sac_resp_output']
+                    prefilter = process['cmb_mseed2sac_resp_prefilter']
+                    if unit == 0:
+                        unit = 'DISP'
+                    elif unit == 1:
+                        unit = 'VEL'
+                    elif unit == 2:
+                        unit = 'ACC'
+
+                    if prefilter == 0:
+                        prefilter = None
+                    elif prefilter == 1:
+                        prefilter = [0.001, 0.005, 45, 50]
+
+                    st = obspy.read(sacfile, headonly=True)
+                    net = st[0].stats.network
+                    sta = st[0].stats.station
+                    chn = st[0].stats.channel
+                    xml_fname = f"{net}.{sta}.{chn}"
+                    if os.path.isfile(os.path.join(xmldir, xml_fname)):
+                        xml_file = os.path.join(xmldir, xml_fname)
+                    elif os.path.isfile(os.path.join(xmldir_2, xml_fname)):
+                        xml_file = os.path.join(xmldir_2, xml_fname)
+                    else:
+                        print("    Error! Meta data was not found!")
+                        success = False
+                        continue
+
+                    success = proc.sac_remove_response(sacfile, sacfile, xml_file,
+                                                       unit=unit, prefilter=prefilter,
+                                                       SAC=SAC)
+
                 elif success and pid == [5,1]:
                     print(f"    Process #{i+1}: Bandpass filter")
+
+                    cp1 = process['le_mseed2sac_bp_cp1']
+                    cp2 = process['le_mseed2sac_bp_cp2']
+                    n = process['sb_mseed2sac_bp_poles']
+                    p = process['sb_mseed2sac_bp_passes']
+                    
+                    success = proc.sac_bandpass_filter(sacfile, sacfile,
+                                        cp1=cp1, cp2=cp2, n=n, p=p,
+                                        SAC=SAC)
 
             if not success and os.path.isfile(sacfile):
                 os.remove(sacfile)
             else:
-                num_success += 1
+                num_outputs += 1
 
-    print(f"\nSAC dataset: {output_sacs_dir}\nTotal number of MSEED files: {len(mseeds)}\nNumber of new output SAC files: {num_success}\n\nDone!\n")
+    print(f"\nSAC dataset: {output_sacs_dir}\nTotal number of MSEED files: {len(mseeds)}\nNumber of final output SAC files: {num_outputs - num_deleted}\n\nDone!\n")
 
-    # finalize_sac_directories(output_sacs_dir, mseeds)
+    finalize_sac_directories(output_sacs_dir, mseeds)
 
 
 #========================#

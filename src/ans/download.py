@@ -181,11 +181,12 @@ class STATIONS:
 
     def write_stalist(self, stalist, datacenters):
         nsta = len(stalist['sta'])
-        output_lines = ["#Datacenters:"]
+        output_lines_headers = ["#Datacenters:"]
         for dc in datacenters:
-            output_lines.append(f"#{dc}")
-        output_lines.append("")
-        output_lines.append("#Network | Station | Latitude | Longitude | Elevation | Sitename | StartTime | EndTime")
+            output_lines_headers.append(f"#{dc}")
+        output_lines_headers.append("")
+        output_lines_headers.append("#Network | Station | Latitude | Longitude | Elevation | Sitename | StartTime | EndTime")
+        output_lines_main = []
         for i in range(nsta):
             net = str(stalist['net'][i]).strip()
             sta = str(stalist['sta'][i]).strip()
@@ -195,10 +196,13 @@ class STATIONS:
             site = str(stalist['site'][i]).strip()
             start = str(stalist['start'][i]).strip()
             end = str(stalist['end'][i]).strip()
-            output_lines.append(f"{net}|{sta}|{lat}|{lon}|{elv}|{site}|{start}|{end}")
+            output_lines_main.append(f"{net}|{sta}|{lat}|{lon}|{elv}|{site}|{start}|{end}")
+        output_lines_main = sorted(output_lines_main)
         # write output
         fopen = open(os.path.join(self.maindir, self.stalist_fname),'w')
-        for line in output_lines:
+        for line in output_lines_headers:
+            fopen.write(f"{line}\n")
+        for line in output_lines_main:
             fopen.write(f"{line}\n")
         fopen.close()
 

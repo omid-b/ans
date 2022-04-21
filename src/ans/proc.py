@@ -5,7 +5,6 @@ import sys
 import obspy
 import numpy as np
 import subprocess
-import glob
 
 
 def mseed2sac(input_mseed_file, output_sac_file,
@@ -27,9 +26,9 @@ def mseed2sac(input_mseed_file, output_sac_file,
         begin_data = int(data_starttime.hour*3600 +
                          data_starttime.minute*60 +
                          data_starttime.second)
-        begin_request = int(data_starttime.hour*3600 +
-                            data_starttime.minute*60 +
-                            data_starttime.second)
+        begin_request = int(request_starttime.hour*3600 +
+                            request_starttime.minute*60 +
+                            request_starttime.second)
 
         if detrend:
             if detrend_method == 'spline':
@@ -71,10 +70,11 @@ def mseed2sac(input_mseed_file, output_sac_file,
         shell_cmd = '\n'.join(shell_cmd)
         subprocess.call(shell_cmd, shell=True)
 
-        # reload sac file, set sac begin time to zero, and write to file
+        # reload sac file, set sac begin time to zero, correct sac kztime, and write to file
         st = obspy.read(output_sac_file, format='SAC')
         st[0].stats.sac = obspy.core.AttribDict()
         st[0].stats.sac.b = 0
+        st[0].stats.starttime = request_starttime
         st[0].write(output_sac_file, format='SAC')
 
         return True
@@ -85,62 +85,144 @@ def mseed2sac(input_mseed_file, output_sac_file,
 
 
 
-def sac_remove_extra_channels(sacs_event_dir, similar_channels, channel2keep,
-    SAC='/usr/local/sac/bin/sac'):
+def sac_remove_extra_channels(sacs_event_dir, similar_channels, channel2keep):
     event_name = os.path.basename(sacs_event_dir)
-    os.chdir(sacs_event_dir)
-    sta_uniq = []
-    for chn in similar_channels:
-        for x in glob.glob(f'{event_name}_*.{chn}'):
-            sta = x.split('_')[1].split('.')[0]
-            if sta not in sta_uniq:
-                sta_uniq.append(sta)
-    print(sta_uniq)
-    sta = []
-    stachn = []
-
-    # j = 0
-    # sta = []
-    # stachn = []
-    # while j < len(sacfiles[i]):
-    #     sacfile = os.path.join(datasets, events[i], sacfiles[i][j])
-    #     st = obspy.read(sacfile, format='SAC', headersonly=True)
-    #     sta.append(st[0].stats.station)
-    #     stachn.append(st[0].stats.station+'.'+st[0].stats.channel)
-    #     j += 1
-
-    # k = 0
-    # while k < len(sta):
-    #     similar_stachn = []
-    #     for x in similar_channels:
-    #         similar_stachn.append(sta[k]+'.'+x)
-    #     n = 0
-    #     for x1 in similar_stachn:
-    #         if x1 in stachn:
-    #             n += 1
-
-    #     if n > 1 and stachn[k] != sta[k]+'.'+keep_channel:
-    #         os.remove(os.path.join(datasets, events[i], sacfiles[i][k]))
-    #     k += 1
-
+    num_deleted = 0
+    fname_uniq = []
+    for f in os.listdir(sacs_event_dir):
+        fname = os.path.splitext(f)[0]
+        if fname not in fname_uniq:
+            fname_uniq.append(fname)
+    for fname in fname_uniq:
+        fname_exist = []
+        for channel in similar_channels:
+            if os.path.isfile(os.path.join(sacs_event_dir, f"{fname}.{channel}")):
+                fname_exist.append(True)
+            else:
+                fname_exist.append(False)
+        if all(fname_exist):
+            for channel in similar_channels:
+                if channel != channel2keep:
+                    os.remove(os.path.join(sacs_event_dir, f"{fname}.{channel}"))
+                    num_deleted += 1
+    return num_deleted
 
 
 
 def sac_decimate(input_sacfile, output_sacfile, final_sampling_freq,
     SAC='/usr/local/sac/bin/sac'):
-    pass
+    try:
+        st = obspy.read(input_sacfile, format="SAC", headonly=True)
+        initial_sf = int(st[0].stats.sampling_rate)
+        f0 = initial_sf
+        # find divisors
+        divisors = []
+        for d in range(2, initial_sf+1):
+            if initial_sf % d == 0 and d <= 7:
+                divisors.append(d)
+        divisors.sort(reverse=True)
+
+        # find decimate factors
+        decimate_factors = []
+        while initial_sf != final_sampling_freq:
+            for divisor in divisors:
+                if (initial_sf/divisor) % final_sampling_freq == 0:
+                    decimate_factors.append(divisor)
+                    break
+            initial_sf = int(initial_sf/decimate_factors[-1])
+
+        # build and run shell script
+        shell_cmd = ["export SAC_DISPLAY_COPYRIGHT=0", f"{SAC}<<EOF", f"r {input_sacfile}"]
+        for df in decimate_factors:
+            shell_cmd.append(f"decimate {df}")
+
+        if input_sacfile == output_sacfile:
+            shell_cmd.append("w over")
+        else:
+            shell_cmd.append(f"w {output_sacfile}")
+
+        shell_cmd.append('quit')
+        shell_cmd.append('EOF')
+        shell_cmd = '\n'.join(shell_cmd)
+        subprocess.call(shell_cmd, shell=True)
+        
+        # check the output file
+        st = obspy.read(output_sacfile, format="SAC", headonly=True)
+        sf_check = int(st[0].stats.sampling_rate)
+
+        if sf_check == final_sampling_freq:
+            return True
+        else:
+            return False
+
+    except Exception as e:
+        return False
 
 
 
 def sac_remove_response(input_sacfile, output_sacfile, xml_file,
-    unit='VEL', prefilter=[0.001, 0.005, 45, 50]):
-    pass
+    unit='VEL', prefilter=[0.001, 0.005, 45, 50], SAC='/usr/local/sac/bin/sac', update_headers=True):
+    try:
+        inv = obspy.read_inventory(xml_file)
+        st = obspy.read(input_sacfile)
+        st.remove_response(inventory=inv, output=unit, pre_filt=prefilter)
+        st.write(output_sacfile, format='SAC')
+        # update sac headers
+        if update_headers:
+            knetwk = inv[0].code.split()[0]
+            kstnm = inv[0][0].code.split()[0]
+            kcmpnm = inv[0][0][0].code.split()[0]
+            stla = np.float(inv[0][0].latitude)
+            stlo = np.float(inv[0][0].longitude)
+            stel = np.float(inv[0][0].elevation)
+            cmpaz = np.float(inv[0][0][0].azimuth)
+            cmpinc = np.float(inv[0][0][0].dip)+90
+            shell_cmd = ["export SAC_DISPLAY_COPYRIGHT=0", f"{SAC}<<EOF"]
+            shell_cmd.append(f"r {output_sacfile}")
+            shell_cmd.append(f"chnhdr knetwk '{knetwk}'")
+            shell_cmd.append(f"chnhdr kstnm '{kstnm}'")
+            shell_cmd.append(f"chnhdr kcmpnm '{kcmpnm}'")
+            shell_cmd.append(f"chnhdr stla {stla}")
+            shell_cmd.append(f"chnhdr stlo {stlo}")
+            shell_cmd.append(f"chnhdr stel {stel}")
+            shell_cmd.append(f"chnhdr cmpaz {cmpaz}")
+            shell_cmd.append(f"chnhdr cmpinc {cmpinc}")
+            shell_cmd.append("chnhdr lovrok True")
+            shell_cmd.append("chnhdr lcalda True")
+            shell_cmd.append(f"wh")
+            shell_cmd.append('quit')
+            shell_cmd.append('EOF')
+            shell_cmd = '\n'.join(shell_cmd)
+            subprocess.call(shell_cmd, shell=True)
+        return True
+    except Exception as e:
+        return False
 
 
 
 def sac_bandpass_filter(input_sacfile, output_sacfile,
     cp1, cp2, n=3, p=2,
     SAC='/usr/local/sac/bin/sac'):
-    pass
+    try:
+        if cp1 > cp2:
+            return False
+        else:
+            cf1 = 1 / cp2
+            cf2 = 1 / cp1
+        shell_cmd = ["export SAC_DISPLAY_COPYRIGHT=0", f"{SAC}<<EOF", f"r {input_sacfile}"]
+        shell_cmd.append(f'bp co {cf1} {cf2} n {n} p {p}')
+        if input_sacfile == output_sacfile:
+            shell_cmd.append('w over')
+        else:
+            shell_cmd.append(f'w {output_sacfile}')
+        shell_cmd.append('quit')
+        shell_cmd.append('EOF')
+        shell_cmd = '\n'.join(shell_cmd)
+        subprocess.call(shell_cmd, shell=True)
+        
+        return True
+    except Exception as e:
+        return False
+
 
 

@@ -14,7 +14,7 @@ download_params = ["chb_dc_service_iris_edu","chb_dc_service_ncedc_org","chb_dc_
                    "chb_dc_ws_icgc_cat","chb_dc_eida_ipgp_fr","chb_dc_fdsnws_raspberryshakedata_com",
                    "chb_dc_webservices_ingv_it","chb_dc_erde_geophysik_uni_muenchen_de","chb_dc_eida_sc3_infp_ro",
                    "chb_dc_eida_gein_noa_gr","chb_dc_www_orfeus_eu_org","chb_dc_auspass_edu_au",
-                   "le_stalist","le_stameta","le_stalocs","le_stachns","le_timelen","chb_obspy","chb_fetch"]
+                   "le_stalist","le_stameta","le_mseeds","le_stalocs","le_stachns","le_timelen","chb_obspy","chb_fetch"]
 
 mseed2sac_params = ["mseed2sac_channels","mseed2sac_procs"]
 
@@ -31,7 +31,7 @@ integer_params = ["chb_dc_service_iris_edu","chb_dc_service_ncedc_org","chb_dc_s
                   "sb_mseed2sac_bp_poles","sb_mseed2sac_bp_passes", "le_timelen", "le_mseed2sac_dspline"]
 
 float_params = ["dsb_mseed2sac_max_taper", "sb_mseed2sac_bp_cp1", "sb_mseed2sac_bp_cp2",
-                "le_minlat","le_maxlat","le_minlon","le_maxlon"]
+                "le_minlat","le_maxlat","le_minlon","le_maxlon", "le_mseed2sac_bp_cp1", "le_mseed2sac_bp_cp2"]
 
 intlist_params = ["pid"]
 
@@ -227,7 +227,8 @@ class Defaults:
         download['chb_dc_auspass_edu_au'] = 0
         # download setting
         download['le_stalist'] = os.path.join(self.maindir, 'stations.dat')
-        download['le_stameta'] = os.path.join(self.maindir, 'station_metafiles')
+        download['le_stameta'] = os.path.join(self.maindir, 'metafiles')
+        download['le_mseeds'] = os.path.join(self.maindir, 'mseeds')
         download['le_stalocs'] = "00 10"
         download['le_stachns'] = "BHZ HHZ"
         download['le_timelen'] = 86400
