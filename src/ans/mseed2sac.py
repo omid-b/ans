@@ -65,17 +65,9 @@ def mseed2sac_run_all(maindir, input_mseeds_dir, output_sacs_dir):
                     taper=taper, taper_type=taper_type, taper_max_perc=taper_max_perc,
                     SAC=SAC)
 
-                elif success and pid == [2,1]:
-                    print(f"    Process #{i+1}: Remove extra channel")
-                    event_folder = os.path.join(output_sacs_dir, get_event_name(mseed))
-                    similar_channels = process['le_mseed2sac_similar_channels'].split()
-                    channels2keep = process['le_mseed2sac_channels2keep'].split()
-                    num_deleted += proc.sac_remove_extra_channels(sacs_event_dir=event_folder,
-                                                   similar_channels=similar_channels,
-                                                   channels2keep=channels2keep)
 
-                elif success and pid == [3,1]:
-                    print(f"    Process #{i+1}: Decimate")
+                elif success and pid == [2,1]:
+                    print(f"    Process #{i+1}: Decimate (SAC method)")
 
                     final_sampling_freq = process['cmb_mseed2sac_final_sf']
                     if final_sampling_freq == 1:
@@ -92,7 +84,24 @@ def mseed2sac_run_all(maindir, input_mseeds_dir, output_sacs_dir):
                     success = proc.sac_decimate(sacfile, sacfile, final_sampling_freq,
                     SAC=SAC)
 
-                elif success and pid == [4,1]:
+                elif success and pid == [2,2]:
+                    print(f"    Process #{i+1}: Decimate (ObsPy method)")
+
+                    final_sampling_freq = process['cmb_mseed2sac_final_sf']
+                    if final_sampling_freq == 1:
+                        final_sampling_freq = 2
+                    elif final_sampling_freq == 2:
+                        final_sampling_freq = 5
+                    elif final_sampling_freq == 3:
+                        final_sampling_freq = 10
+                    elif final_sampling_freq == 4:
+                        final_sampling_freq = 20
+                    else:
+                        final_sampling_freq = 1
+
+                    success = proc.obspy_decimate(sacfile, sacfile, final_sampling_freq, SAC=SAC)
+
+                elif success and pid == [3,1]:
                     print(f"    Process #{i+1}: Remove instrument response")
 
                     # find appropriate xml file
@@ -130,7 +139,7 @@ def mseed2sac_run_all(maindir, input_mseeds_dir, output_sacs_dir):
                                                        unit=unit, prefilter=prefilter,
                                                        SAC=SAC)
 
-                elif success and pid == [5,1]:
+                elif success and pid == [4,1]:
                     print(f"    Process #{i+1}: Bandpass filter")
 
                     cp1 = process['le_mseed2sac_bp_cp1']
@@ -141,6 +150,28 @@ def mseed2sac_run_all(maindir, input_mseeds_dir, output_sacs_dir):
                     success = proc.sac_bandpass_filter(sacfile, sacfile,
                                         cp1=cp1, cp2=cp2, n=n, p=p,
                                         SAC=SAC)
+
+                elif success and pid == [5,1]:
+                    print(f"    Process #{i+1}: Cut seismograms")
+                    try:
+                        cut_begin = float(process['le_mseed2sac_cut_begin'])
+                        cut_end = float(process['le_mseed2sac_cut_end'])
+                    except Exception as e:
+                        print(f"    Error! Cut begin/end values are not set properly!")
+                        success = False
+
+                    success = proc.sac_cut_fillz(sacfile, sacfile, cut_begin, cut_end, SAC=SAC)
+
+
+                elif success and pid == [6,1]:
+                    print(f"    Process #{i+1}: Remove extra channel")
+
+                    event_folder = os.path.join(output_sacs_dir, get_event_name(mseed))
+                    similar_channels = process['le_mseed2sac_similar_channels'].split()
+                    channels2keep = process['le_mseed2sac_channels2keep'].split()
+                    num_deleted += proc.sac_remove_extra_channels(sacs_event_dir=event_folder,
+                                                   similar_channels=similar_channels,
+                                                   channels2keep=channels2keep)
 
             if not success and os.path.isfile(sacfile):
                 os.remove(sacfile)

@@ -153,9 +153,30 @@ def sac_decimate(input_sacfile, output_sacfile, final_sampling_freq,
         
         # check the output file
         st = obspy.read(output_sacfile, format="SAC", headonly=True)
-        sf_check = int(st[0].stats.sampling_rate)
+        if float(st[0].stats.sampling_rate) == float(final_sampling_freq):
+            return True
+        else:
+            return False
 
-        if sf_check == final_sampling_freq:
+    except Exception as e:
+        return False
+
+
+
+def obspy_decimate(input_sacfile, output_sacfile, final_sampling_freq, SAC='/usr/local/sac/bin/sac'):
+    try:
+        st = obspy.read(input_sacfile, format="SAC")
+        sac_begin = st[0].stats.sac.b
+        sac_end = st[0].stats.sac.e
+        st.resample(float(final_sampling_freq))
+        st.write(output_sacfile, format='SAC')
+
+        # obspy would mess with sac end time, let's fix that!
+        sac_cut_fillz(output_sacfile, output_sacfile, sac_begin, sac_end, SAC=SAC)
+
+        # check the output file
+        st = obspy.read(output_sacfile, format="SAC", headonly=True)
+        if float(st[0].stats.sampling_rate) == float(final_sampling_freq):
             return True
         else:
             return False
@@ -229,5 +250,29 @@ def sac_bandpass_filter(input_sacfile, output_sacfile,
     except Exception as e:
         return False
 
+
+def sac_cut_fillz(input_sacfile, output_sacfile,
+    cut_begin, cut_end, SAC='/usr/local/sac/bin/sac'):
+    try:
+        if cut_begin > cut_end:
+            return False
+
+        shell_cmd = ["export SAC_DISPLAY_COPYRIGHT=0", f"{SAC}<<EOF"]
+        shell_cmd.append(f"cuterr fillz")
+        shell_cmd.append(f"cut {cut_begin} {cut_end}")
+        shell_cmd.append(f"r {input_sacfile}")
+        if input_sacfile == output_sacfile:
+            shell_cmd.append('w over')
+        else:
+            shell_cmd.append(f'w {output_sacfile}')
+        shell_cmd.append('quit')
+        shell_cmd.append('EOF')
+        shell_cmd = '\n'.join(shell_cmd)
+        subprocess.call(shell_cmd, shell=True)
+
+
+        return True
+    except Exception as e:
+        return False
 
 

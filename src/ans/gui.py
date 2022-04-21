@@ -1047,12 +1047,7 @@ class MSEED2SAC(QWidget):
         proc_type = QFrame()
         proc_type.setObjectName("proc_type")
         proc_type.setObjectName(f"proc_type")
-        txt_select = "---- Select ----"
-        txt_mseed2sac = "  MSEED to SAC"
-        txt_remchn = "  Remove channel"
-        txt_dec = "  Decimate"
-        txt_remresp = "  Remove response"
-        txt_bandpass = "  Bandpass filter"
+
         lbl_proc_type = QLabel(f"Process #{pframe_id + 1}:")
         lbl_proc_type.setObjectName("lbl_proc_type")
         lbl_proc_type.setStyleSheet("#%s {color: #999;}" %("lbl_proc_type"))
@@ -1060,12 +1055,13 @@ class MSEED2SAC(QWidget):
         cmb_proc_type.setObjectName("cmb_proc_type")
         cmb_proc_type.setEditable(True)
         cmb_proc_type.lineEdit().setAlignment(Qt.AlignCenter)
-        cmb_proc_type.addItem(txt_select)
-        cmb_proc_type.addItem(txt_mseed2sac)
-        cmb_proc_type.addItem(txt_remchn)
-        cmb_proc_type.addItem(txt_dec)
-        cmb_proc_type.addItem(txt_remresp)
-        cmb_proc_type.addItem(txt_bandpass)
+        cmb_proc_type.addItem("---- Select ----")
+        cmb_proc_type.addItem("  MSEED to SAC")
+        cmb_proc_type.addItem("  Decimate")
+        cmb_proc_type.addItem("  Remove response")
+        cmb_proc_type.addItem("  Bandpass filter")
+        cmb_proc_type.addItem("  Cut seismogram")
+        cmb_proc_type.addItem("  Remove channel")
         lyo_proc_type = QHBoxLayout()
         lyo_proc_type.addWidget(lbl_proc_type)
         lyo_proc_type.addWidget(cmb_proc_type)
@@ -1098,25 +1094,17 @@ class MSEED2SAC(QWidget):
             cmb_proc_method.addItem("Obspy + SAC") # Method 1
             lyo_proc_method.addWidget(lbl_mseed2sac_method)
             lyo_proc_method.addWidget(cmb_proc_method)
-        elif ptype_index == 2: # remove channel
-            lbl_remchn_method = QLabel("Method:")
-            lbl_remchn_method.setObjectName(f"lbl_remchn_method")
-            lbl_remchn_method.setStyleSheet("#%s {color:#999;}" %(f"lbl_remchn_method"))
-            cmb_proc_method.setEditable(True)
-            cmb_proc_method.lineEdit().setAlignment(Qt.AlignCenter)
-            cmb_proc_method.addItem("Python script") # Method 1
-            lyo_proc_method.addWidget(lbl_remchn_method)
-            lyo_proc_method.addWidget(cmb_proc_method)
-        elif ptype_index == 3: # decimate
+        elif ptype_index == 2: # decimate
             lbl_decimate_method = QLabel("Method:")
             lbl_decimate_method.setObjectName(f"lbl_decimate_method")
             lbl_decimate_method.setStyleSheet("#%s {color:#999;}" %(f"lbl_decimate_method"))
             cmb_proc_method.setEditable(True)
             cmb_proc_method.lineEdit().setAlignment(Qt.AlignCenter)
             cmb_proc_method.addItem("SAC: decimate") # Method 1
+            cmb_proc_method.addItem("ObsPy: resample") # Method 2
             lyo_proc_method.addWidget(lbl_decimate_method)
             lyo_proc_method.addWidget(cmb_proc_method)
-        elif ptype_index == 4: # remove response
+        elif ptype_index == 3: # remove response
             lbl_remresp_method = QLabel("Method:")
             lbl_remresp_method.setObjectName(f"lbl_remresp_method")
             lbl_remresp_method.setStyleSheet("#%s {color:#999;}" %(f"lbl_remresp_method"))
@@ -1125,7 +1113,7 @@ class MSEED2SAC(QWidget):
             cmb_proc_method.addItem("ObsPy: remove_response") # Method 1
             lyo_proc_method.addWidget(lbl_remresp_method)
             lyo_proc_method.addWidget(cmb_proc_method)
-        elif ptype_index == 5: # bandpass filter
+        elif ptype_index == 4: # bandpass filter
             lbl_bandpass_method = QLabel("Method:")
             lbl_bandpass_method.setObjectName(f"lbl_bandpass_method")
             lbl_bandpass_method.setStyleSheet("#%s {color:#999;}" %(f"lbl_bandpass_method"))
@@ -1133,6 +1121,24 @@ class MSEED2SAC(QWidget):
             cmb_proc_method.lineEdit().setAlignment(Qt.AlignCenter)
             cmb_proc_method.addItem("SAC: bp") # Method 1
             lyo_proc_method.addWidget(lbl_bandpass_method)
+            lyo_proc_method.addWidget(cmb_proc_method)
+        elif ptype_index == 5: # cut seismogram
+            lbl_cut_method = QLabel("Method:")
+            lbl_cut_method.setObjectName(f"lbl_cut_method")
+            lbl_cut_method.setStyleSheet("#%s {color:#999;}" %(f"lbl_cut_method"))
+            cmb_proc_method.setEditable(True)
+            cmb_proc_method.lineEdit().setAlignment(Qt.AlignCenter)
+            cmb_proc_method.addItem("SAC: cuterr fillz") # Method 1
+            lyo_proc_method.addWidget(lbl_cut_method)
+            lyo_proc_method.addWidget(cmb_proc_method)
+        elif ptype_index == 6: # remove channel
+            lbl_remchn_method = QLabel("Method:")
+            lbl_remchn_method.setObjectName(f"lbl_remchn_method")
+            lbl_remchn_method.setStyleSheet("#%s {color:#999;}" %(f"lbl_remchn_method"))
+            cmb_proc_method.setEditable(True)
+            cmb_proc_method.lineEdit().setAlignment(Qt.AlignCenter)
+            cmb_proc_method.addItem("Python script") # Method 1
+            lyo_proc_method.addWidget(lbl_remchn_method)
             lyo_proc_method.addWidget(cmb_proc_method)
         else:
             lbl_bandpass_method = QLabel("Method:")
@@ -1268,25 +1274,7 @@ class MSEED2SAC(QWidget):
             cmb_mseed2sac_detrend_method.currentIndexChanged.connect(lambda: self.update_proc_param_ui(pframe_id))
             chb_mseed2sac_taper.setTristate(False)
             chb_mseed2sac_detrend.setTristate(False)
-        elif pid == [2,1]: # Remove channel - Method 1
-            lbl_mseed2sac_similar_channels = QLabel("If all these channels were available:")
-            le_mseed2sac_similar_channels = QLineEdit()
-            le_mseed2sac_similar_channels.setObjectName("le_mseed2sac_similar_channels")
-            lbl_mseed2sac_channels2keep = QLabel("Only keep these channels:")
-            le_mseed2sac_channels2keep = QLineEdit()
-            le_mseed2sac_channels2keep.setObjectName("le_mseed2sac_channels2keep")
-            # setup layout
-            lyo_proc_param.addWidget(lbl_mseed2sac_similar_channels, 0,0)
-            lyo_proc_param.addWidget(le_mseed2sac_similar_channels, 0,1)
-            lyo_proc_param.addWidget(lbl_mseed2sac_channels2keep, 1,0)
-            lyo_proc_param.addWidget(le_mseed2sac_channels2keep, 1,1)
-            lyo_proc_param.setAlignment(Qt.AlignVCenter)
-            lyo_proc_param.setAlignment(Qt.AlignHCenter)
-            lyo_proc_param.setContentsMargins(65,0,55,0)
-            # set parameters
-            le_mseed2sac_similar_channels.setText(f"{params['le_mseed2sac_similar_channels']}")
-            le_mseed2sac_channels2keep.setText(f"{params['le_mseed2sac_channels2keep']}")
-        elif pid == [3,1]: # Decimate - Method 1
+        elif pid == [2,1] or pid == [2,2]: # Decimate - Method 1 & 2
             lbl_mseed2sac_finalSF = QLabel("Final sampling frequency:")
             cmb_mseed2sac_final_sf = QComboBox()
             cmb_mseed2sac_final_sf.addItem("1 Hz")
@@ -1303,7 +1291,7 @@ class MSEED2SAC(QWidget):
             lyo_proc_param.setContentsMargins(65,0,55,0)
             # set parameters
             cmb_mseed2sac_final_sf.setCurrentIndex(params['cmb_mseed2sac_final_sf'])
-        elif pid == [4,1]: # Remove response - Method 1
+        elif pid == [3,1]: # Remove response - Method 1
             lbl_mseed2sac_stametadir = QLabel("Station meta files dir:")
             le_mseed2sac_stametadir = MyLineEdit()
             le_mseed2sac_stametadir.setAttribute(Qt.WA_MacShowFocusRect, 0)
@@ -1342,7 +1330,7 @@ class MSEED2SAC(QWidget):
             le_mseed2sac_stametadir.setText(f"{params['le_mseed2sac_stametadir']}")
             cmb_mseed2sac_resp_output.setCurrentIndex(params['cmb_mseed2sac_resp_output'])
             cmb_mseed2sac_resp_prefilter.setCurrentIndex(params['cmb_mseed2sac_resp_prefilter'])
-        elif pid == [5,1]: # bandpass filter - Method 1
+        elif pid == [4,1]: # bandpass filter - Method 1
             lbl_mseed2sac_bp_cp1 = QLabel("Left corner period (s):")
             le_mseed2sac_bp_cp1 = MyLineEdit()
             le_mseed2sac_bp_cp1.setObjectName('le_mseed2sac_bp_cp1')
@@ -1385,6 +1373,42 @@ class MSEED2SAC(QWidget):
             le_mseed2sac_bp_cp2.setText(f"{params['le_mseed2sac_bp_cp2']}")
             sb_mseed2sac_bp_poles.setValue(params['sb_mseed2sac_bp_poles'])
             sb_mseed2sac_bp_passes.setValue(params['sb_mseed2sac_bp_passes'])
+        elif pid == [5,1]: # Cut seismogram - Method 1
+            lbl_mseed2sac_cut_begin = QLabel("Cut begin (s):")
+            le_mseed2sac_cut_begin = MyLineEdit()
+            le_mseed2sac_cut_begin.setObjectName("le_mseed2sac_cut_begin")
+            lbl_mseed2sac_cut_end = QLabel("Cut end (s):")
+            le_mseed2sac_cut_end = MyLineEdit()
+            le_mseed2sac_cut_end.setObjectName("le_mseed2sac_cut_end")
+            # setup layout
+            lyo_proc_param.addWidget(lbl_mseed2sac_cut_begin, 0,0)
+            lyo_proc_param.addWidget(le_mseed2sac_cut_begin, 0,1)
+            lyo_proc_param.addWidget(lbl_mseed2sac_cut_end, 1,0)
+            lyo_proc_param.addWidget(le_mseed2sac_cut_end, 1,1)
+            lyo_proc_param.setAlignment(Qt.AlignVCenter)
+            lyo_proc_param.setAlignment(Qt.AlignHCenter)
+            lyo_proc_param.setContentsMargins(65,0,55,0)
+            # set parameters
+            le_mseed2sac_cut_begin.setText(f"{params['le_mseed2sac_cut_begin']}")
+            le_mseed2sac_cut_end.setText(f"{params['le_mseed2sac_cut_end']}")
+        elif pid == [6,1]: # Remove channel - Method 1
+            lbl_mseed2sac_similar_channels = QLabel("If all these channels were available:")
+            le_mseed2sac_similar_channels = QLineEdit()
+            le_mseed2sac_similar_channels.setObjectName("le_mseed2sac_similar_channels")
+            lbl_mseed2sac_channels2keep = QLabel("Only keep these channels:")
+            le_mseed2sac_channels2keep = QLineEdit()
+            le_mseed2sac_channels2keep.setObjectName("le_mseed2sac_channels2keep")
+            # setup layout
+            lyo_proc_param.addWidget(lbl_mseed2sac_similar_channels, 0,0)
+            lyo_proc_param.addWidget(le_mseed2sac_similar_channels, 0,1)
+            lyo_proc_param.addWidget(lbl_mseed2sac_channels2keep, 1,0)
+            lyo_proc_param.addWidget(le_mseed2sac_channels2keep, 1,1)
+            lyo_proc_param.setAlignment(Qt.AlignVCenter)
+            lyo_proc_param.setAlignment(Qt.AlignHCenter)
+            lyo_proc_param.setContentsMargins(65,0,55,0)
+            # set parameters
+            le_mseed2sac_similar_channels.setText(f"{params['le_mseed2sac_similar_channels']}")
+            le_mseed2sac_channels2keep.setText(f"{params['le_mseed2sac_channels2keep']}")
 
         proc_param.setLayout(lyo_proc_param)
         proc_param.setStyleSheet("#%s {border-left: 2px solid #DDD;}" %("proc_param"))
@@ -1402,24 +1426,31 @@ class MSEED2SAC(QWidget):
             mseed2sac_proc_params["cmb_mseed2sac_detrend_method"] = 3
             mseed2sac_proc_params["sb_mseed2sac_detrend_order"] = 4
             mseed2sac_proc_params["le_mseed2sac_dspline"] = 864000
-        elif pid == [2,1]: # Remove extra channel - Method 1
+        elif pid == [2,1]: # Decimate - Method 1
             mseed2sac_proc_params["pid"] = [2,1]
-            mseed2sac_proc_params["le_mseed2sac_similar_channels"] = "BHZ HHZ"
-            mseed2sac_proc_params["le_mseed2sac_channels2keep"] = "BHZ"
-        elif pid == [3,1]: # Decimate - Method 1
-            mseed2sac_proc_params["pid"] = [3,1]
             mseed2sac_proc_params["cmb_mseed2sac_final_sf"] = 0
-        elif pid == [4,1]: # Remove response - Method 1
-            mseed2sac_proc_params["pid"] = [4,1]
+        elif pid == [2,2]: # Decimate - Method 2
+            mseed2sac_proc_params["pid"] = [2,2]
+            mseed2sac_proc_params["cmb_mseed2sac_final_sf"] = 0
+        elif pid == [3,1]: # Remove response - Method 1
+            mseed2sac_proc_params["pid"] = [3,1]
             mseed2sac_proc_params["le_mseed2sac_stametadir"] = os.path.abspath("./metafiles")
             mseed2sac_proc_params["cmb_mseed2sac_resp_output"] = 1
             mseed2sac_proc_params["cmb_mseed2sac_resp_prefilter"] = 1
-        elif pid == [5,1]: # Bandpass filter - Method 1
-            mseed2sac_proc_params["pid"] = [5,1]
+        elif pid == [4,1]: # Bandpass filter - Method 1
+            mseed2sac_proc_params["pid"] = [4,1]
             mseed2sac_proc_params["le_mseed2sac_bp_cp1"] = "4"
             mseed2sac_proc_params["le_mseed2sac_bp_cp2"] = "500"
             mseed2sac_proc_params["sb_mseed2sac_bp_poles"] = 3
             mseed2sac_proc_params["sb_mseed2sac_bp_passes"] = 2
+        elif pid == [5,1]: # Cut seismogram - Method 1
+            mseed2sac_proc_params["pid"] = [5,1]
+            mseed2sac_proc_params["le_mseed2sac_cut_begin"] = ""
+            mseed2sac_proc_params["le_mseed2sac_cut_end"] = ""
+        elif pid == [6,1]: # Remove extra channel - Method 1
+            mseed2sac_proc_params["pid"] = [6,1]
+            mseed2sac_proc_params["le_mseed2sac_similar_channels"] = "BHZ HHZ"
+            mseed2sac_proc_params["le_mseed2sac_channels2keep"] = "BHZ"
         return mseed2sac_proc_params
 
 
@@ -1453,22 +1484,17 @@ class MSEED2SAC(QWidget):
                     proc['le_mseed2sac_dspline'] = le_mseed2sac_dspline
                     proc['cmb_mseed2sac_taper_method'] = cmb_mseed2sac_taper_method
                     proc['dsb_mseed2sac_max_taper'] = dsb_mseed2sac_max_taper
-                elif pid == [2,1]: # Remove channel - Method 1
-                    le_mseed2sac_similar_channels = proc_param.findChild(QLineEdit, 'le_mseed2sac_similar_channels').text()
-                    le_mseed2sac_channels2keep = proc_param.findChild(QLineEdit, 'le_mseed2sac_channels2keep').text()
-                    proc['le_mseed2sac_similar_channels'] = le_mseed2sac_similar_channels
-                    proc['le_mseed2sac_channels2keep'] = le_mseed2sac_channels2keep
-                elif pid == [3,1]: # Decimate - Method 1
+                elif pid == [2,1] or pid == [2,2]: # Decimate - Method 1 & 2
                     cmb_mseed2sac_final_sf = proc_param.findChild(QComboBox, 'cmb_mseed2sac_final_sf').currentIndex()
                     proc['cmb_mseed2sac_final_sf'] = cmb_mseed2sac_final_sf
-                elif pid == [4,1]: # Remove response - Method 1
+                elif pid == [3,1]: # Remove response - Method 1
                     le_mseed2sac_stametadir = proc_param.findChild(MyLineEdit, 'le_mseed2sac_stametadir').text()
                     cmb_mseed2sac_resp_output = proc_param.findChild(QComboBox, 'cmb_mseed2sac_resp_output').currentIndex()
                     cmb_mseed2sac_resp_prefilter = proc_param.findChild(QComboBox, 'cmb_mseed2sac_resp_prefilter').currentIndex()
                     proc['le_mseed2sac_stametadir'] = le_mseed2sac_stametadir
                     proc['cmb_mseed2sac_resp_output'] = cmb_mseed2sac_resp_output
                     proc['cmb_mseed2sac_resp_prefilter'] = cmb_mseed2sac_resp_prefilter
-                elif pid == [5,1]: # bandpass filter - Method 1
+                elif pid == [4,1]: # bandpass filter - Method 1
                     le_mseed2sac_bp_cp1 = proc_param.findChild(QLineEdit, 'le_mseed2sac_bp_cp1').text()
                     le_mseed2sac_bp_cp2 = proc_param.findChild(QLineEdit, 'le_mseed2sac_bp_cp2').text()
                     sb_mseed2sac_bp_poles = proc_param.findChild(QSpinBox, 'sb_mseed2sac_bp_poles').value()
@@ -1477,6 +1503,16 @@ class MSEED2SAC(QWidget):
                     proc['le_mseed2sac_bp_cp2'] = le_mseed2sac_bp_cp2
                     proc['sb_mseed2sac_bp_poles'] = sb_mseed2sac_bp_poles
                     proc['sb_mseed2sac_bp_passes'] = sb_mseed2sac_bp_passes
+                elif pid == [5,1]: # Cut seismogram - Method 1
+                    le_mseed2sac_cut_begin = proc_param.findChild(MyLineEdit, 'le_mseed2sac_cut_begin').text()
+                    le_mseed2sac_cut_end = proc_param.findChild(MyLineEdit, 'le_mseed2sac_cut_end').text()
+                    proc['le_mseed2sac_cut_begin'] = le_mseed2sac_cut_begin
+                    proc['le_mseed2sac_cut_end'] = le_mseed2sac_cut_end
+                elif pid == [6,1]: # Remove channel - Method 1
+                    le_mseed2sac_similar_channels = proc_param.findChild(QLineEdit, 'le_mseed2sac_similar_channels').text()
+                    le_mseed2sac_channels2keep = proc_param.findChild(QLineEdit, 'le_mseed2sac_channels2keep').text()
+                    proc['le_mseed2sac_similar_channels'] = le_mseed2sac_similar_channels
+                    proc['le_mseed2sac_channels2keep'] = le_mseed2sac_channels2keep
                 mseed2sac['mseed2sac_procs'].append(proc)
         return mseed2sac
                     

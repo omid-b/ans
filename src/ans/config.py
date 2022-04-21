@@ -249,22 +249,22 @@ class Defaults:
         mseed2sac_proc_1['sb_mseed2sac_detrend_order'] = 4
         mseed2sac_proc_1['le_mseed2sac_dspline'] = 864000
         mseed2sac_proc_1['cmb_mseed2sac_taper_method'] = 0
-        mseed2sac_proc_1['dsb_mseed2sac_max_taper'] = 0.050
-        # process 2
+        mseed2sac_proc_1['dsb_mseed2sac_max_taper'] = 0.005
+        # process 2  
         mseed2sac_proc_2 = {}
-        mseed2sac_proc_2['pid'] = [2,1] # Remove channel
-        mseed2sac_proc_2['le_mseed2sac_similar_channels'] = "BHZ HHZ"
-        mseed2sac_proc_2['le_mseed2sac_channels2keep'] = "HHZ"
-        # process 3  
+        mseed2sac_proc_2['pid'] = [2,2] # Decimate
+        mseed2sac_proc_2['cmb_mseed2sac_final_sf'] = 0 # 1 Hz
+        # process 3 
         mseed2sac_proc_3 = {}
-        mseed2sac_proc_3['pid'] = [3,1] # Decimate
-        mseed2sac_proc_3['cmb_mseed2sac_final_sf'] = 0 # 1 Hz
-        # process 4 
+        mseed2sac_proc_3['pid'] = [3,1] # Remove response
+        mseed2sac_proc_3['le_mseed2sac_stametadir'] = os.path.join(self.maindir, 'metafiles')
+        mseed2sac_proc_3['cmb_mseed2sac_resp_output'] = 1 # velocity
+        mseed2sac_proc_3['cmb_mseed2sac_resp_prefilter'] = 1 # [0.001, 0.005, 45, 50]
+        # process 4
         mseed2sac_proc_4 = {}
-        mseed2sac_proc_4['pid'] = [4,1] # Remove response
-        mseed2sac_proc_4['le_mseed2sac_stametadir'] = os.path.join(self.maindir, 'metafiles')
-        mseed2sac_proc_4['cmb_mseed2sac_resp_output'] = 1 # velocity
-        mseed2sac_proc_4['cmb_mseed2sac_resp_prefilter'] = 1 # [0.001, 0.005, 45, 50]
+        mseed2sac_proc_4['pid'] = [6,1] # Remove channel
+        mseed2sac_proc_4['le_mseed2sac_similar_channels'] = "BHZ HHZ"
+        mseed2sac_proc_4['le_mseed2sac_channels2keep'] = "BHZ"
         # append processes to the list
         mseed2sac['mseed2sac_procs'].append(mseed2sac_proc_1)
         mseed2sac['mseed2sac_procs'].append(mseed2sac_proc_2)
