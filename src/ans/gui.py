@@ -860,16 +860,6 @@ class MSEED2SAC(QWidget):
             icon_remove_hover = icon_remove_hover.replace('\\','/')
 
         self.mseed2sac_proc_frames = []
-        self.lbl_mseed2sac_channels = QLabel("Channels:")
-        self.le_mseed2sac_channels = QLineEdit()
-        self.le_mseed2sac_channels.setObjectName("le_mseed2sac_channels")
-        self.le_mseed2sac_channels.setAttribute(Qt.WA_MacShowFocusRect, 0)
-        self.le_mseed2sac_channels.setPlaceholderText("Station channels to process, separated by space")
-
-        self.lyo_top = QGridLayout()
-        self.lyo_top.addWidget(QLabel("Channels to process:"), 0,0)
-        self.lyo_top.addWidget(self.le_mseed2sac_channels, 0,1)
-        self.lyo_top.setContentsMargins(10,0,10,0)
 
         self.scroll = QScrollArea()
         self.scroll.setFrameShape(QFrame.Box)
@@ -922,7 +912,6 @@ class MSEED2SAC(QWidget):
         self.add_rem_btns_mseed2sac.setLayout(self.lyo_buttons)
 
         self.layout = QVBoxLayout()
-        self.layout.addLayout(self.lyo_top)
         self.layout.addWidget(self.scroll)
         self.layout.addWidget(self.add_rem_btns_mseed2sac)
         self.layout.setSpacing(10)
@@ -1280,23 +1269,23 @@ class MSEED2SAC(QWidget):
             chb_mseed2sac_taper.setTristate(False)
             chb_mseed2sac_detrend.setTristate(False)
         elif pid == [2,1]: # Remove channel - Method 1
-            lbl_mseed2sac_similar_channels = QLabel("Similar channels:")
+            lbl_mseed2sac_similar_channels = QLabel("If all these channels were available:")
             le_mseed2sac_similar_channels = QLineEdit()
             le_mseed2sac_similar_channels.setObjectName("le_mseed2sac_similar_channels")
-            lbl_mseed2sac_channel2keep = QLabel("Channel to keep:")
-            le_mseed2sac_channel2keep = QLineEdit()
-            le_mseed2sac_channel2keep.setObjectName("le_mseed2sac_channel2keep")
+            lbl_mseed2sac_channels2keep = QLabel("Only keep these channels:")
+            le_mseed2sac_channels2keep = QLineEdit()
+            le_mseed2sac_channels2keep.setObjectName("le_mseed2sac_channels2keep")
             # setup layout
             lyo_proc_param.addWidget(lbl_mseed2sac_similar_channels, 0,0)
             lyo_proc_param.addWidget(le_mseed2sac_similar_channels, 0,1)
-            lyo_proc_param.addWidget(lbl_mseed2sac_channel2keep, 1,0)
-            lyo_proc_param.addWidget(le_mseed2sac_channel2keep, 1,1)
+            lyo_proc_param.addWidget(lbl_mseed2sac_channels2keep, 1,0)
+            lyo_proc_param.addWidget(le_mseed2sac_channels2keep, 1,1)
             lyo_proc_param.setAlignment(Qt.AlignVCenter)
             lyo_proc_param.setAlignment(Qt.AlignHCenter)
             lyo_proc_param.setContentsMargins(65,0,55,0)
             # set parameters
             le_mseed2sac_similar_channels.setText(f"{params['le_mseed2sac_similar_channels']}")
-            le_mseed2sac_channel2keep.setText(f"{params['le_mseed2sac_channel2keep']}")
+            le_mseed2sac_channels2keep.setText(f"{params['le_mseed2sac_channels2keep']}")
         elif pid == [3,1]: # Decimate - Method 1
             lbl_mseed2sac_finalSF = QLabel("Final sampling frequency:")
             cmb_mseed2sac_final_sf = QComboBox()
@@ -1416,7 +1405,7 @@ class MSEED2SAC(QWidget):
         elif pid == [2,1]: # Remove extra channel - Method 1
             mseed2sac_proc_params["pid"] = [2,1]
             mseed2sac_proc_params["le_mseed2sac_similar_channels"] = "BHZ HHZ"
-            mseed2sac_proc_params["le_mseed2sac_channel2keep"] = "BHZ"
+            mseed2sac_proc_params["le_mseed2sac_channels2keep"] = "BHZ"
         elif pid == [3,1]: # Decimate - Method 1
             mseed2sac_proc_params["pid"] = [3,1]
             mseed2sac_proc_params["cmb_mseed2sac_final_sf"] = 0
@@ -1436,7 +1425,6 @@ class MSEED2SAC(QWidget):
 
     def get_parameters(self):
         mseed2sac = {}
-        mseed2sac['mseed2sac_channels'] = self.le_mseed2sac_channels.text()
         mseed2sac['mseed2sac_procs'] = []
         nprocs = self.get_num_procs()
         for i in range(nprocs):
@@ -1467,9 +1455,9 @@ class MSEED2SAC(QWidget):
                     proc['dsb_mseed2sac_max_taper'] = dsb_mseed2sac_max_taper
                 elif pid == [2,1]: # Remove channel - Method 1
                     le_mseed2sac_similar_channels = proc_param.findChild(QLineEdit, 'le_mseed2sac_similar_channels').text()
-                    le_mseed2sac_channel2keep = proc_param.findChild(QLineEdit, 'le_mseed2sac_channel2keep').text()
+                    le_mseed2sac_channels2keep = proc_param.findChild(QLineEdit, 'le_mseed2sac_channels2keep').text()
                     proc['le_mseed2sac_similar_channels'] = le_mseed2sac_similar_channels
-                    proc['le_mseed2sac_channel2keep'] = le_mseed2sac_channel2keep
+                    proc['le_mseed2sac_channels2keep'] = le_mseed2sac_channels2keep
                 elif pid == [3,1]: # Decimate - Method 1
                     cmb_mseed2sac_final_sf = proc_param.findChild(QComboBox, 'cmb_mseed2sac_final_sf').currentIndex()
                     proc['cmb_mseed2sac_final_sf'] = cmb_mseed2sac_final_sf
@@ -1906,8 +1894,8 @@ class MainWindow(QMainWindow):
         self.download.findChild(MyLineEdit, 'le_stalocs').setText(parameters['download']['le_stalocs'])
         self.download.findChild(MyLineEdit, 'le_stachns').setText(parameters['download']['le_stachns'])
         self.download.findChild(MyLineEdit, 'le_timelen').setText(f"{parameters['download']['le_timelen']}")
+        
         # mseed2sac
-        self.mseed2sac.findChild(QLineEdit, 'le_mseed2sac_channels').setText(parameters['mseed2sac']['mseed2sac_channels'])
         # mseed2sac: remove old processes
         old_nprocs = self.mseed2sac.get_num_procs()
         for i in range(old_nprocs):

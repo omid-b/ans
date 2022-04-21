@@ -23,9 +23,7 @@ def mseed2sac_run_all(maindir, input_mseeds_dir, output_sacs_dir):
 
     # shutil.rmtree(output_sacs_dir) # REMOVE LATER!!!!!!!!!!!!!!
 
-    channels = conf['mseed2sac']['mseed2sac_channels'].split()
-    print('Channels to process:', ' '.join(channels))
-    mseeds = generate_mseed_list(input_mseeds_dir, channels)
+    mseeds = generate_mseed_list(input_mseeds_dir)
 
     initialize_sac_directories(output_sacs_dir, mseeds)
 
@@ -71,10 +69,10 @@ def mseed2sac_run_all(maindir, input_mseeds_dir, output_sacs_dir):
                     print(f"    Process #{i+1}: Remove extra channel")
                     event_folder = os.path.join(output_sacs_dir, get_event_name(mseed))
                     similar_channels = process['le_mseed2sac_similar_channels'].split()
-                    channel2keep = process['le_mseed2sac_channel2keep']
+                    channels2keep = process['le_mseed2sac_channels2keep'].split()
                     num_deleted += proc.sac_remove_extra_channels(sacs_event_dir=event_folder,
                                                    similar_channels=similar_channels,
-                                                   channel2keep=channel2keep)
+                                                   channels2keep=channels2keep)
 
                 elif success and pid == [3,1]:
                     print(f"    Process #{i+1}: Decimate")
@@ -124,7 +122,7 @@ def mseed2sac_run_all(maindir, input_mseeds_dir, output_sacs_dir):
                     elif os.path.isfile(os.path.join(xmldir_2, xml_fname)):
                         xml_file = os.path.join(xmldir_2, xml_fname)
                     else:
-                        print("    Error! Meta data was not found!")
+                        print(f"    Error! Meta data was not found: {xml_fname}")
                         success = False
                         continue
 
@@ -157,8 +155,7 @@ def mseed2sac_run_all(maindir, input_mseeds_dir, output_sacs_dir):
 #========================#
 
 
-
-def generate_mseed_list(mseeds_dir, channels):
+def generate_mseed_list(mseeds_dir):
     mseed_list = []
     if not os.path.isdir(mseeds_dir):
         print("\nError! Could not find mseeds_dir:\n{mseeds_dir}\n\n")
@@ -168,13 +165,11 @@ def generate_mseed_list(mseeds_dir, channels):
             if regex_events.match(x):
                 for xx in os.listdir(os.path.join(mseeds_dir, x)):
                     if regex_mseeds.match(xx):
-                        chn = xx.split('_')[0].split('.')[-1]
-                        if chn in channels:
-                            mseed_list.append(os.path.join(mseeds_dir, x, xx)) 
+                        mseed_list.append(os.path.join(mseeds_dir, x, xx)) 
         else:
             if regex_mseeds.match(x):
                 mseed_list.append(os.path.join(mseeds_dir, x))
-    return mseed_list
+    return sorted(mseed_list)
 
 
 def get_sac_name(mseed_file):

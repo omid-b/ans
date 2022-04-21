@@ -85,7 +85,12 @@ def mseed2sac(input_mseed_file, output_sac_file,
 
 
 
-def sac_remove_extra_channels(sacs_event_dir, similar_channels, channel2keep):
+def sac_remove_extra_channels(sacs_event_dir, similar_channels, channels2keep):
+    for channel in channels2keep:
+        if channel not in similar_channels:
+            print("return 0")
+            return 0
+
     event_name = os.path.basename(sacs_event_dir)
     num_deleted = 0
     fname_uniq = []
@@ -102,7 +107,7 @@ def sac_remove_extra_channels(sacs_event_dir, similar_channels, channel2keep):
                 fname_exist.append(False)
         if all(fname_exist):
             for channel in similar_channels:
-                if channel != channel2keep:
+                if channel not in  channels2keep:
                     os.remove(os.path.join(sacs_event_dir, f"{fname}.{channel}"))
                     num_deleted += 1
     return num_deleted

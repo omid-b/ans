@@ -16,7 +16,7 @@ download_params = ["chb_dc_service_iris_edu","chb_dc_service_ncedc_org","chb_dc_
                    "chb_dc_eida_gein_noa_gr","chb_dc_www_orfeus_eu_org","chb_dc_auspass_edu_au",
                    "le_stalist","le_stameta","le_mseeds","le_stalocs","le_stachns","le_timelen","chb_obspy","chb_fetch"]
 
-mseed2sac_params = ["mseed2sac_channels","mseed2sac_procs"]
+mseed2sac_params = ["mseed2sac_procs"]
 
 integer_params = ["chb_dc_service_iris_edu","chb_dc_service_ncedc_org","chb_dc_service_scedc_caltech_edu",
                   "chb_dc_rtserve_beg_utexas_edu","chb_dc_eida_bgr_de","chb_dc_ws_resif_fr",
@@ -131,7 +131,6 @@ def write_config(maindir, parameters):
         fopen.write(f"{key} = {parameters['download'][key]}\n")
     # mseed2sac
     fopen.write("\n[mseed2sac]\n")
-    fopen.write(f"mseed2sac_channels = {parameters['mseed2sac']['mseed2sac_channels']}\n")
     nprocs = len(parameters['mseed2sac']['mseed2sac_procs'])
     proc_sections = []
     for i in range(nprocs):
@@ -240,7 +239,6 @@ class Defaults:
 
     def mseed2sac(self):
         mseed2sac = {}
-        mseed2sac['mseed2sac_channels'] = "BHZ HHZ"
         mseed2sac['mseed2sac_procs'] = []
         # process 1 
         mseed2sac_proc_1 = {}
@@ -256,7 +254,7 @@ class Defaults:
         mseed2sac_proc_2 = {}
         mseed2sac_proc_2['pid'] = [2,1] # Remove channel
         mseed2sac_proc_2['le_mseed2sac_similar_channels'] = "BHZ HHZ"
-        mseed2sac_proc_2['le_mseed2sac_channel2keep'] = "HHZ"
+        mseed2sac_proc_2['le_mseed2sac_channels2keep'] = "HHZ"
         # process 3  
         mseed2sac_proc_3 = {}
         mseed2sac_proc_3['pid'] = [3,1] # Decimate
@@ -264,7 +262,7 @@ class Defaults:
         # process 4 
         mseed2sac_proc_4 = {}
         mseed2sac_proc_4['pid'] = [4,1] # Remove response
-        mseed2sac_proc_4['le_mseed2sac_stametadir'] = os.path.join(self.maindir, 'station_metafiles')
+        mseed2sac_proc_4['le_mseed2sac_stametadir'] = os.path.join(self.maindir, 'metafiles')
         mseed2sac_proc_4['cmb_mseed2sac_resp_output'] = 1 # velocity
         mseed2sac_proc_4['cmb_mseed2sac_resp_prefilter'] = 1 # [0.001, 0.005, 45, 50]
         # append processes to the list
