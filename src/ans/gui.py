@@ -976,7 +976,9 @@ class MSEED2SAC(QWidget):
         proc_method = current_proc_frame.layout().itemAt(1).widget()
         proc_type_index = proc_type.layout().itemAt(1).widget().currentIndex()
         proc_method_index = proc_method.layout().itemAt(1).widget().currentIndex()
-        if proc_method_index in [0, -1]:
+        more_than_one_method = [2] # proc_type_index which has more than 1 method available
+        if proc_type_index not in more_than_one_method or proc_method_index in [0, -1]:
+            proc_method_index = 1
             proc_method_index = 1
         new_proc_frame = self.new_proc_frame(pframe_id, pid=[proc_type_index, proc_method_index])
         self.mseed2sac_proc_frames[pframe_id] = new_proc_frame
@@ -1519,15 +1521,644 @@ class MSEED2SAC(QWidget):
 
 
 
+
+
 class SAC2NCF(QWidget):
     def __init__(self):
         super().__init__()
+
+        # buttons graphics files
+        icon_add = os.path.join(images_dir,"add.svg")
+        icon_add_hover = os.path.join(images_dir,"add_hover.svg")
+        if sys.platform == "win32":
+            icon_add = icon_add.replace('\\','/')
+            icon_add_hover = icon_add_hover.replace('\\','/')
+        icon_remove = os.path.join(images_dir,"remove.svg")
+        icon_remove_hover = os.path.join(images_dir,"remove_hover.svg")
+        if sys.platform == "win32":
+            icon_remove = icon_remove.replace('\\','/')
+            icon_remove_hover = icon_remove_hover.replace('\\','/')
+
+        self.sac2ncf_proc_frames = []
+
+        self.scroll = QScrollArea()
+        self.scroll.setFrameShape(QFrame.Box)
+        self.scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.scroll.setWidgetResizable(True)
+        self.scroll_widget = QWidget()
+        self.lyo_sac2ncf_proc_frames = QVBoxLayout(self.scroll_widget)
+        self.lyo_sac2ncf_proc_frames.setAlignment(Qt.AlignTop)
+        self.scroll.setWidget(self.scroll_widget)
+        self.add_rem_btns_sac2ncf = QWidget()
+        self.add_rem_btns_sac2ncf.setObjectName("add_rem_btns_sac2ncf")
+        self.add_rem_btns_sac2ncf.setStyleSheet("QPushButton {min-width: 35px; max-width: 35px;\
+                                                 min-height: 35px; max-height: 35px;\
+                                                 margin-top: 0px; margin-bottom: 0px; }\
+                                    QPushButton:pressed {border: 3px solid #EEE;}")
+
+        # Add process button
+        self.btn_sac2ncf_add = QPushButton()
+        self.btn_sac2ncf_add.setCursor(Qt.PointingHandCursor)
+        self.btn_sac2ncf_add.setObjectName("btn_sac2ncf_add")
+        qss_code = '''
+            #btn_sac2ncf_add {
+                image: url(%s);
+            }
+
+            #btn_sac2ncf_add:hover {
+                image: url(%s);
+            }
+        ''' %(icon_add, icon_add_hover)
+        self.btn_sac2ncf_add.setStyleSheet(qss_code)
+        # Remove process button
+        self.btn_sac2ncf_remove = QPushButton()
+        self.btn_sac2ncf_remove.setCursor(Qt.PointingHandCursor)
+        self.btn_sac2ncf_remove.setObjectName("btn_sac2ncf_remove")
+        qss_code = '''
+            #btn_sac2ncf_remove {
+                image: url(%s);
+            }
+
+            #btn_sac2ncf_remove:hover {
+                image: url(%s);
+            }
+        ''' %(icon_remove, icon_remove_hover)
+        self.btn_sac2ncf_remove.setStyleSheet(qss_code)
+
+        self.lyo_buttons = QHBoxLayout()
+        self.lyo_buttons.addWidget(self.btn_sac2ncf_remove)
+        self.lyo_buttons.addWidget(self.btn_sac2ncf_add)
+        self.lyo_buttons.setAlignment(Qt.AlignCenter)
+        self.add_rem_btns_sac2ncf.setLayout(self.lyo_buttons)
+
+        self.layout = QVBoxLayout()
+        self.layout.addWidget(self.scroll)
+        self.layout.addWidget(self.add_rem_btns_sac2ncf)
+        self.layout.setSpacing(10)
+        self.layout.setContentsMargins(10,20,10,10)
+        self.setLayout(self.layout)
+
+        # button signals and slots
+        self.btn_sac2ncf_add.clicked.connect(lambda: self.add_proc_frame(pid=[0,0], params={}))
+        self.btn_sac2ncf_remove.clicked.connect(self.remove_proc_frame)
+
+
+    def get_num_procs(self):
+        return len(self.sac2ncf_proc_frames)
+
+
+    def add_proc_frame(self, pid=[0,0], params={}):
+        add = True
+        if self.get_num_procs() > 0:
+            last_proc_type = self.sac2ncf_proc_frames[-1].layout().itemAt(0).widget()
+            last_proc_type_index = last_proc_type.layout().itemAt(1).widget().currentIndex()
+            if last_proc_type_index == 8: # if cross-correlate is the last process 
+                add = False
+        if add:
+            pframe_id = self.get_num_procs()
+            new_proc_frame = self.new_proc_frame(pframe_id=pframe_id, pid=pid, params=params)
+            self.sac2ncf_proc_frames.append(new_proc_frame)
+            self.lyo_sac2ncf_proc_frames.addWidget(self.sac2ncf_proc_frames[-1])
+
+
+    def remove_proc_frame(self):
+        nprocs = self.get_num_procs()
+        if nprocs:
+            proc_frame_obj = self.lyo_sac2ncf_proc_frames.itemAt(nprocs - 1).widget()
+            proc_frame_obj.deleteLater()
+            self.sac2ncf_proc_frames.pop()
+
+
+    def new_proc_frame(self, pframe_id, pid=[0,0], params={}):
+        proc_frame = QFrame()
+        proc_type = self.new_proc_type(pframe_id=pframe_id, ptype_index=pid[0])
+        proc_method = self.new_proc_method(pid=pid)
+        proc_param = self.new_proc_param(pframe_id=pframe_id, pid=pid, params=params)
+        proc_frame.setObjectName("proc_frame")
+        proc_type.setObjectName("proc_type")
+        proc_method.setObjectName("proc_method")
+        proc_param.setObjectName("proc_param")
+        # setup main layout
+        lyo_proc_frame = QGridLayout()
+        lyo_proc_frame.addWidget(proc_type, 0, 0)
+        lyo_proc_frame.addWidget(proc_method, 1, 0)
+        lyo_proc_frame.addWidget(proc_param, 0, 1, 2, 1)
+        lyo_proc_frame.setContentsMargins(5,5,15,5)
+        lyo_proc_frame.setHorizontalSpacing(0)
+        proc_frame.setLayout(lyo_proc_frame)
+        # stylesheet
+        proc_frame.setStyleSheet("#%s {max-height: 180px; min-height: 180px;border: 3px solid #DDD; border-radius: 15px; margin-bottom: 10px; margin-right: 10px;}" %("proc_frame"))
+        proc_type.setStyleSheet("#%s {min-width:280px; max-width:280px;}" %("proc_type"))
+        proc_method.setStyleSheet("#%s {min-width:280px; max-width:280px;}" %("proc_method"))
+        proc_param.setStyleSheet("#%s {border-left: 2px solid #DDD;}" %("proc_param"))
+        # Signals and Slots
+        cmb_proc_type = proc_type.layout().itemAt(1).widget()
+        cmb_proc_method = proc_method.layout().itemAt(1).widget()
+        cmb_proc_type.currentIndexChanged.connect(lambda: self.replace_proc_frame(pframe_id))
+        cmb_proc_method.currentIndexChanged.connect(lambda: self.replace_proc_frame(pframe_id))
+        return proc_frame
+
+
+    def replace_proc_frame(self, pframe_id):
+        current_proc_frame = self.sac2ncf_proc_frames[pframe_id]
+        proc_type = current_proc_frame.layout().itemAt(0).widget()
+        proc_method = current_proc_frame.layout().itemAt(1).widget()
+        proc_type_index = proc_type.layout().itemAt(1).widget().currentIndex()
+        proc_method_index = proc_method.layout().itemAt(1).widget().currentIndex()
+        more_than_one_method = [1] # proc_type_index which has more than 1 method available
+        if proc_type_index not in more_than_one_method or proc_method_index in [0, -1]:
+            proc_method_index = 1
+        new_proc_frame = self.new_proc_frame(pframe_id, pid=[proc_type_index, proc_method_index])
+        self.sac2ncf_proc_frames[pframe_id] = new_proc_frame
+        self.lyo_sac2ncf_proc_frames.replaceWidget(current_proc_frame, new_proc_frame)
+        current_proc_frame.deleteLater()
+
+
+    def update_proc_param_ui(self, pframe_id):
+        current_proc_frame = self.sac2ncf_proc_frames[pframe_id]
+        proc_type = current_proc_frame.layout().itemAt(0).widget()
+        proc_method = current_proc_frame.layout().itemAt(1).widget()
+        proc_param = current_proc_frame.layout().itemAt(2).widget()
+        proc_param_lyo = proc_param.layout()
+        proc_type_index = proc_type.layout().itemAt(1).widget().currentIndex()
+        proc_method_index = proc_method.layout().itemAt(1).widget().currentIndex()
+        pid = [proc_type_index, proc_method_index]
+
+
+    def new_proc_type(self, pframe_id, ptype_index=0):
+        proc_type = QFrame()
+        proc_type.setObjectName("proc_type")
+        proc_type.setObjectName(f"proc_type")
+        lbl_proc_type = QLabel(f"Process #{pframe_id + 1}:")
+        lbl_proc_type.setObjectName("lbl_proc_type")
+        lbl_proc_type.setStyleSheet("#%s {color: #999;}" %("lbl_proc_type"))
+        cmb_proc_type = QComboBox()
+        cmb_proc_type.setObjectName("cmb_proc_type")
+        cmb_proc_type.setEditable(True)
+        cmb_proc_type.lineEdit().setAlignment(Qt.AlignCenter)
+        cmb_proc_type.addItem("---- Select ----")
+        cmb_proc_type.addItem("  Decimate")
+        cmb_proc_type.addItem("  Remove response")
+        cmb_proc_type.addItem("  Bandpass filter")
+        cmb_proc_type.addItem("  Cut seismogram")
+        cmb_proc_type.addItem("  Remove channel")
+        cmb_proc_type.addItem("  Temporal normalize")
+        cmb_proc_type.addItem("  Spectral whitening")
+        cmb_proc_type.addItem("  Cross-correlation")
+        lyo_proc_type = QHBoxLayout()
+        lyo_proc_type.addWidget(lbl_proc_type)
+        lyo_proc_type.addWidget(cmb_proc_type)
+        lyo_proc_type.setAlignment(Qt.AlignVCenter)
+        lyo_proc_type.setAlignment(Qt.AlignRight)
+        lyo_proc_type.setContentsMargins(20,0,20,0)
+        proc_type.setLayout(lyo_proc_type)
+        cmb_proc_type.setCurrentIndex(ptype_index)
+        proc_type.setStyleSheet("#%s {min-width:250px; max-width:250px;}" %("proc_type"))
+        return proc_type
+
+
+    def new_proc_method(self, pid=[0,0]):
+        proc_method = QFrame()
+        proc_method.setObjectName("proc_method")
+        cmb_proc_method = QComboBox()
+        cmb_proc_method.setObjectName("cmb_proc_method")
+        cmb_proc_method.addItem("---- Select ----")
+        lyo_proc_method = QHBoxLayout()
+        ptype_index = pid[0]
+        pmethod_index = pid[1]
+        if ptype_index == 1: # decimate
+            lbl_decimate_method = QLabel("Method:")
+            lbl_decimate_method.setObjectName(f"lbl_decimate_method")
+            lbl_decimate_method.setStyleSheet("#%s {color:#999;}" %(f"lbl_decimate_method"))
+            cmb_proc_method.setEditable(True)
+            cmb_proc_method.lineEdit().setAlignment(Qt.AlignCenter)
+            cmb_proc_method.addItem("SAC: decimate") # Method 1
+            cmb_proc_method.addItem("ObsPy: resample") # Method 2
+            lyo_proc_method.addWidget(lbl_decimate_method)
+            lyo_proc_method.addWidget(cmb_proc_method)
+        elif ptype_index == 2: # remove response
+            lbl_remresp_method = QLabel("Method:")
+            lbl_remresp_method.setObjectName(f"lbl_remresp_method")
+            lbl_remresp_method.setStyleSheet("#%s {color:#999;}" %(f"lbl_remresp_method"))
+            cmb_proc_method.setEditable(True)
+            cmb_proc_method.lineEdit().setAlignment(Qt.AlignCenter)
+            cmb_proc_method.addItem("ObsPy: remove_response") # Method 1
+            lyo_proc_method.addWidget(lbl_remresp_method)
+            lyo_proc_method.addWidget(cmb_proc_method)
+        elif ptype_index == 3: # bandpass filter
+            lbl_bandpass_method = QLabel("Method:")
+            lbl_bandpass_method.setObjectName(f"lbl_bandpass_method")
+            lbl_bandpass_method.setStyleSheet("#%s {color:#999;}" %(f"lbl_bandpass_method"))
+            cmb_proc_method.setEditable(True)
+            cmb_proc_method.lineEdit().setAlignment(Qt.AlignCenter)
+            cmb_proc_method.addItem("SAC: bp") # Method 1
+            lyo_proc_method.addWidget(lbl_bandpass_method)
+            lyo_proc_method.addWidget(cmb_proc_method)
+        elif ptype_index == 4: # cut seismogram
+            lbl_cut_method = QLabel("Method:")
+            lbl_cut_method.setObjectName(f"lbl_cut_method")
+            lbl_cut_method.setStyleSheet("#%s {color:#999;}" %(f"lbl_cut_method"))
+            cmb_proc_method.setEditable(True)
+            cmb_proc_method.lineEdit().setAlignment(Qt.AlignCenter)
+            cmb_proc_method.addItem("SAC: cuterr fillz") # Method 1
+            lyo_proc_method.addWidget(lbl_cut_method)
+            lyo_proc_method.addWidget(cmb_proc_method)
+        elif ptype_index == 5: # remove channel
+            lbl_remchn_method = QLabel("Method:")
+            lbl_remchn_method.setObjectName(f"lbl_remchn_method")
+            lbl_remchn_method.setStyleSheet("#%s {color:#999;}" %(f"lbl_remchn_method"))
+            cmb_proc_method.setEditable(True)
+            cmb_proc_method.lineEdit().setAlignment(Qt.AlignCenter)
+            cmb_proc_method.addItem("Python script") # Method 1
+            lyo_proc_method.addWidget(lbl_remchn_method)
+            lyo_proc_method.addWidget(cmb_proc_method)
+        elif ptype_index == 6: # temporal normalization
+            lbl_tempnorm_method = QLabel("Method:")
+            lbl_tempnorm_method.setObjectName("lbl_tempnorm_method")
+            lbl_tempnorm_method.setStyleSheet("#%s {color:#999;}" %(f"lbl_tempnorm_method"))
+            cmb_proc_method.setEditable(True)
+            cmb_proc_method.lineEdit().setAlignment(Qt.AlignCenter)
+            cmb_proc_method.addItem("One-bit normalization") # Method 1
+            lyo_proc_method.addWidget(lbl_tempnorm_method)
+            lyo_proc_method.addWidget(cmb_proc_method)
+        elif ptype_index == 7: # spectral whitening
+            lbl_whiten_method = QLabel("Method:")
+            lbl_whiten_method.setObjectName("lbl_whiten_method")
+            lbl_whiten_method.setStyleSheet("#%s {color:#999;}" %(f"lbl_whiten_method"))
+            cmb_proc_method.setEditable(True)
+            cmb_proc_method.lineEdit().setAlignment(Qt.AlignCenter)
+            cmb_proc_method.addItem("SAC: whiten") # Method 1
+            lyo_proc_method.addWidget(lbl_whiten_method)
+            lyo_proc_method.addWidget(cmb_proc_method)
+        elif ptype_index == 8: # cross correlation
+            lbl_xcorr_method = QLabel("Method:")
+            lbl_xcorr_method.setObjectName("lbl_xcorr_method")
+            lbl_xcorr_method.setStyleSheet("#%s {color:#999;}" %(f"lbl_xcorr_method"))
+            cmb_proc_method.setEditable(True)
+            cmb_proc_method.lineEdit().setAlignment(Qt.AlignCenter)
+            cmb_proc_method.addItem("SAC: correlate") # Method 1
+            lyo_proc_method.addWidget(lbl_xcorr_method)
+            lyo_proc_method.addWidget(cmb_proc_method)
+        else:
+            lbl_bandpass_method = QLabel("Method:")
+            lbl_bandpass_method.setVisible(False)
+            cmb_proc_method.setVisible(False)
+            lyo_proc_method.addWidget(lbl_bandpass_method)
+            lyo_proc_method.addWidget(cmb_proc_method)
+
+        lyo_proc_method.setAlignment(Qt.AlignVCenter)
+        lyo_proc_method.setAlignment(Qt.AlignRight)
+        lyo_proc_method.setContentsMargins(20,0,20,0)
+        proc_method.setLayout(lyo_proc_method)
+        proc_method.setStyleSheet("#%s {min-width:250px; max-width:250px;}" %("proc_method"))
+        cmb_proc_method.setCurrentIndex(pmethod_index)
+        return proc_method
+
+
+    def new_proc_param(self, pframe_id, pid=[0,0], params={}):
+        proc_param = QWidget()
+        proc_param.setObjectName(f"proc_param")
+        lyo_proc_param = QGridLayout()
+        if len(params) == 0:
+            params = self.default_proc_params(pid)
+        if pid == [1,1] or pid == [1,2]: # Decimate - Method 1 & 2
+            lbl_sac2ncf_finalSF = QLabel("Final sampling frequency:")
+            cmb_sac2ncf_final_sf = QComboBox()
+            cmb_sac2ncf_final_sf.addItem("1 Hz")
+            cmb_sac2ncf_final_sf.addItem("2 Hz")
+            cmb_sac2ncf_final_sf.addItem("5 Hz")
+            cmb_sac2ncf_final_sf.addItem("10 Hz")
+            cmb_sac2ncf_final_sf.addItem("20 Hz")
+            cmb_sac2ncf_final_sf.setObjectName('cmb_sac2ncf_final_sf')
+            # setup layout
+            lyo_proc_param.addWidget(lbl_sac2ncf_finalSF,0,0)
+            lyo_proc_param.addWidget(cmb_sac2ncf_final_sf,0,1)
+            lyo_proc_param.setAlignment(Qt.AlignVCenter)
+            lyo_proc_param.setAlignment(Qt.AlignHCenter)
+            lyo_proc_param.setContentsMargins(65,0,55,0)
+            # set parameters
+            cmb_sac2ncf_final_sf.setCurrentIndex(params['cmb_sac2ncf_final_sf'])
+        elif pid == [2,1]: # Remove response - Method 1
+            lbl_sac2ncf_stametadir = QLabel("Station meta files dir:")
+            le_sac2ncf_stametadir = MyLineEdit()
+            le_sac2ncf_stametadir.setAttribute(Qt.WA_MacShowFocusRect, 0)
+            le_sac2ncf_stametadir.setObjectName("le_sac2ncf_stametadir")
+            le_sac2ncf_stametadir.setPlaceholderText("Full path to station meta files directory")
+            le_sac2ncf_stametadir.isdir()
+            le_sac2ncf_stametadir.textChanged.connect(le_sac2ncf_stametadir.isdir)
+            browse_sac2ncf_stametadir = MyDialog(type=3, lineEditObj=le_sac2ncf_stametadir)
+            lbl_sac2ncf_resp_output = QLabel("Output unit:")
+            cmb_sac2ncf_resp_output = QComboBox()
+            cmb_sac2ncf_resp_output.setObjectName('cmb_sac2ncf_resp_output')
+            cmb_sac2ncf_resp_output.setEditable(True)
+            cmb_sac2ncf_resp_output.lineEdit().setAlignment(Qt.AlignCenter)
+            cmb_sac2ncf_resp_output.addItem("Displacement (m)")
+            cmb_sac2ncf_resp_output.addItem("Velocity (m/s)")
+            cmb_sac2ncf_resp_output.addItem("Acceleration (m/s**2)")
+            lbl_sac2ncf_resp_prefilter = QLabel("Deconvolution pre-filter:")
+            cmb_sac2ncf_resp_prefilter = QComboBox()
+            cmb_sac2ncf_resp_prefilter.setObjectName('cmb_sac2ncf_resp_prefilter')
+            cmb_sac2ncf_resp_prefilter.setEditable(True)
+            cmb_sac2ncf_resp_prefilter.lineEdit().setAlignment(Qt.AlignCenter)
+            cmb_sac2ncf_resp_prefilter.addItem("None")
+            cmb_sac2ncf_resp_prefilter.addItem("[0.001, 0.005, 45, 50]")
+            # setup layout
+            lyo_proc_param.addWidget(lbl_sac2ncf_stametadir, 0,0)
+            lyo_proc_param.addWidget(le_sac2ncf_stametadir, 0,1)
+            lyo_proc_param.addWidget(browse_sac2ncf_stametadir, 0,2)
+            lyo_proc_param.addWidget(lbl_sac2ncf_resp_output, 1,0)
+            lyo_proc_param.addWidget(cmb_sac2ncf_resp_output, 1,1)
+            lyo_proc_param.addWidget(lbl_sac2ncf_resp_prefilter, 2,0)
+            lyo_proc_param.addWidget(cmb_sac2ncf_resp_prefilter, 2,1)
+            lyo_proc_param.setAlignment(Qt.AlignVCenter)
+            lyo_proc_param.setAlignment(Qt.AlignHCenter)
+            lyo_proc_param.setContentsMargins(65,0,55,0)
+            # set parameters
+            le_sac2ncf_stametadir.setText(f"{params['le_sac2ncf_stametadir']}")
+            cmb_sac2ncf_resp_output.setCurrentIndex(params['cmb_sac2ncf_resp_output'])
+            cmb_sac2ncf_resp_prefilter.setCurrentIndex(params['cmb_sac2ncf_resp_prefilter'])
+        elif pid == [3,1]: # bandpass filter - Method 1
+            lbl_sac2ncf_bp_cp1 = QLabel("Left corner period (s):")
+            le_sac2ncf_bp_cp1 = MyLineEdit()
+            le_sac2ncf_bp_cp1.setObjectName('le_sac2ncf_bp_cp1')
+            le_sac2ncf_bp_cp1.setAlignment(Qt.AlignCenter)
+            le_sac2ncf_bp_cp1.setPlaceholderText("Bandpass left corner period (s)")
+            le_sac2ncf_bp_cp1.textChanged.connect(le_sac2ncf_bp_cp1.isfloat)
+            lbl_sac2ncf_bp_cp2 = QLabel("Right corner period (s):")
+            le_sac2ncf_bp_cp2 = MyLineEdit()
+            le_sac2ncf_bp_cp2.setObjectName('le_sac2ncf_bp_cp2')
+            le_sac2ncf_bp_cp2.setAlignment(Qt.AlignCenter)
+            le_sac2ncf_bp_cp2.setPlaceholderText("Bandpass right corner period (s)")
+            le_sac2ncf_bp_cp2.textChanged.connect(le_sac2ncf_bp_cp2.isfloat)
+            lbl_sac2ncf_bp_poles = QLabel("Number of poles (n):")
+            sb_sac2ncf_bp_poles = QSpinBox()
+            sb_sac2ncf_bp_poles.setObjectName('sb_sac2ncf_bp_poles')
+            sb_sac2ncf_bp_poles.setMinimum(1)
+            sb_sac2ncf_bp_poles.setMaximum(10)
+            sb_sac2ncf_bp_poles.setSingleStep(1)
+            lbl_sac2ncf_bp_passes = QLabel("Number of passes (p):")
+            sb_sac2ncf_bp_passes = QSpinBox()
+            sb_sac2ncf_bp_passes.setObjectName('sb_sac2ncf_bp_passes')
+            sb_sac2ncf_bp_passes.setMinimum(1)
+            sb_sac2ncf_bp_passes.setMaximum(2)
+            sb_sac2ncf_bp_passes.setSingleStep(1)
+            # setup layout
+            lyo_proc_param.addWidget(lbl_sac2ncf_bp_cp1, 0,0)
+            lyo_proc_param.addWidget(le_sac2ncf_bp_cp1, 0,1)
+            lyo_proc_param.addWidget(lbl_sac2ncf_bp_cp2, 1,0)
+            lyo_proc_param.addWidget(le_sac2ncf_bp_cp2, 1,1)
+            lyo_proc_param.addWidget(lbl_sac2ncf_bp_poles, 0,2)
+            lyo_proc_param.addWidget(sb_sac2ncf_bp_poles, 0,3)
+            lyo_proc_param.addWidget(lbl_sac2ncf_bp_passes, 1,2)
+            lyo_proc_param.addWidget(sb_sac2ncf_bp_passes, 1,3)
+            lyo_proc_param.setAlignment(Qt.AlignVCenter)
+            lyo_proc_param.setAlignment(Qt.AlignHCenter)
+            lyo_proc_param.setVerticalSpacing(15)
+            lyo_proc_param.setContentsMargins(50,0,50,0)
+            # set parameters
+            le_sac2ncf_bp_cp1.setText(f"{params['le_sac2ncf_bp_cp1']}")
+            le_sac2ncf_bp_cp2.setText(f"{params['le_sac2ncf_bp_cp2']}")
+            sb_sac2ncf_bp_poles.setValue(params['sb_sac2ncf_bp_poles'])
+            sb_sac2ncf_bp_passes.setValue(params['sb_sac2ncf_bp_passes'])
+        elif pid == [4,1]: # Cut seismogram - Method 1
+            lbl_sac2ncf_cut_begin = QLabel("Cut begin (s):")
+            le_sac2ncf_cut_begin = MyLineEdit()
+            le_sac2ncf_cut_begin.setObjectName("le_sac2ncf_cut_begin")
+            lbl_sac2ncf_cut_end = QLabel("Cut end (s):")
+            le_sac2ncf_cut_end = MyLineEdit()
+            le_sac2ncf_cut_end.setObjectName("le_sac2ncf_cut_end")
+            # setup layout
+            lyo_proc_param.addWidget(lbl_sac2ncf_cut_begin, 0,0)
+            lyo_proc_param.addWidget(le_sac2ncf_cut_begin, 0,1)
+            lyo_proc_param.addWidget(lbl_sac2ncf_cut_end, 1,0)
+            lyo_proc_param.addWidget(le_sac2ncf_cut_end, 1,1)
+            lyo_proc_param.setAlignment(Qt.AlignVCenter)
+            lyo_proc_param.setAlignment(Qt.AlignHCenter)
+            lyo_proc_param.setContentsMargins(65,0,55,0)
+            # set parameters
+            le_sac2ncf_cut_begin.setText(f"{params['le_sac2ncf_cut_begin']}")
+            le_sac2ncf_cut_end.setText(f"{params['le_sac2ncf_cut_end']}")
+        elif pid == [5,1]: # Remove channel - Method 1
+            lbl_sac2ncf_similar_channels = QLabel("If all these channels were available:")
+            le_sac2ncf_similar_channels = QLineEdit()
+            le_sac2ncf_similar_channels.setObjectName("le_sac2ncf_similar_channels")
+            lbl_sac2ncf_channels2keep = QLabel("Only keep these channels:")
+            le_sac2ncf_channels2keep = QLineEdit()
+            le_sac2ncf_channels2keep.setObjectName("le_sac2ncf_channels2keep")
+            # setup layout
+            lyo_proc_param.addWidget(lbl_sac2ncf_similar_channels, 0,0)
+            lyo_proc_param.addWidget(le_sac2ncf_similar_channels, 0,1)
+            lyo_proc_param.addWidget(lbl_sac2ncf_channels2keep, 1,0)
+            lyo_proc_param.addWidget(le_sac2ncf_channels2keep, 1,1)
+            lyo_proc_param.setAlignment(Qt.AlignVCenter)
+            lyo_proc_param.setAlignment(Qt.AlignHCenter)
+            lyo_proc_param.setContentsMargins(65,0,55,0)
+            # set parameters
+            le_sac2ncf_similar_channels.setText(f"{params['le_sac2ncf_similar_channels']}")
+            le_sac2ncf_channels2keep.setText(f"{params['le_sac2ncf_channels2keep']}")
+        elif pid == [7,1]: # Spectral whitening - Method 1: SAC: whiten
+            lbl_sac2ncf_whiten_order = QLabel("Whitening order:")
+            sb_sac2ncf_whiten_order = QSpinBox()
+            sb_sac2ncf_whiten_order.setObjectName('sb_sac2ncf_whiten_order')
+            sb_sac2ncf_whiten_order.setMinimum(1)
+            sb_sac2ncf_whiten_order.setMaximum(9999)
+            sb_sac2ncf_whiten_order.setSingleStep(1)
+            # setup layout
+            lyo_proc_param.addWidget(lbl_sac2ncf_whiten_order, 0,0)
+            lyo_proc_param.addWidget(sb_sac2ncf_whiten_order, 0,1)
+            lyo_proc_param.setAlignment(Qt.AlignVCenter)
+            lyo_proc_param.setAlignment(Qt.AlignHCenter)
+            lyo_proc_param.setContentsMargins(65,0,55,0)
+            # set parameters
+            sb_sac2ncf_whiten_order.setValue(params['sb_sac2ncf_whiten_order'])
+        elif pid == [6,1] or pid == [8,1]: # Temporal normalization - Method 1 OR Cross-correlate - Method 1
+            lbl_sac2ncf_nothing_adjustable = QLabel("No parameter needs to be adjusted for this process")
+            lbl_sac2ncf_nothing_adjustable.setObjectName("lbl_sac2ncf_nothing_adjustable")
+            lbl_sac2ncf_nothing_adjustable.setStyleSheet("#lbl_sac2ncf_nothing_adjustable{ color: gray;}")
+            lbl_sac2ncf_last_process = QLabel("Note: This must be the last listed process for ncf2sac")
+            lbl_sac2ncf_last_process.setObjectName("lbl_sac2ncf_last_process")
+            lbl_sac2ncf_last_process.setStyleSheet("#lbl_sac2ncf_last_process{ color: gray;}")
+            # setup layout
+            lyo_proc_param.addWidget(lbl_sac2ncf_nothing_adjustable, 0,0)
+            if pid == [8,1]:
+                lyo_proc_param.addWidget(lbl_sac2ncf_last_process, 1,0)
+            lyo_proc_param.setAlignment(Qt.AlignVCenter)
+            lyo_proc_param.setAlignment(Qt.AlignHCenter)
+            lyo_proc_param.setContentsMargins(65,0,55,0)
+
+        # remove next process frames if process type "cross-correlation" is selected
+        if pid == [8,1]:
+            num_procs = self.get_num_procs()
+            for  i in range(pframe_id, num_procs-1):
+                self.remove_proc_frame()
+
+
+        proc_param.setLayout(lyo_proc_param)
+        proc_param.setStyleSheet("#%s {border-left: 2px solid #DDD;}" %("proc_param"))
+        return proc_param
+
+
+    def default_proc_params(self, pid):
+        sac2ncf_proc_params = {"pid": [0,0]}
+        if pid == [1,1]: # Decimate - Method 1
+            sac2ncf_proc_params["pid"] = [1,1]
+            sac2ncf_proc_params["cmb_sac2ncf_final_sf"] = 0
+        elif pid == [1,2]: # Decimate - Method 2
+            sac2ncf_proc_params["pid"] = [1,2]
+            sac2ncf_proc_params["cmb_sac2ncf_final_sf"] = 0
+        elif pid == [2,1]: # Remove response - Method 1
+            sac2ncf_proc_params["pid"] = [2,1]
+            sac2ncf_proc_params["le_sac2ncf_stametadir"] = os.path.abspath("./metafiles")
+            sac2ncf_proc_params["cmb_sac2ncf_resp_output"] = 1
+            sac2ncf_proc_params["cmb_sac2ncf_resp_prefilter"] = 1
+        elif pid == [3,1]: # Bandpass filter - Method 1
+            sac2ncf_proc_params["pid"] = [3,1]
+            sac2ncf_proc_params["le_sac2ncf_bp_cp1"] = "4"
+            sac2ncf_proc_params["le_sac2ncf_bp_cp2"] = "500"
+            sac2ncf_proc_params["sb_sac2ncf_bp_poles"] = 3
+            sac2ncf_proc_params["sb_sac2ncf_bp_passes"] = 2
+        elif pid == [4,1]: # Cut seismogram - Method 1
+            sac2ncf_proc_params["pid"] = [4,1]
+            sac2ncf_proc_params["le_sac2ncf_cut_begin"] = ""
+            sac2ncf_proc_params["le_sac2ncf_cut_end"] = ""
+        elif pid == [5,1]: # Remove extra channel - Method 1
+            sac2ncf_proc_params["pid"] = [5,1]
+            sac2ncf_proc_params["le_sac2ncf_similar_channels"] = "BHZ HHZ"
+            sac2ncf_proc_params["le_sac2ncf_channels2keep"] = "BHZ"
+        elif pid == [6,1]: # Temporal normalize - Method 1: one-bit
+            sac2ncf_proc_params["pid"] = [6,1]
+        elif pid == [7,1]: # Spectral whitening - Method 1
+            sac2ncf_proc_params["pid"] = [7,1]
+            sac2ncf_proc_params['sb_sac2ncf_whiten_order'] = 6
+        elif pid == [8,1]: # Cross-correlation - Method 1: sac correlate
+            sac2ncf_proc_params["pid"] = [8,1]
+        return sac2ncf_proc_params
+
+
+    def get_parameters(self):
+        sac2ncf = {}
+        sac2ncf['sac2ncf_procs'] = []
+        nprocs = self.get_num_procs()
+        for i in range(nprocs):
+            proc_frame = self.sac2ncf_proc_frames[i]
+            proc_type = proc_frame.layout().itemAt(0).widget()
+            proc_method = proc_frame.layout().itemAt(1).widget()
+            proc_param = proc_frame.layout().itemAt(2).widget()
+            proc_type_index = proc_type.layout().itemAt(1).widget().currentIndex()
+            proc_method_index = proc_method.layout().itemAt(1).widget().currentIndex()
+            if proc_type_index > 0 and proc_method_index > 0:
+                proc = {}
+                pid = [proc_type_index, proc_method_index]
+                proc['pid'] = pid
+                if pid == [1,1] or pid == [1,2]: # Decimate - Method 1 & 2
+                    cmb_sac2ncf_final_sf = proc_param.findChild(QComboBox, 'cmb_sac2ncf_final_sf').currentIndex()
+                    proc['cmb_sac2ncf_final_sf'] = cmb_sac2ncf_final_sf
+                elif pid == [2,1]: # Remove response - Method 1
+                    le_sac2ncf_stametadir = proc_param.findChild(MyLineEdit, 'le_sac2ncf_stametadir').text()
+                    cmb_sac2ncf_resp_output = proc_param.findChild(QComboBox, 'cmb_sac2ncf_resp_output').currentIndex()
+                    cmb_sac2ncf_resp_prefilter = proc_param.findChild(QComboBox, 'cmb_sac2ncf_resp_prefilter').currentIndex()
+                    proc['le_sac2ncf_stametadir'] = le_sac2ncf_stametadir
+                    proc['cmb_sac2ncf_resp_output'] = cmb_sac2ncf_resp_output
+                    proc['cmb_sac2ncf_resp_prefilter'] = cmb_sac2ncf_resp_prefilter
+                elif pid == [3,1]: # bandpass filter - Method 1
+                    le_sac2ncf_bp_cp1 = proc_param.findChild(QLineEdit, 'le_sac2ncf_bp_cp1').text()
+                    le_sac2ncf_bp_cp2 = proc_param.findChild(QLineEdit, 'le_sac2ncf_bp_cp2').text()
+                    sb_sac2ncf_bp_poles = proc_param.findChild(QSpinBox, 'sb_sac2ncf_bp_poles').value()
+                    sb_sac2ncf_bp_passes = proc_param.findChild(QSpinBox, 'sb_sac2ncf_bp_passes').value()
+                    proc['le_sac2ncf_bp_cp1'] = le_sac2ncf_bp_cp1
+                    proc['le_sac2ncf_bp_cp2'] = le_sac2ncf_bp_cp2
+                    proc['sb_sac2ncf_bp_poles'] = sb_sac2ncf_bp_poles
+                    proc['sb_sac2ncf_bp_passes'] = sb_sac2ncf_bp_passes
+                elif pid == [4,1]: # Cut seismogram - Method 1
+                    le_sac2ncf_cut_begin = proc_param.findChild(MyLineEdit, 'le_sac2ncf_cut_begin').text()
+                    le_sac2ncf_cut_end = proc_param.findChild(MyLineEdit, 'le_sac2ncf_cut_end').text()
+                    proc['le_sac2ncf_cut_begin'] = le_sac2ncf_cut_begin
+                    proc['le_sac2ncf_cut_end'] = le_sac2ncf_cut_end
+                elif pid == [5,1]: # Remove channel - Method 1
+                    le_sac2ncf_similar_channels = proc_param.findChild(QLineEdit, 'le_sac2ncf_similar_channels').text()
+                    le_sac2ncf_channels2keep = proc_param.findChild(QLineEdit, 'le_sac2ncf_channels2keep').text()
+                    proc['le_sac2ncf_similar_channels'] = le_sac2ncf_similar_channels
+                    proc['le_sac2ncf_channels2keep'] = le_sac2ncf_channels2keep
+                elif pid == [7,1]: # Spectral whitening
+                    sb_sac2ncf_whiten_order = proc_param.findChild(QSpinBox, 'sb_sac2ncf_whiten_order').value()
+                    proc['sb_sac2ncf_whiten_order'] = sb_sac2ncf_whiten_order
+                sac2ncf['sac2ncf_procs'].append(proc)
+        return sac2ncf
+
+
+
 
 
 
 class NCF2EGF(QWidget):
     def __init__(self):
         super().__init__()
+
+        # lbl_ncf2egf_stacking_params = QLabel("NCF to EGF parameters:")
+        self.chb_ncf2egf_symmetrize = MyCheckBox()
+        lbl_ncf2egf_symmetrize = QLabel("Symmetrize EGFs")
+        
+        self.chb_ncf2egf_cut = MyCheckBox()
+        lbl_ncf2egf_cut = QLabel("Cut EGFs")
+        lbl_ncf2egf_cut_begin = QLabel("Cut begin (s):")
+        lbl_ncf2egf_cut_end = QLabel("Cut end (s):")
+        le_ncf2egf_cut_begin = MyLineEdit()
+        le_ncf2egf_cut_end = MyLineEdit()
+
+        self.chb_ncf2egf_bp = MyCheckBox()
+        lbl_ncf2egf_bp = QLabel("Apply bandpass filter to EGFs")
+        lbl_ncf2egf_bp_cp1 = QLabel("Left corner period (s):")
+        le_ncf2egf_bp_cp1 = MyLineEdit()
+        le_ncf2egf_bp_cp1.setObjectName('le_ncf2egf_bp_cp1')
+        le_ncf2egf_bp_cp1.setAlignment(Qt.AlignCenter)
+        le_ncf2egf_bp_cp1.setPlaceholderText("Bandpass left corner period (s)")
+        le_ncf2egf_bp_cp1.textChanged.connect(le_ncf2egf_bp_cp1.isfloat)
+        lbl_ncf2egf_bp_cp2 = QLabel("Right corner period (s):")
+        le_ncf2egf_bp_cp2 = MyLineEdit()
+        le_ncf2egf_bp_cp2.setObjectName('le_ncf2egf_bp_cp2')
+        le_ncf2egf_bp_cp2.setAlignment(Qt.AlignCenter)
+        le_ncf2egf_bp_cp2.setPlaceholderText("Bandpass right corner period (s)")
+        le_ncf2egf_bp_cp2.textChanged.connect(le_ncf2egf_bp_cp2.isfloat)
+        lbl_ncf2egf_bp_poles = QLabel("Number of poles (n):")
+        sb_ncf2egf_bp_poles = QSpinBox()
+        sb_ncf2egf_bp_poles.setObjectName('sb_ncf2egf_bp_poles')
+        sb_ncf2egf_bp_poles.setMinimum(1)
+        sb_ncf2egf_bp_poles.setMaximum(10)
+        sb_ncf2egf_bp_poles.setSingleStep(1)
+        lbl_ncf2egf_bp_passes = QLabel("Number of passes (p):")
+        sb_ncf2egf_bp_passes = QSpinBox()
+        sb_ncf2egf_bp_passes.setObjectName('sb_ncf2egf_bp_passes')
+        sb_ncf2egf_bp_passes.setMinimum(1)
+        sb_ncf2egf_bp_passes.setMaximum(2)
+        sb_ncf2egf_bp_passes.setSingleStep(1)
+        # layout bandpass
+        lyo_bp = QGridLayout()
+        lyo_bp.addWidget(self.chb_ncf2egf_bp, 0,0,1,1)
+        lyo_bp.addWidget(lbl_ncf2egf_bp, 0,1,1,1)
+        lyo_bp.addWidget(lbl_ncf2egf_bp_cp1, 1,1,1,1)
+        lyo_bp.addWidget(le_ncf2egf_bp_cp1, 1,2,1,1)
+        lyo_bp.addWidget(lbl_ncf2egf_bp_cp2, 2,1,1,1)
+        lyo_bp.addWidget(le_ncf2egf_bp_cp2, 2,2,1,1)
+        lyo_bp.addWidget(lbl_ncf2egf_bp_poles, 1,3,1,1)
+        lyo_bp.addWidget(sb_ncf2egf_bp_poles, 1,4,1,1)
+        lyo_bp.addWidget(lbl_ncf2egf_bp_passes, 2,3,1,1)
+        lyo_bp.addWidget(sb_ncf2egf_bp_passes, 2,4,1,1)
+        lyo_bp.setAlignment(Qt.AlignVCenter)
+        lyo_bp.setAlignment(Qt.AlignHCenter)
+        lyo_bp.setVerticalSpacing(15)
+        lyo_bp.setContentsMargins(50,0,50,0)
+
+        # put together all layouts 
+        self.layout = QVBoxLayout()
+        self.layout.addLayout(lyo_bp)
+        self.layout.setSpacing(10)
+        self.layout.setContentsMargins(10,20,10,10)
+
+        self.setLayout(self.layout)
+
+
+        
 
 
 
@@ -1874,6 +2505,7 @@ class MainWindow(QMainWindow):
         parameters['setting'] = self.setting.get_parameters()
         parameters['download'] = self.download.get_parameters()
         parameters['mseed2sac'] = self.mseed2sac.get_parameters()
+        parameters['sac2ncf'] = self.sac2ncf.get_parameters()
         config.write_config(parameters['setting']['le_maindir'], parameters)
         if not os.path.isdir(os.path.join(parameters['setting']['le_maindir'], '.ans')):
             os.mkdir(os.path.join(parameters['setting']['le_maindir'], '.ans'))
@@ -1933,8 +2565,8 @@ class MainWindow(QMainWindow):
         
         # mseed2sac
         # mseed2sac: remove old processes
-        old_nprocs = self.mseed2sac.get_num_procs()
-        for i in range(old_nprocs):
+        old_mseed2sac_nprocs = self.mseed2sac.get_num_procs()
+        for i in range(old_mseed2sac_nprocs):
             self.mseed2sac.remove_proc_frame()
         # mseed2sac: add new processes
         nprocs = len(parameters['mseed2sac']['mseed2sac_procs'])
@@ -1942,6 +2574,16 @@ class MainWindow(QMainWindow):
             self.mseed2sac.add_proc_frame(pid=parameters['mseed2sac']['mseed2sac_procs'][i]['pid'] ,
                                           params=parameters['mseed2sac']['mseed2sac_procs'][i])
 
+        # sac2ncf
+        # sac2ncf: remove old processes
+        old_sac2ncf_nprocs = self.sac2ncf.get_num_procs()
+        for i in range(old_sac2ncf_nprocs):
+            self.sac2ncf.remove_proc_frame()
+        # sac2ncf: add new processes
+        nprocs = len(parameters['sac2ncf']['sac2ncf_procs'])
+        for i in range(nprocs):
+            self.sac2ncf.add_proc_frame(pid=parameters['sac2ncf']['sac2ncf_procs'][i]['pid'] ,
+                                          params=parameters['sac2ncf']['sac2ncf_procs'][i])
 
 
 

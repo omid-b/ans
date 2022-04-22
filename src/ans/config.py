@@ -18,6 +18,8 @@ download_params = ["chb_dc_service_iris_edu","chb_dc_service_ncedc_org","chb_dc_
 
 mseed2sac_params = ["mseed2sac_procs"]
 
+sac2ncf_params = ["sac2ncf_procs"]
+
 integer_params = ["chb_dc_service_iris_edu","chb_dc_service_ncedc_org","chb_dc_service_scedc_caltech_edu",
                   "chb_dc_rtserve_beg_utexas_edu","chb_dc_eida_bgr_de","chb_dc_ws_resif_fr",
                   "chb_dc_seisrequest_iag_usp_br","chb_dc_eida_service_koeri_boun_edu_tr",
@@ -28,10 +30,12 @@ integer_params = ["chb_dc_service_iris_edu","chb_dc_service_ncedc_org","chb_dc_s
                   "chb_obspy","chb_fetch","chb_mseed2sac_detrend","chb_mseed2sac_taper",
                   "cmb_mseed2sac_detrend_method","cmb_mseed2sac_taper_method","sb_mseed2sac_detrend_order",
                   "cmb_mseed2sac_final_sf","cmb_mseed2sac_resp_output","cmb_mseed2sac_resp_prefilter",
-                  "sb_mseed2sac_bp_poles","sb_mseed2sac_bp_passes", "le_timelen", "le_mseed2sac_dspline"]
+                  "sb_mseed2sac_bp_poles","sb_mseed2sac_bp_passes", "le_timelen", "le_mseed2sac_dspline",
+                  "cmb_sac2ncf_final_sf","cmb_sac2ncf_resp_output","cmb_sac2ncf_resp_prefilter",
+                  "sb_sac2ncf_bp_poles","sb_sac2ncf_bp_passes", "le_sac2ncf_dspline", "sb_sac2ncf_whiten_order"]
 
-float_params = ["dsb_mseed2sac_max_taper", "sb_mseed2sac_bp_cp1", "sb_mseed2sac_bp_cp2",
-                "le_minlat","le_maxlat","le_minlon","le_maxlon", "le_mseed2sac_bp_cp1", "le_mseed2sac_bp_cp2"]
+float_params = ["dsb_mseed2sac_max_taper", "le_minlat","le_maxlat","le_minlon","le_maxlon",
+                "le_mseed2sac_bp_cp1", "le_mseed2sac_bp_cp2", "le_sac2ncf_bp_cp1", "le_sac2ncf_bp_cp2"]
 
 intlist_params = ["pid"]
 
@@ -106,11 +110,36 @@ def read_config(maindir):
             else:
                 proc_params[f"{param}"] = config.get(f"{section}",f"{param}")
         mseed2sac['mseed2sac_procs'].append(proc_params)
+
+    # sac2ncf
+    sac2ncf = {}
+    for param in sac2ncf_params:
+        if param not in config.options('sac2ncf'):
+            print(f"read_config(): Config parameter not available in [sac2ncf]: '{param}'")
+            return False
+        sac2ncf[f"{param}"] = config.get('sac2ncf',f"{param}")
+    sac2ncf_proc_sections = sac2ncf['sac2ncf_procs'].split()
+    sac2ncf['sac2ncf_procs'] = []
+    for section in sac2ncf_proc_sections:
+        proc_params = {}
+        for param in config.options(f'{section}'):
+            if param in integer_params:
+                proc_params[f"{param}"] = int(config.get(f"{section}",f"{param}"))
+            elif param in float_params:
+                proc_params[f"{param}"] = float(config.get(f"{section}",f"{param}"))
+            elif param in intlist_params:
+                proc_params[f"{param}"] = config.get(f"{section}",f"{param}")
+                proc_params[f"{param}"] = array(proc_params[f"{param}"].split(), dtype=int).tolist()
+            else:
+                proc_params[f"{param}"] = config.get(f"{section}",f"{param}")
+        sac2ncf['sac2ncf_procs'].append(proc_params)
+
     # put together the return dictionary
     parameters = {}
     parameters['setting'] = setting
     parameters['download'] = download
     parameters['mseed2sac'] = mseed2sac
+    parameters['sac2ncf'] = sac2ncf
     return parameters
 
 
@@ -129,20 +158,38 @@ def write_config(maindir, parameters):
     fopen.write("\n[download]\n")
     for key in parameters['download'].keys():
         fopen.write(f"{key} = {parameters['download'][key]}\n")
+    
     # mseed2sac
     fopen.write("\n[mseed2sac]\n")
-    nprocs = len(parameters['mseed2sac']['mseed2sac_procs'])
-    proc_sections = []
-    for i in range(nprocs):
-        proc_sections.append(f"mseed2sac_proc_{i+1}")
-    fopen.write(f"mseed2sac_procs = {' '.join(proc_sections)}\n")
-    for i, section in enumerate(proc_sections):
+    mseed2sac_nprocs = len(parameters['mseed2sac']['mseed2sac_procs'])
+    mseed2sac_proc_sections = []
+    for i in range(mseed2sac_nprocs):
+        mseed2sac_proc_sections.append(f"mseed2sac_proc_{i+1}")
+    fopen.write(f"mseed2sac_procs = {' '.join(mseed2sac_proc_sections)}\n")
+    for i, section in enumerate(mseed2sac_proc_sections):
         fopen.write(f"\n[{section}]\n")
         for key in parameters['mseed2sac']['mseed2sac_procs'][i].keys():
             if key in intlist_params:
                 fopen.write(f"{key} = {' '.join(array(parameters['mseed2sac']['mseed2sac_procs'][i][key], dtype=str))}\n")
             else:
                 fopen.write(f"{key} = {parameters['mseed2sac']['mseed2sac_procs'][i][key]}\n")
+    
+    # sac2ncf 
+    fopen.write("\n[sac2ncf]\n")
+    sac2ncf_nprocs = len(parameters['sac2ncf']['sac2ncf_procs'])
+    sac2ncf_proc_sections = []
+    for i in range(sac2ncf_nprocs):
+        sac2ncf_proc_sections.append(f"sac2ncf_proc_{i+1}")
+    fopen.write(f"sac2ncf_procs = {' '.join(sac2ncf_proc_sections)}\n")
+    for i, section in enumerate(sac2ncf_proc_sections):
+        fopen.write(f"\n[{section}]\n")
+        for key in parameters['sac2ncf']['sac2ncf_procs'][i].keys():
+            if key in intlist_params:
+                fopen.write(f"{key} = {' '.join(array(parameters['sac2ncf']['sac2ncf_procs'][i][key], dtype=str))}\n")
+            else:
+                fopen.write(f"{key} = {parameters['sac2ncf']['sac2ncf_procs'][i][key]}\n")
+    
+
     fopen.close()
     return True
 
@@ -158,6 +205,8 @@ class Defaults:
         parameters['setting'] = self.setting()
         parameters['download'] = self.download()
         parameters['mseed2sac'] = self.mseed2sac()
+        parameters['sac2ncf'] = self.sac2ncf()
+        parameters['ncf2egf'] = self.ncf2egf()
         return parameters
 
 
@@ -271,4 +320,33 @@ class Defaults:
         mseed2sac['mseed2sac_procs'].append(mseed2sac_proc_3)
         mseed2sac['mseed2sac_procs'].append(mseed2sac_proc_4)
         return mseed2sac
+
+    def sac2ncf(self):
+        sac2ncf = {}
+        sac2ncf['sac2ncf_procs'] = []
+        # process 1: Temporal normalize
+        sac2ncf_proc_1 = {}
+        sac2ncf_proc_1['pid'] = [6,1]
+        # process 2 
+        sac2ncf_proc_2 = {}
+        sac2ncf_proc_2['pid'] = [7,1]
+        sac2ncf_proc_2['sb_sac2ncf_whiten_order'] = 6
+        # process 3 
+        sac2ncf_proc_3 = {}
+        sac2ncf_proc_3['pid'] = [8,1]
+        # append processes to the list
+        sac2ncf['sac2ncf_procs'].append(sac2ncf_proc_1)
+        sac2ncf['sac2ncf_procs'].append(sac2ncf_proc_2)
+        sac2ncf['sac2ncf_procs'].append(sac2ncf_proc_3)
+        return sac2ncf
+
+    def ncf2egf(self):
+        ncf2egf = {}
+        ncf2egf['ncf2egf_procs'] = []
+        # # process 1 
+        # ncf2egf_proc_1 = {}
+        # ncf2egf_proc_1['pid'] = [X,X]
+        # # append processes to the list
+        # ncf2egf['ncf2egf_procs'].append(ncf2egf_proc_1)
+        return ncf2egf
 
