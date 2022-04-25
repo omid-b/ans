@@ -18,7 +18,14 @@ download_params = ["chb_dc_service_iris_edu","chb_dc_service_ncedc_org","chb_dc_
 
 mseed2sac_params = ["mseed2sac_procs"]
 
+
 sac2ncf_params = ["sac2ncf_procs"]
+
+
+ncf2egf_params = ["chb_ncf2egf_symmetrize", "chb_ncf2egf_cut", "le_ncf2egf_cut_begin", "le_ncf2egf_cut_end",
+                  "chb_ncf2egf_bp", "le_ncf2egf_bp_cp1", "le_ncf2egf_bp_cp2",
+                  "sb_ncf2egf_bp_poles", "sb_ncf2egf_bp_passes"]
+
 
 integer_params = ["chb_dc_service_iris_edu","chb_dc_service_ncedc_org","chb_dc_service_scedc_caltech_edu",
                   "chb_dc_rtserve_beg_utexas_edu","chb_dc_eida_bgr_de","chb_dc_ws_resif_fr",
@@ -32,10 +39,13 @@ integer_params = ["chb_dc_service_iris_edu","chb_dc_service_ncedc_org","chb_dc_s
                   "cmb_mseed2sac_final_sf","cmb_mseed2sac_resp_output","cmb_mseed2sac_resp_prefilter",
                   "sb_mseed2sac_bp_poles","sb_mseed2sac_bp_passes", "le_timelen", "le_mseed2sac_dspline",
                   "cmb_sac2ncf_final_sf","cmb_sac2ncf_resp_output","cmb_sac2ncf_resp_prefilter",
-                  "sb_sac2ncf_bp_poles","sb_sac2ncf_bp_passes", "le_sac2ncf_dspline", "sb_sac2ncf_whiten_order"]
+                  "sb_sac2ncf_bp_poles","sb_sac2ncf_bp_passes", "le_sac2ncf_dspline", "sb_sac2ncf_whiten_order",
+                  "chb_ncf2egf_symmetrize", "chb_ncf2egf_cut", "chb_ncf2egf_bp",
+                  "sb_ncf2egf_bp_poles", "sb_ncf2egf_bp_passes"]
 
 float_params = ["dsb_mseed2sac_max_taper", "le_minlat","le_maxlat","le_minlon","le_maxlon",
-                "le_mseed2sac_bp_cp1", "le_mseed2sac_bp_cp2", "le_sac2ncf_bp_cp1", "le_sac2ncf_bp_cp2"]
+                "le_mseed2sac_bp_cp1", "le_mseed2sac_bp_cp2", "le_sac2ncf_bp_cp1", "le_sac2ncf_bp_cp2",
+                "le_ncf2egf_cut_begin", "le_ncf2egf_cut_end", "le_ncf2egf_bp_cp1", "le_ncf2egf_bp_cp2"]
 
 intlist_params = ["pid"]
 
@@ -61,10 +71,10 @@ def read_config(maindir):
     # setting
     setting = {}
     for param in setting_params:
-        val = config.get('setting',f"{param}")
         if param not in config.options('setting'):
             print(f"read_config(): Config parameter not available in [setting]: '{param}'")
             return False
+        val = config.get('setting',f"{param}")
         if param in integer_params and len(val):
             setting[f"{param}"] = int(val)
         elif param in float_params and len(val):
@@ -134,12 +144,30 @@ def read_config(maindir):
                 proc_params[f"{param}"] = config.get(f"{section}",f"{param}")
         sac2ncf['sac2ncf_procs'].append(proc_params)
 
+    # ncf2egf
+    ncf2egf = {}
+    for param in ncf2egf_params:
+        if param not in config.options('ncf2egf'):
+            print(f"read_config(): Config parameter not available in [ncf2egf]: '{param}'")
+            return False
+        val = config.get('ncf2egf',f"{param}")
+        if param in integer_params and len(val):
+            ncf2egf[f"{param}"] = int(val)
+        elif param in float_params and len(val):
+            ncf2egf[f"{param}"] = float(val)
+        elif param in intlist_params and len(val):
+            ncf2egf[f"{param}"] = array(val.split(), dtype=int).tolist()
+        else:
+            ncf2egf[f"{param}"] = val
+
+
     # put together the return dictionary
     parameters = {}
     parameters['setting'] = setting
     parameters['download'] = download
     parameters['mseed2sac'] = mseed2sac
     parameters['sac2ncf'] = sac2ncf
+    parameters['ncf2egf'] = ncf2egf
     return parameters
 
 
@@ -188,7 +216,19 @@ def write_config(maindir, parameters):
                 fopen.write(f"{key} = {' '.join(array(parameters['sac2ncf']['sac2ncf_procs'][i][key], dtype=str))}\n")
             else:
                 fopen.write(f"{key} = {parameters['sac2ncf']['sac2ncf_procs'][i][key]}\n")
-    
+
+    # ncf2egf
+    fopen.write("\n[ncf2egf]\n")
+    fopen.write(f"chb_ncf2egf_symmetrize = {parameters['ncf2egf']['chb_ncf2egf_symmetrize']}\n")
+    fopen.write(f"chb_ncf2egf_cut = {parameters['ncf2egf']['chb_ncf2egf_cut']}\n")
+    fopen.write(f"le_ncf2egf_cut_begin = {parameters['ncf2egf']['le_ncf2egf_cut_begin']}\n")
+    fopen.write(f"le_ncf2egf_cut_end = {parameters['ncf2egf']['le_ncf2egf_cut_end']}\n")
+    fopen.write(f"chb_ncf2egf_bp = {parameters['ncf2egf']['chb_ncf2egf_bp']}\n")
+    fopen.write(f"le_ncf2egf_bp_cp1 = {parameters['ncf2egf']['le_ncf2egf_bp_cp1']}\n")
+    fopen.write(f"le_ncf2egf_bp_cp2 = {parameters['ncf2egf']['le_ncf2egf_bp_cp2']}\n")
+    fopen.write(f"sb_ncf2egf_bp_poles = {parameters['ncf2egf']['sb_ncf2egf_bp_poles']}\n")
+    fopen.write(f"sb_ncf2egf_bp_passes = {parameters['ncf2egf']['sb_ncf2egf_bp_passes']}\n")
+
 
     fopen.close()
     return True
@@ -342,11 +382,14 @@ class Defaults:
 
     def ncf2egf(self):
         ncf2egf = {}
-        ncf2egf['ncf2egf_procs'] = []
-        # # process 1 
-        # ncf2egf_proc_1 = {}
-        # ncf2egf_proc_1['pid'] = [X,X]
-        # # append processes to the list
-        # ncf2egf['ncf2egf_procs'].append(ncf2egf_proc_1)
+        ncf2egf['chb_ncf2egf_symmetrize'] = 0
+        ncf2egf['chb_ncf2egf_cut'] = 2
+        ncf2egf['le_ncf2egf_cut_begin'] = -3000
+        ncf2egf['le_ncf2egf_cut_end'] = 3000
+        ncf2egf['chb_ncf2egf_bp'] = 0
+        ncf2egf['le_ncf2egf_bp_cp1'] = 3
+        ncf2egf['le_ncf2egf_bp_cp2'] = 300
+        ncf2egf['sb_ncf2egf_bp_poles'] = 3
+        ncf2egf['sb_ncf2egf_bp_passes'] = 2
         return ncf2egf
 

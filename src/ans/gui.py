@@ -54,9 +54,29 @@ from PyQt5.QtWidgets import (
 pkg_dir, _ = os.path.split(__file__)
 images_dir = os.path.join(pkg_dir,"data","images")
 
+
+class QLineEdit(QLineEdit):
+    def __init__(self):
+        super().__init__()
+        self.setAttribute(Qt.WA_MacShowFocusRect, 0)
+
+
+class QSpinBox(QSpinBox):
+    def __init__(self):
+        super().__init__()
+        self.setAttribute(Qt.WA_MacShowFocusRect, 0)
+
+
+class QDoubleSpinBox(QDoubleSpinBox):
+    def __init__(self):
+        super().__init__()
+        self.setAttribute(Qt.WA_MacShowFocusRect, 0)
+
+
 class MyLineEdit(QLineEdit):
     def __init__(self):
         super().__init__()
+        self.setAttribute(Qt.WA_MacShowFocusRect, 0)
 
     def isfile(self): # is an existing file
         f = self.text()
@@ -159,6 +179,7 @@ class MyCheckBox(QCheckBox):
         super().__init__()
         self.setFixedSize(30,18)
         self.setCursor(Qt.PointingHandCursor)
+        self.setAttribute(Qt.WA_MacShowFocusRect, 0)
         self.bg_color = '#aaa'
         self.circle_color = '#fff'
         self.active_color = '#299408'
@@ -309,7 +330,6 @@ class Setting(QWidget):
         lbl_maindir = QLabel("Main dir:")
         lbl_maindir.setObjectName("lbl_maindir")
         self.le_maindir = MyLineEdit()
-        self.le_maindir.setAttribute(Qt.WA_MacShowFocusRect, 0)
         self.le_maindir.setObjectName("le_maindir")
         self.le_maindir.setPlaceholderText("Full path to project main directory")
         self.le_maindir.textChanged.connect(self.le_maindir.isdir)
@@ -317,7 +337,6 @@ class Setting(QWidget):
         lbl_startdate = QLabel("Start date:")
         lbl_startdate.setObjectName("lbl_startdate")
         self.le_startdate = MyLineEdit()
-        self.le_startdate.setAttribute(Qt.WA_MacShowFocusRect, 0)
         self.le_startdate.setAlignment(Qt.AlignCenter)
         self.le_startdate.setObjectName("le_startdate")
         self.le_startdate.setPlaceholderText("YYYY-MM-DD")
@@ -325,7 +344,6 @@ class Setting(QWidget):
         lbl_enddate = QLabel("End date:")
         lbl_enddate.setObjectName("lbl_enddate")
         self.le_enddate = MyLineEdit()
-        self.le_enddate.setAttribute(Qt.WA_MacShowFocusRect, 0)
         self.le_enddate.setAlignment(Qt.AlignCenter)
         self.le_enddate.setObjectName("le_enddate")
         self.le_enddate.setPlaceholderText("YYYY-MM-DD")
@@ -333,25 +351,21 @@ class Setting(QWidget):
         lbl_studyarea = QLabel("Study area boundaries")
         lbl_studyarea.setObjectName("lbl_studyarea")
         self.le_maxlat = MyLineEdit()
-        self.le_maxlat.setAttribute(Qt.WA_MacShowFocusRect, 0)
         self.le_maxlat.setObjectName("le_maxlat")
         self.le_maxlat.setAlignment(Qt.AlignCenter)
         self.le_maxlat.setPlaceholderText("Max Lat (deg)")
         self.le_maxlat.textChanged.connect(self.le_maxlat.islat)
         self.le_minlat = MyLineEdit()
-        self.le_minlat.setAttribute(Qt.WA_MacShowFocusRect, 0)
         self.le_minlat.setObjectName("le_minlat")
         self.le_minlat.setAlignment(Qt.AlignCenter)
         self.le_minlat.setPlaceholderText("Min Lat (deg)")
         self.le_minlat.textChanged.connect(self.le_minlat.islat)
         self.le_minlon = MyLineEdit()
-        self.le_minlon.setAttribute(Qt.WA_MacShowFocusRect, 0)
         self.le_minlon.setObjectName("le_minlon")
         self.le_minlon.setAlignment(Qt.AlignCenter)
         self.le_minlon.setPlaceholderText("Min Lon (deg)")
         self.le_minlon.textChanged.connect(self.le_minlon.islon)
         self.le_maxlon = MyLineEdit()
-        self.le_maxlon.setAttribute(Qt.WA_MacShowFocusRect, 0)
         self.le_maxlon.setObjectName("le_maxlon")
         self.le_maxlon.setAlignment(Qt.AlignCenter)
         self.le_maxlon.setPlaceholderText("Max Lon (deg)")
@@ -365,7 +379,6 @@ class Setting(QWidget):
         lbl_sac = QLabel("SAC:")
         lbl_sac.setObjectName("lbl_sac")
         self.le_sac = MyLineEdit()
-        self.le_sac.setAttribute(Qt.WA_MacShowFocusRect, 0)
         self.le_sac.setObjectName("le_sac")
         self.le_sac.setPlaceholderText("Full path to SAC executable")
         self.le_sac.textChanged.connect(self.le_sac.isfile)
@@ -374,7 +387,6 @@ class Setting(QWidget):
         lbl_gmt = QLabel("GMT:")
         lbl_gmt.setObjectName("lbl_gmt")
         self.le_gmt = MyLineEdit()
-        self.le_gmt.setAttribute(Qt.WA_MacShowFocusRect, 0)
         self.le_gmt.setObjectName("le_gmt")
         self.le_gmt.setPlaceholderText("Full path to GMT executable") 
         self.le_gmt.textChanged.connect(self.le_gmt.isfile)
@@ -383,7 +395,6 @@ class Setting(QWidget):
         lbl_perl = QLabel("Perl:")
         lbl_perl.setObjectName("lbl_perl")
         self.le_perl = MyLineEdit()
-        self.le_perl.setAttribute(Qt.WA_MacShowFocusRect, 0)
         self.le_perl.setObjectName("le_perl")
         self.le_perl.setPlaceholderText("Full path to the Perl interpreter")
         self.le_perl.textChanged.connect(self.le_perl.isfile)
@@ -590,80 +601,61 @@ class Download(QWidget):
         lbl_datacenters.setObjectName("lbl_datacenters")
         self.chb_dc_service_iris_edu = MyCheckBox()
         lbl_dc_service_iris_edu = QLabel("service.iris.edu")
-        self.chb_dc_service_iris_edu.setAttribute(Qt.WA_MacShowFocusRect, 0)
         self.chb_dc_service_iris_edu.setObjectName("chb_dc_service_iris_edu")
         self.chb_dc_service_ncedc_org = MyCheckBox()
         lbl_dc_service_ncedc_org = QLabel("service.ncedc.org")
-        self.chb_dc_service_ncedc_org.setAttribute(Qt.WA_MacShowFocusRect, 0)
         self.chb_dc_service_ncedc_org.setObjectName("chb_dc_service_ncedc_org")
         self.chb_dc_service_scedc_caltech_edu = MyCheckBox()
         lbl_dc_service_scedc_caltech_edu = QLabel("service.scedc.caltech.edu")
-        self.chb_dc_service_scedc_caltech_edu.setAttribute(Qt.WA_MacShowFocusRect, 0)
         self.chb_dc_service_scedc_caltech_edu.setObjectName("chb_dc_service_scedc_caltech_edu")
         self.chb_dc_rtserve_beg_utexas_edu = MyCheckBox()
         lbl_dc_rtserve_beg_utexas_edu = QLabel("rtserve.beg.utexas.edu")
-        self.chb_dc_rtserve_beg_utexas_edu.setAttribute(Qt.WA_MacShowFocusRect, 0)
         self.chb_dc_rtserve_beg_utexas_edu.setObjectName("chb_dc_rtserve_beg_utexas_edu")
         self.chb_dc_eida_bgr_de = MyCheckBox()
         lbl_dc_eida_bgr_de = QLabel("eida.bgr.de")
-        self.chb_dc_eida_bgr_de.setAttribute(Qt.WA_MacShowFocusRect, 0)
         self.chb_dc_eida_bgr_de.setObjectName("chb_dc_eida_bgr_de")
         self.chb_dc_ws_resif_fr = MyCheckBox()
         lbl_dc_ws_resif_fr = QLabel("ws.resif.fr")
-        self.chb_dc_ws_resif_fr.setAttribute(Qt.WA_MacShowFocusRect, 0)
         self.chb_dc_ws_resif_fr.setObjectName("chb_dc_ws_resif_fr")
         self.chb_dc_seisrequest_iag_usp_br = MyCheckBox()
         lbl_dc_seisrequest_iag_usp_br = QLabel("seisrequest.iag.usp.br")
-        self.chb_dc_seisrequest_iag_usp_br.setAttribute(Qt.WA_MacShowFocusRect, 0)
         self.chb_dc_seisrequest_iag_usp_br.setObjectName("chb_dc_seisrequest_iag_usp_br")
         self.chb_dc_eida_service_koeri_boun_edu_tr = MyCheckBox()
         lbl_dc_eida_service_koeri_boun_edu_tr = QLabel("eida-service.koeri.boun.edu.tr")
-        self.chb_dc_eida_service_koeri_boun_edu_tr.setAttribute(Qt.WA_MacShowFocusRect, 0)
         self.chb_dc_eida_service_koeri_boun_edu_tr.setObjectName("chb_dc_eida_service_koeri_boun_edu_tr")
         self.chb_dc_eida_ethz_ch = MyCheckBox()
         lbl_dc_eida_ethz_ch = QLabel("eida.ethz.ch")
-        self.chb_dc_eida_ethz_ch.setAttribute(Qt.WA_MacShowFocusRect, 0)
         self.chb_dc_eida_ethz_ch.setObjectName("chb_dc_eida_ethz_ch")
         self.chb_dc_geofon_gfz_potsdam_de = MyCheckBox()
         lbl_dc_geofon_gfz_potsdam_de = QLabel("geofon.gfz-potsdam.de")
-        self.chb_dc_geofon_gfz_potsdam_de.setAttribute(Qt.WA_MacShowFocusRect, 0)
         self.chb_dc_geofon_gfz_potsdam_de.setObjectName("chb_dc_geofon_gfz_potsdam_de")
         self.chb_dc_ws_icgc_cat = MyCheckBox()
         lbl_dc_ws_icgc_cat = QLabel("ws.icgc.cat")
-        self.chb_dc_ws_icgc_cat.setAttribute(Qt.WA_MacShowFocusRect, 0)
         self.chb_dc_ws_icgc_cat.setObjectName("chb_dc_ws_icgc_cat")
         self.chb_dc_eida_ipgp_fr = MyCheckBox()
         lbl_dc_eida_ipgp_fr = QLabel("eida.ipgp.fr")
-        self.chb_dc_eida_ipgp_fr.setAttribute(Qt.WA_MacShowFocusRect, 0)
         self.chb_dc_eida_ipgp_fr.setObjectName("chb_dc_eida_ipgp_fr")
         self.chb_dc_fdsnws_raspberryshakedata_com = MyCheckBox()
         lbl_dc_fdsnws_raspberryshakedata_com = QLabel("fdsnws.raspberryshakedata.com")
-        self.chb_dc_fdsnws_raspberryshakedata_com.setAttribute(Qt.WA_MacShowFocusRect, 0)
         self.chb_dc_fdsnws_raspberryshakedata_com.setObjectName("chb_dc_fdsnws_raspberryshakedata_com")
         # column 3 widgets
         self.chb_dc_webservices_ingv_it = MyCheckBox()
         lbl_dc_webservices_ingv_it = QLabel("webservices.ingv.it")
-        self.chb_dc_webservices_ingv_it.setAttribute(Qt.WA_MacShowFocusRect, 0)
         self.chb_dc_webservices_ingv_it.setObjectName("chb_dc_webservices_ingv_it")
         self.chb_dc_erde_geophysik_uni_muenchen_de = MyCheckBox()
         lbl_dc_erde_geophysik_uni_muenchen_de = QLabel("erde.geophysik.uni-muenchen.de")
-        self.chb_dc_erde_geophysik_uni_muenchen_de.setAttribute(Qt.WA_MacShowFocusRect, 0)
         self.chb_dc_erde_geophysik_uni_muenchen_de.setObjectName("chb_dc_erde_geophysik_uni_muenchen_de")
         self.chb_dc_eida_sc3_infp_ro = MyCheckBox()
         lbl_dc_eida_sc3_infp_ro = QLabel("eida-sc3.infp.ro")
-        self.chb_dc_eida_sc3_infp_ro.setAttribute(Qt.WA_MacShowFocusRect, 0)
         self.chb_dc_eida_sc3_infp_ro.setObjectName("chb_dc_eida_sc3_infp_ro")
         self.chb_dc_eida_gein_noa_gr = MyCheckBox()
         lbl_dc_eida_gein_noa_gr = QLabel("eida.gein.noa.gr")
-        self.chb_dc_eida_gein_noa_gr.setAttribute(Qt.WA_MacShowFocusRect, 0)
         self.chb_dc_eida_gein_noa_gr.setObjectName("chb_dc_eida_gein_noa_gr")
         self.chb_dc_www_orfeus_eu_org = MyCheckBox()
         lbl_dc_www_orfeus_eu_org = QLabel("www.orfeus-eu.org")
-        self.chb_dc_www_orfeus_eu_org.setAttribute(Qt.WA_MacShowFocusRect, 0)
         self.chb_dc_www_orfeus_eu_org.setObjectName("chb_dc_www_orfeus_eu_org")
         self.chb_dc_auspass_edu_au = MyCheckBox()
         lbl_dc_auspass_edu_au = QLabel("auspass.edu.au")
-        self.chb_dc_auspass_edu_au.setAttribute(Qt.WA_MacShowFocusRect, 0)
         self.chb_dc_auspass_edu_au.setObjectName("chb_dc_auspass_edu_au")
         #### Download setting (bottom panel) ####
         # bottom left
@@ -672,7 +664,6 @@ class Download(QWidget):
         lbl_stalist = QLabel("Station list file:")
         lbl_stalist.setObjectName("lbl_stalist")
         self.le_stalist = MyLineEdit()
-        self.le_stalist.setAttribute(Qt.WA_MacShowFocusRect, 0)
         self.le_stalist.setObjectName("le_stalist")
         self.le_stalist.setPlaceholderText("Full path to station list file")
         # self.le_stalist.textChanged.connect(self.le_stalist.isfile)
@@ -681,7 +672,6 @@ class Download(QWidget):
         lbl_stameta = QLabel("Station meta files dir:")
         lbl_stameta.setObjectName("lbl_stameta")
         self.le_stameta = MyLineEdit()
-        self.le_stameta.setAttribute(Qt.WA_MacShowFocusRect, 0)
         self.le_stameta.setObjectName("le_stameta")
         self.le_stameta.setPlaceholderText("Full path to station meta files directory")
         # self.le_stameta.textChanged.connect(self.le_stameta.isdir)
@@ -690,7 +680,6 @@ class Download(QWidget):
         lbl_mseeds = QLabel("MSEED dataset dir:")
         lbl_mseeds.setObjectName("lbl_mseeds")
         self.le_mseeds = MyLineEdit()
-        self.le_mseeds.setAttribute(Qt.WA_MacShowFocusRect, 0)
         self.le_mseeds.setObjectName("le_mseeds")
         self.le_mseeds.setPlaceholderText("Full path MSEED dataset directory")
         # self.le_mseeds.textChanged.connect(self.le_mseeds.isdir)
@@ -699,21 +688,18 @@ class Download(QWidget):
         lbl_stalocs = QLabel("Station location codes:")
         lbl_stalocs.setObjectName("lbl_stalocs")
         self.le_stalocs = MyLineEdit()
-        self.le_stalocs.setAttribute(Qt.WA_MacShowFocusRect, 0)
         self.le_stalocs.setObjectName("le_stalocs")
         self.le_stalocs.setPlaceholderText("Station location codes separated by space")
         #
         lbl_stachns = QLabel("Station channels:")
         lbl_stachns.setObjectName("lbl_stachns")
         self.le_stachns = MyLineEdit()
-        self.le_stachns.setAttribute(Qt.WA_MacShowFocusRect, 0)
         self.le_stachns.setObjectName("le_stachns")
         self.le_stachns.setPlaceholderText("Station channels separated by space")
         #
         lbl_timelen = QLabel("Timeseries length (s):")
         lbl_timelen.setObjectName("lbl_timelen")
         self.le_timelen = MyLineEdit()
-        self.le_timelen.setAttribute(Qt.WA_MacShowFocusRect, 0)
         self.le_timelen.setObjectName("le_timelen")
         self.le_timelen.textChanged.connect(self.le_timelen.isposint)
         self.le_timelen.setPlaceholderText("Timeseries length in seconds")
@@ -723,10 +709,8 @@ class Download(QWidget):
         lbl_obspy = QLabel("ObsPy script")
         lbl_fetch = QLabel("IRIS FetchData Perl script")
         self.chb_obspy = MyCheckBox()
-        self.chb_obspy.setAttribute(Qt.WA_MacShowFocusRect, 0)
         self.chb_obspy.setObjectName("chb_obspy")
         self.chb_fetch = MyCheckBox()
-        self.chb_fetch.setAttribute(Qt.WA_MacShowFocusRect, 0)
         self.chb_fetch.setObjectName("chb_fetch")
 
         # design layouts
@@ -1205,7 +1189,6 @@ class MSEED2SAC(QWidget):
             lbl_mseed2sac_dspline.setObjectName("lbl_mseed2sac_dspline")
             le_mseed2sac_dspline = QLineEdit()
             le_mseed2sac_dspline.setObjectName("le_mseed2sac_dspline")
-            le_mseed2sac_dspline.setAttribute(Qt.WA_MacShowFocusRect, 0)
             le_mseed2sac_dspline.setPlaceholderText("Number of samples between nodes (spline method)")
             # set parameters
             chb_mseed2sac_detrend.setCheckState(params['chb_mseed2sac_detrend'])
@@ -1296,7 +1279,6 @@ class MSEED2SAC(QWidget):
         elif pid == [3,1]: # Remove response - Method 1
             lbl_mseed2sac_stametadir = QLabel("Station meta files dir:")
             le_mseed2sac_stametadir = MyLineEdit()
-            le_mseed2sac_stametadir.setAttribute(Qt.WA_MacShowFocusRect, 0)
             le_mseed2sac_stametadir.setObjectName("le_mseed2sac_stametadir")
             le_mseed2sac_stametadir.setPlaceholderText("Full path to station meta files directory")
             le_mseed2sac_stametadir.isdir()
@@ -1842,7 +1824,6 @@ class SAC2NCF(QWidget):
         elif pid == [2,1]: # Remove response - Method 1
             lbl_sac2ncf_stametadir = QLabel("Station meta files dir:")
             le_sac2ncf_stametadir = MyLineEdit()
-            le_sac2ncf_stametadir.setAttribute(Qt.WA_MacShowFocusRect, 0)
             le_sac2ncf_stametadir.setObjectName("le_sac2ncf_stametadir")
             le_sac2ncf_stametadir.setPlaceholderText("Full path to station meta files directory")
             le_sac2ncf_stametadir.isdir()
@@ -2095,68 +2076,168 @@ class NCF2EGF(QWidget):
     def __init__(self):
         super().__init__()
 
-        # lbl_ncf2egf_stacking_params = QLabel("NCF to EGF parameters:")
+        lbl_empty = QLabel()
+
         self.chb_ncf2egf_symmetrize = MyCheckBox()
         lbl_ncf2egf_symmetrize = QLabel("Symmetrize EGFs")
+        # layout symmetrize
+        lyo_sym = QGridLayout()
+        lyo_sym.addWidget(self.chb_ncf2egf_symmetrize, 0,0,1,1)
+        lyo_sym.addWidget(lbl_ncf2egf_symmetrize, 0,1,1,2)
+        lyo_sym.addWidget(lbl_empty, 1,0,1,3)
+        lyo_sym.addWidget(lbl_empty, 2,0,1,3)
+        lyo_sym.setVerticalSpacing(15)
+        lyo_sym.setHorizontalSpacing(35)
+
         
         self.chb_ncf2egf_cut = MyCheckBox()
         lbl_ncf2egf_cut = QLabel("Cut EGFs")
         lbl_ncf2egf_cut_begin = QLabel("Cut begin (s):")
         lbl_ncf2egf_cut_end = QLabel("Cut end (s):")
-        le_ncf2egf_cut_begin = MyLineEdit()
-        le_ncf2egf_cut_end = MyLineEdit()
+        self.le_ncf2egf_cut_begin = MyLineEdit()
+        self.le_ncf2egf_cut_end = MyLineEdit()
+        self.le_ncf2egf_cut_begin.setObjectName("le_ncf2egf_cut_begin")
+        self.le_ncf2egf_cut_end.setObjectName("le_ncf2egf_cut_end")
+        self.le_ncf2egf_cut_begin.setStyleSheet("#le_ncf2egf_cut_begin {max-width: 200px;}")
+        self.le_ncf2egf_cut_end.setStyleSheet("#le_ncf2egf_cut_end {max-width: 200px;}")
+        self.le_ncf2egf_cut_begin.setAlignment(Qt.AlignCenter)
+        self.le_ncf2egf_cut_end.setAlignment(Qt.AlignCenter)
+        # layout cut
+        lyo_cut = QGridLayout()
+        lyo_cut.addWidget(self.chb_ncf2egf_cut, 0,0,1,1)
+        lyo_cut.addWidget(lbl_ncf2egf_cut, 0,1,1,1)
+        lyo_cut.addWidget(lbl_ncf2egf_cut_begin, 1,1,1,1)
+        lyo_cut.addWidget(lbl_ncf2egf_cut_end, 2,1,1,1)
+        lyo_cut.addWidget(self.le_ncf2egf_cut_begin, 1,2,1,1)
+        lyo_cut.addWidget(self.le_ncf2egf_cut_end, 2,2,1,1)
+        lyo_cut.addWidget(lbl_empty, 1,3)
+        lyo_cut.addWidget(lbl_empty, 1,3)
+        lyo_cut.setAlignment(Qt.AlignVCenter)
+        lyo_cut.setVerticalSpacing(15)
+        lyo_cut.setHorizontalSpacing(35)
+
 
         self.chb_ncf2egf_bp = MyCheckBox()
         lbl_ncf2egf_bp = QLabel("Apply bandpass filter to EGFs")
         lbl_ncf2egf_bp_cp1 = QLabel("Left corner period (s):")
-        le_ncf2egf_bp_cp1 = MyLineEdit()
-        le_ncf2egf_bp_cp1.setObjectName('le_ncf2egf_bp_cp1')
-        le_ncf2egf_bp_cp1.setAlignment(Qt.AlignCenter)
-        le_ncf2egf_bp_cp1.setPlaceholderText("Bandpass left corner period (s)")
-        le_ncf2egf_bp_cp1.textChanged.connect(le_ncf2egf_bp_cp1.isfloat)
+        self.le_ncf2egf_bp_cp1 = MyLineEdit()
+        self.le_ncf2egf_bp_cp1.setObjectName('le_ncf2egf_bp_cp1')
+        self.le_ncf2egf_bp_cp1.setAlignment(Qt.AlignCenter)
+        self.le_ncf2egf_bp_cp1.setPlaceholderText("Bandpass left corner period (s)")
+        self.le_ncf2egf_bp_cp1.textChanged.connect(self.le_ncf2egf_bp_cp1.isfloat)
         lbl_ncf2egf_bp_cp2 = QLabel("Right corner period (s):")
-        le_ncf2egf_bp_cp2 = MyLineEdit()
-        le_ncf2egf_bp_cp2.setObjectName('le_ncf2egf_bp_cp2')
-        le_ncf2egf_bp_cp2.setAlignment(Qt.AlignCenter)
-        le_ncf2egf_bp_cp2.setPlaceholderText("Bandpass right corner period (s)")
-        le_ncf2egf_bp_cp2.textChanged.connect(le_ncf2egf_bp_cp2.isfloat)
+        self.le_ncf2egf_bp_cp2 = MyLineEdit()
+        self.le_ncf2egf_bp_cp2.setObjectName('le_ncf2egf_bp_cp2')
+        self.le_ncf2egf_bp_cp2.setAlignment(Qt.AlignCenter)
+        self.le_ncf2egf_bp_cp2.setPlaceholderText("Bandpass right corner period (s)")
+        self.le_ncf2egf_bp_cp2.textChanged.connect(self.le_ncf2egf_bp_cp2.isfloat)
         lbl_ncf2egf_bp_poles = QLabel("Number of poles (n):")
-        sb_ncf2egf_bp_poles = QSpinBox()
-        sb_ncf2egf_bp_poles.setObjectName('sb_ncf2egf_bp_poles')
-        sb_ncf2egf_bp_poles.setMinimum(1)
-        sb_ncf2egf_bp_poles.setMaximum(10)
-        sb_ncf2egf_bp_poles.setSingleStep(1)
+        self.sb_ncf2egf_bp_poles = QSpinBox()
+        self.sb_ncf2egf_bp_poles.setObjectName('sb_ncf2egf_bp_poles')
+        self.sb_ncf2egf_bp_poles.setMinimum(1)
+        self.sb_ncf2egf_bp_poles.setMaximum(10)
+        self.sb_ncf2egf_bp_poles.setSingleStep(1)
         lbl_ncf2egf_bp_passes = QLabel("Number of passes (p):")
-        sb_ncf2egf_bp_passes = QSpinBox()
-        sb_ncf2egf_bp_passes.setObjectName('sb_ncf2egf_bp_passes')
-        sb_ncf2egf_bp_passes.setMinimum(1)
-        sb_ncf2egf_bp_passes.setMaximum(2)
-        sb_ncf2egf_bp_passes.setSingleStep(1)
+        self.sb_ncf2egf_bp_passes = QSpinBox()
+        self.sb_ncf2egf_bp_passes.setObjectName('sb_ncf2egf_bp_passes')
+        self.sb_ncf2egf_bp_passes.setMinimum(1)
+        self.sb_ncf2egf_bp_passes.setMaximum(2)
+        self.sb_ncf2egf_bp_passes.setSingleStep(1)
         # layout bandpass
         lyo_bp = QGridLayout()
         lyo_bp.addWidget(self.chb_ncf2egf_bp, 0,0,1,1)
         lyo_bp.addWidget(lbl_ncf2egf_bp, 0,1,1,1)
         lyo_bp.addWidget(lbl_ncf2egf_bp_cp1, 1,1,1,1)
-        lyo_bp.addWidget(le_ncf2egf_bp_cp1, 1,2,1,1)
+        lyo_bp.addWidget(self.le_ncf2egf_bp_cp1, 1,2,1,1)
         lyo_bp.addWidget(lbl_ncf2egf_bp_cp2, 2,1,1,1)
-        lyo_bp.addWidget(le_ncf2egf_bp_cp2, 2,2,1,1)
+        lyo_bp.addWidget(self.le_ncf2egf_bp_cp2, 2,2,1,1)
         lyo_bp.addWidget(lbl_ncf2egf_bp_poles, 1,3,1,1)
-        lyo_bp.addWidget(sb_ncf2egf_bp_poles, 1,4,1,1)
+        lyo_bp.addWidget(self.sb_ncf2egf_bp_poles, 1,4,1,1)
         lyo_bp.addWidget(lbl_ncf2egf_bp_passes, 2,3,1,1)
-        lyo_bp.addWidget(sb_ncf2egf_bp_passes, 2,4,1,1)
+        lyo_bp.addWidget(self.sb_ncf2egf_bp_passes, 2,4,1,1)
         lyo_bp.setAlignment(Qt.AlignVCenter)
         lyo_bp.setAlignment(Qt.AlignHCenter)
         lyo_bp.setVerticalSpacing(15)
-        lyo_bp.setContentsMargins(50,0,50,0)
+        lyo_bp.setHorizontalSpacing(35)
+
 
         # put together all layouts 
-        self.layout = QVBoxLayout()
-        self.layout.addLayout(lyo_bp)
-        self.layout.setSpacing(10)
-        self.layout.setContentsMargins(10,20,10,10)
+        layout = QGridLayout()
+        layout.addLayout(lyo_sym, 0,0,1,3)
+        layout.addLayout(lyo_cut, 1,0,1,2)
+        layout.addLayout(lyo_bp, 1,2,1,1)
+        layout.setHorizontalSpacing(50)
+        layout.setVerticalSpacing(50)
+        layout.setAlignment(Qt.AlignVCenter)
+        layout.setContentsMargins(80,0,80,0)
+        self.setLayout(layout)
 
-        self.setLayout(self.layout)
+        # update ui
+        self.chb_ncf2egf_cut.stateChanged.connect(self.update_ncf2egf_ui)
+        self.chb_ncf2egf_bp.stateChanged.connect(self.update_ncf2egf_ui)
+        self.update_ncf2egf_ui()
 
+
+
+    def update_ncf2egf_ui(self):
+
+        if self.chb_ncf2egf_cut.isChecked():
+            self.le_ncf2egf_cut_begin.setEnabled(True)
+            self.le_ncf2egf_cut_end.setEnabled(True)
+            self.le_ncf2egf_cut_begin.setStyleSheet('#le_ncf2egf_cut_begin{color: #000;}')
+            self.le_ncf2egf_cut_end.setStyleSheet('#le_ncf2egf_cut_end{color: #000;}')
+        else:
+            self.le_ncf2egf_cut_begin.setEnabled(False)
+            self.le_ncf2egf_cut_end.setEnabled(False)
+            self.le_ncf2egf_cut_begin.setStyleSheet('#le_ncf2egf_cut_begin{color: #aaa;}')
+            self.le_ncf2egf_cut_end.setStyleSheet('#le_ncf2egf_cut_end{color: #aaa;}')
+
+        if self.chb_ncf2egf_bp.isChecked():
+            self.le_ncf2egf_bp_cp1.setEnabled(True)
+            self.le_ncf2egf_bp_cp2.setEnabled(True)
+            self.sb_ncf2egf_bp_poles.setEnabled(True)
+            self.sb_ncf2egf_bp_passes.setEnabled(True)
+            self.le_ncf2egf_bp_cp1.setStyleSheet('#le_ncf2egf_bp_cp1{color: #000;}')
+            self.le_ncf2egf_bp_cp2.setStyleSheet('#le_ncf2egf_bp_cp2{color: #000;}')
+            self.sb_ncf2egf_bp_poles.setStyleSheet('#sb_ncf2egf_bp_poles{color: #000;}')
+            self.sb_ncf2egf_bp_passes.setStyleSheet('#sb_ncf2egf_bp_passes{color: #000;}')
+        else:
+            self.le_ncf2egf_bp_cp1.setEnabled(False)
+            self.le_ncf2egf_bp_cp2.setEnabled(False)
+            self.sb_ncf2egf_bp_poles.setEnabled(False)
+            self.sb_ncf2egf_bp_passes.setEnabled(False)
+            self.le_ncf2egf_bp_cp1.setStyleSheet('#le_ncf2egf_bp_cp1{color: #aaa;}')
+            self.le_ncf2egf_bp_cp2.setStyleSheet('#le_ncf2egf_bp_cp2{color: #aaa;}')
+            self.sb_ncf2egf_bp_poles.setStyleSheet('#sb_ncf2egf_bp_poles{color: #aaa;}')
+            self.sb_ncf2egf_bp_passes.setStyleSheet('#sb_ncf2egf_bp_passes{color: #aaa;}')
+
+
+
+    def get_parameters(self):
+        ncf2egf = {}
+        ncf2egf['chb_ncf2egf_symmetrize'] = self.chb_ncf2egf_symmetrize.checkState()
+        ncf2egf['chb_ncf2egf_cut'] = self.chb_ncf2egf_cut.checkState()
+        ncf2egf['le_ncf2egf_cut_begin'] = self.le_ncf2egf_cut_begin.text()
+        ncf2egf['le_ncf2egf_cut_end'] = self.le_ncf2egf_cut_end.text()
+        ncf2egf['chb_ncf2egf_bp'] = self.chb_ncf2egf_bp.checkState()
+        ncf2egf['le_ncf2egf_bp_cp1'] = self.le_ncf2egf_bp_cp1.text()
+        ncf2egf['le_ncf2egf_bp_cp2'] = self.le_ncf2egf_bp_cp2.text()
+        ncf2egf['sb_ncf2egf_bp_poles'] = self.sb_ncf2egf_bp_poles.value()
+        ncf2egf['sb_ncf2egf_bp_passes'] = self.sb_ncf2egf_bp_passes.value()
+        return ncf2egf
+
+
+    def set_parameters(self, parameters):
+        self.chb_ncf2egf_symmetrize.setCheckState(parameters['chb_ncf2egf_symmetrize'])
+        self.chb_ncf2egf_cut.setCheckState(int(parameters['chb_ncf2egf_cut']))
+        self.le_ncf2egf_cut_begin.setText(f"{parameters['le_ncf2egf_cut_begin']}")
+        self.le_ncf2egf_cut_end.setText(f"{parameters['le_ncf2egf_cut_end']}")
+        self.chb_ncf2egf_bp.setCheckState(int(parameters['chb_ncf2egf_bp']))
+        self.sb_ncf2egf_bp_poles.setValue(int(parameters['sb_ncf2egf_bp_poles']))
+        self.sb_ncf2egf_bp_passes.setValue(int(parameters['sb_ncf2egf_bp_passes']))
+        self.le_ncf2egf_bp_cp1.setText(f"{parameters['le_ncf2egf_bp_cp1']}")
+        self.le_ncf2egf_bp_cp2.setText(f"{parameters['le_ncf2egf_bp_cp2']}")
+        self.update_ncf2egf_ui()
 
         
 
@@ -2166,7 +2247,7 @@ class MainWindow(QMainWindow):
     def __init__(self, maindir):
         super().__init__()
         self.maindir = os.path.abspath(maindir)
-        self.setMinimumSize(1070, 600)
+        self.setMinimumSize(1000, 600)
         app_icon = QIcon()
         app_icon.addFile(os.path.join(images_dir,'icons','16x16.png'))
         app_icon.addFile(os.path.join(images_dir,'icons','24x24.png'))
@@ -2506,6 +2587,7 @@ class MainWindow(QMainWindow):
         parameters['download'] = self.download.get_parameters()
         parameters['mseed2sac'] = self.mseed2sac.get_parameters()
         parameters['sac2ncf'] = self.sac2ncf.get_parameters()
+        parameters['ncf2egf'] = self.ncf2egf.get_parameters()
         config.write_config(parameters['setting']['le_maindir'], parameters)
         if not os.path.isdir(os.path.join(parameters['setting']['le_maindir'], '.ans')):
             os.mkdir(os.path.join(parameters['setting']['le_maindir'], '.ans'))
@@ -2517,9 +2599,27 @@ class MainWindow(QMainWindow):
 
 
     def revert_button(self):
+        current_parameters = {}
+        current_parameters['setting'] = self.setting.get_parameters() 
+        current_parameters['download'] = self.download.get_parameters()
+        current_parameters['mseed2sac'] = self.mseed2sac.get_parameters()
+        current_parameters['sac2ncf'] = self.sac2ncf.get_parameters()
+        current_parameters['ncf2egf'] = self.ncf2egf.get_parameters()
         defaults = config.Defaults(self.maindir)
-        parameters = defaults.parameters()
-        self.set_UI_parameters(parameters)
+        current_index = self.body_main.currentIndex()
+
+        if current_index == 0:
+            current_parameters['setting'] = defaults.setting()
+        elif current_index == 1:
+            current_parameters['download'] = defaults.download()
+        elif current_index == 2:
+            current_parameters['mseed2sac'] = defaults.mseed2sac()
+        elif current_index == 3:
+            current_parameters['sac2ncf'] = defaults.sac2ncf()
+        elif current_index == 4:
+            current_parameters['ncf2egf'] = defaults.ncf2egf()
+
+        self.set_UI_parameters(current_parameters)
 
 
     def set_UI_parameters(self, parameters):
@@ -2585,6 +2685,8 @@ class MainWindow(QMainWindow):
             self.sac2ncf.add_proc_frame(pid=parameters['sac2ncf']['sac2ncf_procs'][i]['pid'] ,
                                           params=parameters['sac2ncf']['sac2ncf_procs'][i])
 
+        # ncf2egf
+        self.ncf2egf.set_parameters(parameters['ncf2egf'])
 
 
 

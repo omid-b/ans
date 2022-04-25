@@ -11,6 +11,7 @@ from . import config
 from . import dependency
 from . import download
 from . import mseed2sac
+from . import sac2ncf
 
 # global variables
 version = "0.0.1"
@@ -125,13 +126,13 @@ def main():
     mseed2sac_cmd.add_argument(
         'mseeds_dir',
         type=str,
-        help='path to the downloaded mseed dataset directory',
+        help='path to the downloaded MSEED files dataset directory',
         action='store',
     )
     mseed2sac_cmd.add_argument(
         'sacs_dir',
         type=str,
-        help='path to the output sac dataset directory',
+        help='path to the output SAC files dataset directory',
         action='store',
     )
     mseed2sac_cmd.add_argument(
@@ -144,6 +145,18 @@ def main():
     # MODULE 5: sac2ncf
     sac2ncf_cmd = commands.add_parser('sac2ncf', help='sac2ncf processes module',
     description="sac2ncf processes module.")
+    sac2ncf_cmd.add_argument(
+        'sacs_dir',
+        type=str,
+        help='path to the input SAC files dataset directory',
+        action='store',
+    )
+    sac2ncf_cmd.add_argument(
+        'ncfs_dir',
+        type=str,
+        help='path to the output NCF files dataset directory',
+        action='store',
+    )
     sac2ncf_cmd.add_argument(
         '--maindir',
         type=str,
@@ -196,7 +209,7 @@ def main():
         mseed2sac.mseed2sac_run_all(args.maindir, args.mseeds_dir, args.sacs_dir)
     # sac2ncf
     if args.command == 'sac2ncf':
-        print(dev)
+        sac2ncf.sac2ncf_run_all(args.maindir, args.sacs_dir, args.ncfs_dir)
     # ncf2egf
     if args.command == 'ncf2egf':
         print(dev)

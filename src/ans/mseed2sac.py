@@ -20,17 +20,20 @@ def mseed2sac_run_all(maindir, input_mseeds_dir, output_sacs_dir):
         exit(1)
     input_mseeds_dir = os.path.abspath(input_mseeds_dir)
     output_sacs_dir = os.path.abspath(output_sacs_dir)
+    if not os.path.isdir(output_sacs_dir):
+        os.mkdir(output_sacs_dir)
 
     # shutil.rmtree(output_sacs_dir) # REMOVE LATER!!!!!!!!!!!!!!
 
     mseeds = generate_mseed_list(input_mseeds_dir)
 
-    initialize_sac_directories(output_sacs_dir, mseeds)
-
     num_outputs = 0
     num_deleted = 0
     for mseed in mseeds:
         event_name = get_event_name(mseed)
+        if not os.path.isdir(os.path.join(output_sacs_dir, event_name)):
+            os.mkdir(os.path.join(output_sacs_dir, event_name))
+
         sacfile = os.path.join(output_sacs_dir, event_name, get_sac_name(mseed))
         if not os.path.isfile(sacfile):
             print(f"\nsac file: {os.path.split(sacfile)[1]}")
@@ -164,7 +167,7 @@ def mseed2sac_run_all(maindir, input_mseeds_dir, output_sacs_dir):
 
 
                 elif success and pid == [6,1]:
-                    print(f"    Process #{i+1}: Remove extra channel")
+                    print(f"    Process #{i+1}: Remove extra channels")
 
                     event_folder = os.path.join(output_sacs_dir, get_event_name(mseed))
                     similar_channels = process['le_mseed2sac_similar_channels'].split()
@@ -231,6 +234,7 @@ def initialize_sac_directories(sacs_maindir, mseed_list):
         event_dir = os.path.join(sacs_maindir, event_name)
         if not os.path.isdir(event_dir):
             os.mkdir(event_dir)
+
 
 
 def is_true(value):
