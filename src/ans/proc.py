@@ -276,3 +276,47 @@ def sac_cut_fillz(input_sacfile, output_sacfile,
         return False
 
 
+
+def sac_one_bit_normalize(input_sacfile, output_sacfile, SAC='/usr/local/sac/bin/sac'):
+    try:
+        abssac = os.path.join(os.path.split(output_sacfile)[0], 'abs.sac')
+        shell_cmd = ["export SAC_DISPLAY_COPYRIGHT=0", f"{SAC}<<EOF"]
+        shell_cmd.append(f'r {input_sacfile}')
+        shell_cmd.append(f'abs')
+        shell_cmd.append(f'add 1e-10')
+        shell_cmd.append(f'w {abssac}')
+        shell_cmd.append(f'r {input_sacfile}')
+        shell_cmd.append(f'divf {abssac}')
+        shell_cmd.append(f'w {output_sacfile}')
+        shell_cmd.append('quit')
+        shell_cmd.append('EOF')
+        shell_cmd = '\n'.join(shell_cmd)
+        subprocess.call(shell_cmd, shell=True)
+        os.remove(abssac)
+        return True
+    except Exception as e:
+        return False
+
+
+
+def sac_whiten(input_sacfile, output_sacfile, whiten_order, SAC='/usr/local/sac/bin/sac'):
+    try:
+        shell_cmd = ["export SAC_DISPLAY_COPYRIGHT=0", f"{SAC}<<EOF"]
+        shell_cmd.append(f"r {input_sacfile}")
+        shell_cmd.append(f"whiten {whiten_order}")
+        if input_sacfile == output_sacfile:
+            shell_cmd.append('w over')
+        else:
+            shell_cmd.append(f'w {output_sacfile}')
+        shell_cmd.append('quit')
+        shell_cmd.append('EOF')
+        shell_cmd = '\n'.join(shell_cmd)
+        subprocess.call(shell_cmd, shell=True)
+
+        return True
+    except Exception as e:
+        return False
+
+
+
+

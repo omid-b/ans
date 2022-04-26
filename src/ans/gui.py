@@ -61,6 +61,12 @@ class QLineEdit(QLineEdit):
         self.setAttribute(Qt.WA_MacShowFocusRect, 0)
 
 
+class QComboBox(QComboBox):
+    def __init__(self):
+        super().__init__()
+        self.setAttribute(Qt.WA_MacShowFocusRect, 0)
+
+
 class QSpinBox(QSpinBox):
     def __init__(self):
         super().__init__()
@@ -2087,7 +2093,7 @@ class NCF2EGF(QWidget):
         lyo_sym.addWidget(lbl_empty, 1,0,1,3)
         lyo_sym.addWidget(lbl_empty, 2,0,1,3)
         lyo_sym.setVerticalSpacing(15)
-        lyo_sym.setHorizontalSpacing(35)
+        lyo_sym.setHorizontalSpacing(15)
 
         
         self.chb_ncf2egf_cut = MyCheckBox()
@@ -2114,7 +2120,7 @@ class NCF2EGF(QWidget):
         lyo_cut.addWidget(lbl_empty, 1,3)
         lyo_cut.setAlignment(Qt.AlignVCenter)
         lyo_cut.setVerticalSpacing(15)
-        lyo_cut.setHorizontalSpacing(35)
+        lyo_cut.setHorizontalSpacing(15)
 
 
         self.chb_ncf2egf_bp = MyCheckBox()
@@ -2158,7 +2164,7 @@ class NCF2EGF(QWidget):
         lyo_bp.setAlignment(Qt.AlignVCenter)
         lyo_bp.setAlignment(Qt.AlignHCenter)
         lyo_bp.setVerticalSpacing(15)
-        lyo_bp.setHorizontalSpacing(35)
+        lyo_bp.setHorizontalSpacing(15)
 
 
         # put together all layouts 
@@ -2169,7 +2175,7 @@ class NCF2EGF(QWidget):
         layout.setHorizontalSpacing(50)
         layout.setVerticalSpacing(50)
         layout.setAlignment(Qt.AlignVCenter)
-        layout.setContentsMargins(80,0,80,0)
+        layout.setContentsMargins(30,0,30,0)
         self.setLayout(layout)
 
         # update ui

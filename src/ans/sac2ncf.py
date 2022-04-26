@@ -23,6 +23,7 @@ def sac2ncf_run_all(maindir, input_sacs_dir, output_ncfs_dir):
     
     events = get_events(input_sacs_dir)
     for event in events:
+        perform_xcorr = False
         inp_event = os.path.join(input_sacs_dir, event)
         out_event = os.path.join(output_ncfs_dir, event)
         copy_event(inp_event, out_event)
@@ -157,18 +158,31 @@ def sac2ncf_run_all(maindir, input_sacs_dir, output_ncfs_dir):
                 elif success and pid == [6,1]:
                     print(f"    Process #{i+1}: One-bit normalization")
 
+                    success = proc.sac_one_bit_normalize(sacfile, sacfile, SAC=SAC)
+
                     if not success and os.path.isfile(sacfile):
                         os.remove(sacfile)
+
                 elif success and pid == [7,1]:
                     print(f"    Process #{i+1}: Spectral whitening")
+
+                    whiten_order = int(process['sb_sac2ncf_whiten_order'])
+                    success = proc.sac_whiten(sacfile, sacfile, whiten_order, SAC=SAC)
 
                     if not success and os.path.isfile(sacfile):
                         os.remove(sacfile)
                 elif success and pid == [8,1]:
-                    print(f"    Process #{i+1}: Cross-correlation")
+                    proc_id_xcorr = i+1
+                    perform_xcorr =True
+
+        if perform_xcorr:
+            print(f"\nProcess #{proc_id_xcorr}: Cross-correlation; Event dir: '{event}'\n")
+
 
         # remove input sac files
         # remove_event_sacs(out_event)
+
+    print("\nDone!\n")
         
 
 #=======================#
@@ -178,7 +192,7 @@ def get_events(dataset_dir):
     for x in os.listdir(dataset_dir):
         if regex_events.match(x):
             event_list.append(x)
-    return event_list
+    return sorted(event_list)
 
 
 def get_sacs(event_dir):
@@ -186,7 +200,7 @@ def get_sacs(event_dir):
     for x in os.listdir(event_dir):
         if regex_sacs.match(x):
             sac_files.append(x)
-    return sac_files
+    return sorted(sac_files)
 
 
 def copy_event(src_event, dst_event):
