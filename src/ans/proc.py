@@ -84,6 +84,31 @@ def mseed2sac(input_mseed_file, output_sac_file,
 
 
 
+def sac_detrend(input_mseed_file, output_sac_file,
+    detrend_method='spline', detrend_order=4, dspline=86400):
+    try:
+        st = obspy.read(input_mseed_file, format="SAC")
+        if detrend_method == 'spline':
+            try:
+                st.detrend(detrend_method, order=detrend_order, dspline=dspline)
+            except:
+                st.detrend('demean')
+        elif detrend_method == 'polynomial':
+            try:
+                st.detrend(detrend_method, order=detrend_order)
+            except:
+                st.detrend('demean')
+        else:
+            st.detrend(detrend_method)
+
+        st.write(output_sac_file, format='SAC')
+
+        return True
+    
+    except Exception as e:
+        return False
+
+
 
 def sac_remove_extra_channels(sacs_event_dir, similar_channels, channels2keep):
     for channel in channels2keep:
@@ -195,31 +220,16 @@ def sac_remove_response(input_sacfile, output_sacfile, xml_file,
         st.write(output_sacfile, format='SAC')
         # update sac headers
         if update_headers:
-            knetwk = inv[0].code.split()[0]
-            kstnm = inv[0][0].code.split()[0]
-            kcmpnm = inv[0][0][0].code.split()[0]
-            stla = np.float(inv[0][0].latitude)
-            stlo = np.float(inv[0][0].longitude)
-            stel = np.float(inv[0][0].elevation)
-            cmpaz = np.float(inv[0][0][0].azimuth)
-            cmpinc = np.float(inv[0][0][0].dip)+90
-            shell_cmd = ["export SAC_DISPLAY_COPYRIGHT=0", f"{SAC}<<EOF"]
-            shell_cmd.append(f"r {output_sacfile}")
-            shell_cmd.append(f"chnhdr knetwk '{knetwk}'")
-            shell_cmd.append(f"chnhdr kstnm '{kstnm}'")
-            shell_cmd.append(f"chnhdr kcmpnm '{kcmpnm}'")
-            shell_cmd.append(f"chnhdr stla {stla}")
-            shell_cmd.append(f"chnhdr stlo {stlo}")
-            shell_cmd.append(f"chnhdr stel {stel}")
-            shell_cmd.append(f"chnhdr cmpaz {cmpaz}")
-            shell_cmd.append(f"chnhdr cmpinc {cmpinc}")
-            shell_cmd.append("chnhdr lovrok True")
-            shell_cmd.append("chnhdr lcalda True")
-            shell_cmd.append(f"wh")
-            shell_cmd.append('quit')
-            shell_cmd.append('EOF')
-            shell_cmd = '\n'.join(shell_cmd)
-            subprocess.call(shell_cmd, shell=True)
+            headers = {}
+            headers['knetwk'] = inv[0].code.split()[0]
+            headers['kstnm'] = inv[0][0].code.split()[0]
+            headers['kcmpnm'] = inv[0][0][0].code.split()[0]
+            headers['stla'] = np.float(inv[0][0].latitude)
+            headers['stlo'] = np.float(inv[0][0].longitude)
+            headers['stel'] = np.float(inv[0][0].elevation)
+            headers['cmpaz'] = np.float(inv[0][0][0].azimuth)
+            headers['cmpinc'] = np.float(inv[0][0][0].dip)+90
+            write_sac_headers(output_sacfile, headers, SAC=SAC)
         return True
     except Exception as e:
         return False
@@ -317,6 +327,24 @@ def sac_whiten(input_sacfile, output_sacfile, whiten_order, SAC='/usr/local/sac/
     except Exception as e:
         return False
 
+
+def write_sac_headers(sacfile, headers, SAC='/usr/local/sac/bin/sac'):
+    # INPUTS: full path to sac file; sac headers in python dictionary format
+    # OUTPUT: the same sacfile with modified headers
+    try:
+        shell_cmd = ["export SAC_DISPLAY_COPYRIGHT=0", f"{SAC}<<EOF"]
+        shell_cmd.append(f"r {sacfile}")
+        for hdr in headers:
+            shell_cmd.append(f"chnhdr {hdr} {headers[hdr]}")
+        shell_cmd.append(f"wh")
+        shell_cmd.append(f"q")
+        shell_cmd.append('EOF')
+        shell_cmd = '\n'.join(shell_cmd)
+        subprocess.call(shell_cmd, shell=True)
+
+        return True
+    except Exception as e:
+        return False
 
 
 

@@ -675,11 +675,11 @@ class Download(QWidget):
         # self.le_stalist.textChanged.connect(self.le_stalist.isfile)
         browse_stalist = MyDialog(type=1, lineEditObj=self.le_stalist)
         #
-        lbl_stameta = QLabel("Station meta files dir:")
+        lbl_stameta = QLabel("Station metadata dir:")
         lbl_stameta.setObjectName("lbl_stameta")
         self.le_stameta = MyLineEdit()
         self.le_stameta.setObjectName("le_stameta")
-        self.le_stameta.setPlaceholderText("Full path to station meta files directory")
+        self.le_stameta.setPlaceholderText("Full path to station metadata directory")
         # self.le_stameta.textChanged.connect(self.le_stameta.isdir)
         browse_stameta = MyDialog(type=3, lineEditObj=self.le_stameta)
         #
@@ -1033,6 +1033,29 @@ class MSEED2SAC(QWidget):
                 cmb_mseed2sac_taper_method.setEnabled(False)
                 lbl_mseed2sac_max_taper.setEnabled(False)
                 dsb_mseed2sac_max_taper.setEnabled(False)
+        if pid == [6,1]: # MSEED to SAC - detrend
+            lbl_mseed2sac_detrend_method = proc_param.findChild(QLabel, 'lbl_mseed2sac_detrend_method')
+            cmb_mseed2sac_detrend_method = proc_param.findChild(QComboBox, 'cmb_mseed2sac_detrend_method')
+            lbl_mseed2sac_detrend_order = proc_param.findChild(QLabel, 'lbl_mseed2sac_detrend_order')
+            sb_mseed2sac_detrend_order = proc_param.findChild(QSpinBox, 'sb_mseed2sac_detrend_order')
+            lbl_mseed2sac_dspline = proc_param.findChild(QLabel, 'lbl_mseed2sac_dspline')
+            le_mseed2sac_dspline = proc_param.findChild(QLineEdit, 'le_mseed2sac_dspline')
+
+            # Detrend Parameters
+            if cmb_mseed2sac_detrend_method.currentIndex() in [2,3]:
+                lbl_mseed2sac_detrend_order.setEnabled(True)
+                sb_mseed2sac_detrend_order.setEnabled(True)
+            else:
+                lbl_mseed2sac_detrend_order.setEnabled(False)
+                sb_mseed2sac_detrend_order.setEnabled(False)
+
+            if cmb_mseed2sac_detrend_method.currentIndex() == 3:
+                lbl_mseed2sac_dspline.setEnabled(True)
+                le_mseed2sac_dspline.setEnabled(True)
+            else:
+                lbl_mseed2sac_dspline.setEnabled(False)
+                le_mseed2sac_dspline.setEnabled(False)
+
 
 
     def new_proc_type(self, pframe_id, ptype_index=0):
@@ -1053,6 +1076,8 @@ class MSEED2SAC(QWidget):
         cmb_proc_type.addItem("  Remove response")
         cmb_proc_type.addItem("  Bandpass filter")
         cmb_proc_type.addItem("  Cut seismogram")
+        cmb_proc_type.addItem("  Detrend")
+        cmb_proc_type.addItem("  Write headers")
         cmb_proc_type.addItem("  Remove channel")
         lyo_proc_type = QHBoxLayout()
         lyo_proc_type.addWidget(lbl_proc_type)
@@ -1123,7 +1148,25 @@ class MSEED2SAC(QWidget):
             cmb_proc_method.addItem("SAC: cuterr fillz") # Method 1
             lyo_proc_method.addWidget(lbl_cut_method)
             lyo_proc_method.addWidget(cmb_proc_method)
-        elif ptype_index == 6: # remove channel
+        elif ptype_index == 6: # Detrend
+            lbl_detrend_method = QLabel("Method:")
+            lbl_detrend_method.setObjectName(f"lbl_detrend_method")
+            lbl_detrend_method.setStyleSheet("#%s {color:#999;}" %(f"lbl_detrend_method"))
+            cmb_proc_method.setEditable(True)
+            cmb_proc_method.lineEdit().setAlignment(Qt.AlignCenter)
+            cmb_proc_method.addItem("Obspy: detrend") # Method 1
+            lyo_proc_method.addWidget(lbl_detrend_method)
+            lyo_proc_method.addWidget(cmb_proc_method)
+        elif ptype_index == 7: # chnhdr
+            lbl_chnhdr_method = QLabel("Method:")
+            lbl_chnhdr_method.setObjectName(f"lbl_chnhdr_method")
+            lbl_chnhdr_method.setStyleSheet("#%s {color:#999;}" %(f"lbl_chnhdr_method"))
+            cmb_proc_method.setEditable(True)
+            cmb_proc_method.lineEdit().setAlignment(Qt.AlignCenter)
+            cmb_proc_method.addItem("SAC: chnhdr") # Method 1
+            lyo_proc_method.addWidget(lbl_chnhdr_method)
+            lyo_proc_method.addWidget(cmb_proc_method)
+        elif ptype_index == 8: # remove channel
             lbl_remchn_method = QLabel("Method:")
             lbl_remchn_method.setObjectName(f"lbl_remchn_method")
             lbl_remchn_method.setStyleSheet("#%s {color:#999;}" %(f"lbl_remchn_method"))
@@ -1193,7 +1236,7 @@ class MSEED2SAC(QWidget):
             sb_mseed2sac_detrend_order.setSingleStep(1)
             lbl_mseed2sac_dspline = QLabel("dspline:")
             lbl_mseed2sac_dspline.setObjectName("lbl_mseed2sac_dspline")
-            le_mseed2sac_dspline = QLineEdit()
+            le_mseed2sac_dspline = MyLineEdit()
             le_mseed2sac_dspline.setObjectName("le_mseed2sac_dspline")
             le_mseed2sac_dspline.setPlaceholderText("Number of samples between nodes (spline method)")
             # set parameters
@@ -1265,6 +1308,7 @@ class MSEED2SAC(QWidget):
             cmb_mseed2sac_detrend_method.currentIndexChanged.connect(lambda: self.update_proc_param_ui(pframe_id))
             chb_mseed2sac_taper.setTristate(False)
             chb_mseed2sac_detrend.setTristate(False)
+            le_mseed2sac_dspline.textChanged.connect(le_mseed2sac_dspline.isfloat)
         elif pid == [2,1] or pid == [2,2]: # Decimate - Method 1 & 2
             lbl_mseed2sac_finalSF = QLabel("Final sampling frequency:")
             cmb_mseed2sac_final_sf = QComboBox()
@@ -1283,10 +1327,10 @@ class MSEED2SAC(QWidget):
             # set parameters
             cmb_mseed2sac_final_sf.setCurrentIndex(params['cmb_mseed2sac_final_sf'])
         elif pid == [3,1]: # Remove response - Method 1
-            lbl_mseed2sac_stametadir = QLabel("Station meta files dir:")
+            lbl_mseed2sac_stametadir = QLabel("Station metadata dir:")
             le_mseed2sac_stametadir = MyLineEdit()
             le_mseed2sac_stametadir.setObjectName("le_mseed2sac_stametadir")
-            le_mseed2sac_stametadir.setPlaceholderText("Full path to station meta files directory")
+            le_mseed2sac_stametadir.setPlaceholderText("Full path to station metadata directory")
             le_mseed2sac_stametadir.isdir()
             le_mseed2sac_stametadir.textChanged.connect(le_mseed2sac_stametadir.isdir)
             browse_mseed2sac_stametadir = MyDialog(type=3, lineEditObj=le_mseed2sac_stametadir)
@@ -1381,7 +1425,77 @@ class MSEED2SAC(QWidget):
             # set parameters
             le_mseed2sac_cut_begin.setText(f"{params['le_mseed2sac_cut_begin']}")
             le_mseed2sac_cut_end.setText(f"{params['le_mseed2sac_cut_end']}")
-        elif pid == [6,1]: # Remove channel - Method 1
+        elif pid == [6,1]: # Detrend - Method 1
+            lbl_mseed2sac_detrend_method = QLabel("Detrend method:")
+            lbl_mseed2sac_detrend_method.setObjectName("lbl_mseed2sac_detrend_method")
+            cmb_mseed2sac_detrend_method = QComboBox()
+            cmb_mseed2sac_detrend_method.setObjectName("cmb_mseed2sac_detrend_method")
+            cmb_mseed2sac_detrend_method.addItem("Demean")
+            cmb_mseed2sac_detrend_method.addItem("Linear")
+            cmb_mseed2sac_detrend_method.addItem("Polynomial")
+            cmb_mseed2sac_detrend_method.addItem("Spline")
+            lbl_mseed2sac_detrend_order = QLabel("Detrend order:")
+            lbl_mseed2sac_detrend_order.setObjectName("lbl_mseed2sac_detrend_order")
+            sb_mseed2sac_detrend_order = QSpinBox()
+            sb_mseed2sac_detrend_order.setObjectName("sb_mseed2sac_detrend_order")
+            sb_mseed2sac_detrend_order.setMinimum(3)
+            sb_mseed2sac_detrend_order.setMaximum(5)
+            sb_mseed2sac_detrend_order.setSingleStep(1)
+            lbl_mseed2sac_dspline = QLabel("dspline:")
+            lbl_mseed2sac_dspline.setObjectName("lbl_mseed2sac_dspline")
+            le_mseed2sac_dspline = MyLineEdit()
+            le_mseed2sac_dspline.setObjectName("le_mseed2sac_dspline")
+            le_mseed2sac_dspline.setPlaceholderText("Number of samples between nodes (spline method)")
+            # setup layout
+            lyo_proc_param.addWidget(lbl_mseed2sac_detrend_method, 1,0,1,2)
+            lyo_proc_param.addWidget(cmb_mseed2sac_detrend_method, 1,2)
+            lyo_proc_param.addWidget(lbl_mseed2sac_detrend_order, 2,0,1,2)
+            lyo_proc_param.addWidget(sb_mseed2sac_detrend_order, 2,2)
+            lyo_proc_param.addWidget(lbl_mseed2sac_dspline, 3,0,1,2)
+            lyo_proc_param.addWidget(le_mseed2sac_dspline, 3,2)
+            lyo_proc_param.setAlignment(Qt.AlignVCenter)
+            lyo_proc_param.setAlignment(Qt.AlignHCenter)
+            lyo_proc_param.setContentsMargins(85,0,75,0)
+            # set UI parameters
+            cmb_mseed2sac_detrend_method.setCurrentIndex(params["cmb_mseed2sac_detrend_method"])
+            sb_mseed2sac_detrend_order.setValue(params["sb_mseed2sac_detrend_order"])
+            le_mseed2sac_dspline.setText(f"{params['le_mseed2sac_dspline']}")
+            # signals ans slots
+            cmb_mseed2sac_detrend_method.currentIndexChanged.connect(lambda: self.update_proc_param_ui(pframe_id))
+            le_mseed2sac_dspline.textChanged.connect(le_mseed2sac_dspline.isfloat)
+
+            # update UI
+            if cmb_mseed2sac_detrend_method.currentIndex() in [2,3]:
+                lbl_mseed2sac_detrend_order.setEnabled(True)
+                sb_mseed2sac_detrend_order.setEnabled(True)
+            else:
+                lbl_mseed2sac_detrend_order.setEnabled(False)
+                sb_mseed2sac_detrend_order.setEnabled(False)
+                
+            if cmb_mseed2sac_detrend_method.currentIndex() == 3:
+                lbl_mseed2sac_dspline.setEnabled(True)
+                le_mseed2sac_dspline.setEnabled(True)
+            else:
+                lbl_mseed2sac_dspline.setEnabled(False)
+                le_mseed2sac_dspline.setEnabled(False)
+        elif pid == [7,1]: # Write headers - Method 1
+            lbl_mseed2sac_stametadir = QLabel("Station metadata dir:")
+            le_mseed2sac_stametadir = MyLineEdit()
+            le_mseed2sac_stametadir.setObjectName("le_mseed2sac_stametadir")
+            le_mseed2sac_stametadir.setPlaceholderText("Full path to station metadata directory")
+            le_mseed2sac_stametadir.isdir()
+            le_mseed2sac_stametadir.textChanged.connect(le_mseed2sac_stametadir.isdir)
+            browse_mseed2sac_stametadir = MyDialog(type=3, lineEditObj=le_mseed2sac_stametadir)
+            # setup layout
+            lyo_proc_param.addWidget(lbl_mseed2sac_stametadir, 0,0)
+            lyo_proc_param.addWidget(le_mseed2sac_stametadir, 0,1)
+            lyo_proc_param.addWidget(browse_mseed2sac_stametadir, 0,2)
+            lyo_proc_param.setAlignment(Qt.AlignVCenter)
+            lyo_proc_param.setAlignment(Qt.AlignHCenter)
+            lyo_proc_param.setContentsMargins(65,0,55,0)
+            # set parameters
+            le_mseed2sac_stametadir.setText(f"{params['le_mseed2sac_stametadir']}")
+        elif pid == [8,1]: # Remove channel - Method 1
             lbl_mseed2sac_similar_channels = QLabel("If all these channels were available:")
             le_mseed2sac_similar_channels = QLineEdit()
             le_mseed2sac_similar_channels.setObjectName("le_mseed2sac_similar_channels")
@@ -1424,7 +1538,7 @@ class MSEED2SAC(QWidget):
             mseed2sac_proc_params["cmb_mseed2sac_final_sf"] = 0
         elif pid == [3,1]: # Remove response - Method 1
             mseed2sac_proc_params["pid"] = [3,1]
-            mseed2sac_proc_params["le_mseed2sac_stametadir"] = os.path.abspath("./metafiles")
+            mseed2sac_proc_params["le_mseed2sac_stametadir"] = os.path.abspath("./metadata")
             mseed2sac_proc_params["cmb_mseed2sac_resp_output"] = 1
             mseed2sac_proc_params["cmb_mseed2sac_resp_prefilter"] = 1
         elif pid == [4,1]: # Bandpass filter - Method 1
@@ -1437,8 +1551,14 @@ class MSEED2SAC(QWidget):
             mseed2sac_proc_params["pid"] = [5,1]
             mseed2sac_proc_params["le_mseed2sac_cut_begin"] = ""
             mseed2sac_proc_params["le_mseed2sac_cut_end"] = ""
-        elif pid == [6,1]: # Remove extra channel - Method 1
-            mseed2sac_proc_params["pid"] = [6,1]
+        elif pid == [6,1]: # Detrend - Method 1
+            mseed2sac_proc_params["cmb_mseed2sac_detrend_method"] = 3
+            mseed2sac_proc_params["sb_mseed2sac_detrend_order"] = 4
+            mseed2sac_proc_params["le_mseed2sac_dspline"] = 864000
+        elif pid == [7,1]: # Write headers - Method 1
+            mseed2sac_proc_params["le_mseed2sac_stametadir"] = os.path.abspath("./metadata")
+        elif pid == [8,1]: # Remove extra channel - Method 1
+            mseed2sac_proc_params["pid"] = [8,1]
             mseed2sac_proc_params["le_mseed2sac_similar_channels"] = "BHZ HHZ"
             mseed2sac_proc_params["le_mseed2sac_channels2keep"] = "BHZ"
         return mseed2sac_proc_params
@@ -1464,7 +1584,7 @@ class MSEED2SAC(QWidget):
                     chb_mseed2sac_taper = proc_param.findChild(MyCheckBox, 'chb_mseed2sac_taper').checkState()
                     cmb_mseed2sac_detrend_method = proc_param.findChild(QComboBox, 'cmb_mseed2sac_detrend_method').currentIndex()
                     sb_mseed2sac_detrend_order = proc_param.findChild(QSpinBox, 'sb_mseed2sac_detrend_order').value()
-                    le_mseed2sac_dspline = proc_param.findChild(QLineEdit, 'le_mseed2sac_dspline').text()
+                    le_mseed2sac_dspline = proc_param.findChild(MyLineEdit, 'le_mseed2sac_dspline').text()
                     cmb_mseed2sac_taper_method = proc_param.findChild(QComboBox, 'cmb_mseed2sac_taper_method').currentIndex()
                     dsb_mseed2sac_max_taper = proc_param.findChild(QDoubleSpinBox, 'dsb_mseed2sac_max_taper').value()
                     proc['chb_mseed2sac_detrend'] = chb_mseed2sac_detrend
@@ -1498,7 +1618,17 @@ class MSEED2SAC(QWidget):
                     le_mseed2sac_cut_end = proc_param.findChild(MyLineEdit, 'le_mseed2sac_cut_end').text()
                     proc['le_mseed2sac_cut_begin'] = le_mseed2sac_cut_begin
                     proc['le_mseed2sac_cut_end'] = le_mseed2sac_cut_end
-                elif pid == [6,1]: # Remove channel - Method 1
+                elif pid == [6,1]: # Detrend - Method 1
+                    cmb_mseed2sac_detrend_method = proc_param.findChild(QComboBox, 'cmb_mseed2sac_detrend_method').currentIndex()
+                    sb_mseed2sac_detrend_order = proc_param.findChild(QSpinBox, 'sb_mseed2sac_detrend_order').value()
+                    le_mseed2sac_dspline = proc_param.findChild(MyLineEdit, 'le_mseed2sac_dspline').text()
+                    proc["cmb_mseed2sac_detrend_method"] = cmb_mseed2sac_detrend_method
+                    proc["sb_mseed2sac_detrend_order"] = sb_mseed2sac_detrend_order
+                    proc["le_mseed2sac_dspline"] = le_mseed2sac_dspline
+                elif pid == [7,1]: # Write headers - Method 1
+                    le_mseed2sac_stametadir = proc_param.findChild(MyLineEdit, 'le_mseed2sac_stametadir').text()
+                    proc['le_mseed2sac_stametadir'] = le_mseed2sac_stametadir
+                elif pid == [8,1]: # Remove channel - Method 1
                     le_mseed2sac_similar_channels = proc_param.findChild(QLineEdit, 'le_mseed2sac_similar_channels').text()
                     le_mseed2sac_channels2keep = proc_param.findChild(QLineEdit, 'le_mseed2sac_channels2keep').text()
                     proc['le_mseed2sac_similar_channels'] = le_mseed2sac_similar_channels
@@ -1601,7 +1731,7 @@ class SAC2NCF(QWidget):
         if self.get_num_procs() > 0:
             last_proc_type = self.sac2ncf_proc_frames[-1].layout().itemAt(0).widget()
             last_proc_type_index = last_proc_type.layout().itemAt(1).widget().currentIndex()
-            if last_proc_type_index == 8: # if cross-correlate is the last process 
+            if last_proc_type_index == 10: # if cross-correlate is the last process 
                 add = False
         if add:
             pframe_id = self.get_num_procs()
@@ -1672,6 +1802,28 @@ class SAC2NCF(QWidget):
         proc_type_index = proc_type.layout().itemAt(1).widget().currentIndex()
         proc_method_index = proc_method.layout().itemAt(1).widget().currentIndex()
         pid = [proc_type_index, proc_method_index]
+        if pid == [5,1]: # MSEED to SAC - detrend
+            lbl_sac2ncf_detrend_method = proc_param.findChild(QLabel, 'lbl_sac2ncf_detrend_method')
+            cmb_sac2ncf_detrend_method = proc_param.findChild(QComboBox, 'cmb_sac2ncf_detrend_method')
+            lbl_sac2ncf_detrend_order = proc_param.findChild(QLabel, 'lbl_sac2ncf_detrend_order')
+            sb_sac2ncf_detrend_order = proc_param.findChild(QSpinBox, 'sb_sac2ncf_detrend_order')
+            lbl_sac2ncf_dspline = proc_param.findChild(QLabel, 'lbl_sac2ncf_dspline')
+            le_sac2ncf_dspline = proc_param.findChild(QLineEdit, 'le_sac2ncf_dspline')
+
+            # Detrend Parameters
+            if cmb_sac2ncf_detrend_method.currentIndex() in [2,3]:
+                lbl_sac2ncf_detrend_order.setEnabled(True)
+                sb_sac2ncf_detrend_order.setEnabled(True)
+            else:
+                lbl_sac2ncf_detrend_order.setEnabled(False)
+                sb_sac2ncf_detrend_order.setEnabled(False)
+
+            if cmb_sac2ncf_detrend_method.currentIndex() == 3:
+                lbl_sac2ncf_dspline.setEnabled(True)
+                le_sac2ncf_dspline.setEnabled(True)
+            else:
+                lbl_sac2ncf_dspline.setEnabled(False)
+                le_sac2ncf_dspline.setEnabled(False)
 
 
     def new_proc_type(self, pframe_id, ptype_index=0):
@@ -1690,6 +1842,8 @@ class SAC2NCF(QWidget):
         cmb_proc_type.addItem("  Remove response")
         cmb_proc_type.addItem("  Bandpass filter")
         cmb_proc_type.addItem("  Cut seismogram")
+        cmb_proc_type.addItem("  Detrend")
+        cmb_proc_type.addItem("  Write headers")
         cmb_proc_type.addItem("  Remove channel")
         cmb_proc_type.addItem("  Temporal normalize")
         cmb_proc_type.addItem("  Spectral whitening")
@@ -1752,7 +1906,25 @@ class SAC2NCF(QWidget):
             cmb_proc_method.addItem("SAC: cuterr fillz") # Method 1
             lyo_proc_method.addWidget(lbl_cut_method)
             lyo_proc_method.addWidget(cmb_proc_method)
-        elif ptype_index == 5: # remove channel
+        elif ptype_index == 5: # Detrend
+            lbl_detrend_method = QLabel("Method:")
+            lbl_detrend_method.setObjectName(f"lbl_detrend_method")
+            lbl_detrend_method.setStyleSheet("#%s {color:#999;}" %(f"lbl_detrend_method"))
+            cmb_proc_method.setEditable(True)
+            cmb_proc_method.lineEdit().setAlignment(Qt.AlignCenter)
+            cmb_proc_method.addItem("Obspy: detrend") # Method 1
+            lyo_proc_method.addWidget(lbl_detrend_method)
+            lyo_proc_method.addWidget(cmb_proc_method)
+        elif ptype_index == 6: # chnhdr
+            lbl_chnhdr_method = QLabel("Method:")
+            lbl_chnhdr_method.setObjectName(f"lbl_chnhdr_method")
+            lbl_chnhdr_method.setStyleSheet("#%s {color:#999;}" %(f"lbl_chnhdr_method"))
+            cmb_proc_method.setEditable(True)
+            cmb_proc_method.lineEdit().setAlignment(Qt.AlignCenter)
+            cmb_proc_method.addItem("SAC: chnhdr") # Method 1
+            lyo_proc_method.addWidget(lbl_chnhdr_method)
+            lyo_proc_method.addWidget(cmb_proc_method)
+        elif ptype_index == 7: # remove channel
             lbl_remchn_method = QLabel("Method:")
             lbl_remchn_method.setObjectName(f"lbl_remchn_method")
             lbl_remchn_method.setStyleSheet("#%s {color:#999;}" %(f"lbl_remchn_method"))
@@ -1761,7 +1933,7 @@ class SAC2NCF(QWidget):
             cmb_proc_method.addItem("Python script") # Method 1
             lyo_proc_method.addWidget(lbl_remchn_method)
             lyo_proc_method.addWidget(cmb_proc_method)
-        elif ptype_index == 6: # temporal normalization
+        elif ptype_index == 8: # temporal normalization
             lbl_tempnorm_method = QLabel("Method:")
             lbl_tempnorm_method.setObjectName("lbl_tempnorm_method")
             lbl_tempnorm_method.setStyleSheet("#%s {color:#999;}" %(f"lbl_tempnorm_method"))
@@ -1770,7 +1942,7 @@ class SAC2NCF(QWidget):
             cmb_proc_method.addItem("One-bit normalization") # Method 1
             lyo_proc_method.addWidget(lbl_tempnorm_method)
             lyo_proc_method.addWidget(cmb_proc_method)
-        elif ptype_index == 7: # spectral whitening
+        elif ptype_index == 9: # spectral whitening
             lbl_whiten_method = QLabel("Method:")
             lbl_whiten_method.setObjectName("lbl_whiten_method")
             lbl_whiten_method.setStyleSheet("#%s {color:#999;}" %(f"lbl_whiten_method"))
@@ -1779,7 +1951,7 @@ class SAC2NCF(QWidget):
             cmb_proc_method.addItem("SAC: whiten") # Method 1
             lyo_proc_method.addWidget(lbl_whiten_method)
             lyo_proc_method.addWidget(cmb_proc_method)
-        elif ptype_index == 8: # cross correlation
+        elif ptype_index == 10: # cross correlation
             lbl_xcorr_method = QLabel("Method:")
             lbl_xcorr_method.setObjectName("lbl_xcorr_method")
             lbl_xcorr_method.setStyleSheet("#%s {color:#999;}" %(f"lbl_xcorr_method"))
@@ -1828,10 +2000,10 @@ class SAC2NCF(QWidget):
             # set parameters
             cmb_sac2ncf_final_sf.setCurrentIndex(params['cmb_sac2ncf_final_sf'])
         elif pid == [2,1]: # Remove response - Method 1
-            lbl_sac2ncf_stametadir = QLabel("Station meta files dir:")
+            lbl_sac2ncf_stametadir = QLabel("Station metadata dir:")
             le_sac2ncf_stametadir = MyLineEdit()
             le_sac2ncf_stametadir.setObjectName("le_sac2ncf_stametadir")
-            le_sac2ncf_stametadir.setPlaceholderText("Full path to station meta files directory")
+            le_sac2ncf_stametadir.setPlaceholderText("Full path to station metadata directory")
             le_sac2ncf_stametadir.isdir()
             le_sac2ncf_stametadir.textChanged.connect(le_sac2ncf_stametadir.isdir)
             browse_sac2ncf_stametadir = MyDialog(type=3, lineEditObj=le_sac2ncf_stametadir)
@@ -1926,7 +2098,77 @@ class SAC2NCF(QWidget):
             # set parameters
             le_sac2ncf_cut_begin.setText(f"{params['le_sac2ncf_cut_begin']}")
             le_sac2ncf_cut_end.setText(f"{params['le_sac2ncf_cut_end']}")
-        elif pid == [5,1]: # Remove channel - Method 1
+        elif pid == [5,1]: # Detrend - Method 1
+            lbl_sac2ncf_detrend_method = QLabel("Detrend method:")
+            lbl_sac2ncf_detrend_method.setObjectName("lbl_sac2ncf_detrend_method")
+            cmb_sac2ncf_detrend_method = QComboBox()
+            cmb_sac2ncf_detrend_method.setObjectName("cmb_sac2ncf_detrend_method")
+            cmb_sac2ncf_detrend_method.addItem("Demean")
+            cmb_sac2ncf_detrend_method.addItem("Linear")
+            cmb_sac2ncf_detrend_method.addItem("Polynomial")
+            cmb_sac2ncf_detrend_method.addItem("Spline")
+            lbl_sac2ncf_detrend_order = QLabel("Detrend order:")
+            lbl_sac2ncf_detrend_order.setObjectName("lbl_sac2ncf_detrend_order")
+            sb_sac2ncf_detrend_order = QSpinBox()
+            sb_sac2ncf_detrend_order.setObjectName("sb_sac2ncf_detrend_order")
+            sb_sac2ncf_detrend_order.setMinimum(3)
+            sb_sac2ncf_detrend_order.setMaximum(5)
+            sb_sac2ncf_detrend_order.setSingleStep(1)
+            lbl_sac2ncf_dspline = QLabel("dspline:")
+            lbl_sac2ncf_dspline.setObjectName("lbl_sac2ncf_dspline")
+            le_sac2ncf_dspline = MyLineEdit()
+            le_sac2ncf_dspline.setObjectName("le_sac2ncf_dspline")
+            le_sac2ncf_dspline.setPlaceholderText("Number of samples between nodes (spline method)")
+            # setup layout
+            lyo_proc_param.addWidget(lbl_sac2ncf_detrend_method, 1,0,1,2)
+            lyo_proc_param.addWidget(cmb_sac2ncf_detrend_method, 1,2)
+            lyo_proc_param.addWidget(lbl_sac2ncf_detrend_order, 2,0,1,2)
+            lyo_proc_param.addWidget(sb_sac2ncf_detrend_order, 2,2)
+            lyo_proc_param.addWidget(lbl_sac2ncf_dspline, 3,0,1,2)
+            lyo_proc_param.addWidget(le_sac2ncf_dspline, 3,2)
+            lyo_proc_param.setAlignment(Qt.AlignVCenter)
+            lyo_proc_param.setAlignment(Qt.AlignHCenter)
+            lyo_proc_param.setContentsMargins(85,0,75,0)
+            # set UI parameters
+            cmb_sac2ncf_detrend_method.setCurrentIndex(params["cmb_sac2ncf_detrend_method"])
+            sb_sac2ncf_detrend_order.setValue(params["sb_sac2ncf_detrend_order"])
+            le_sac2ncf_dspline.setText(f"{params['le_sac2ncf_dspline']}")
+            # signals ans slots
+            cmb_sac2ncf_detrend_method.currentIndexChanged.connect(lambda: self.update_proc_param_ui(pframe_id))
+            le_sac2ncf_dspline.textChanged.connect(le_sac2ncf_dspline.isfloat)
+
+            # update UI
+            if cmb_sac2ncf_detrend_method.currentIndex() in [2,3]:
+                lbl_sac2ncf_detrend_order.setEnabled(True)
+                sb_sac2ncf_detrend_order.setEnabled(True)
+            else:
+                lbl_sac2ncf_detrend_order.setEnabled(False)
+                sb_sac2ncf_detrend_order.setEnabled(False)
+                
+            if cmb_sac2ncf_detrend_method.currentIndex() == 3:
+                lbl_sac2ncf_dspline.setEnabled(True)
+                le_sac2ncf_dspline.setEnabled(True)
+            else:
+                lbl_sac2ncf_dspline.setEnabled(False)
+                le_sac2ncf_dspline.setEnabled(False)
+        elif pid == [6,1]: # Write headers - Method 1
+            lbl_sac2ncf_stametadir = QLabel("Station metadata dir:")
+            le_sac2ncf_stametadir = MyLineEdit()
+            le_sac2ncf_stametadir.setObjectName("le_sac2ncf_stametadir")
+            le_sac2ncf_stametadir.setPlaceholderText("Full path to station metadata directory")
+            le_sac2ncf_stametadir.isdir()
+            le_sac2ncf_stametadir.textChanged.connect(le_sac2ncf_stametadir.isdir)
+            browse_sac2ncf_stametadir = MyDialog(type=3, lineEditObj=le_sac2ncf_stametadir)
+            # setup layout
+            lyo_proc_param.addWidget(lbl_sac2ncf_stametadir, 0,0)
+            lyo_proc_param.addWidget(le_sac2ncf_stametadir, 0,1)
+            lyo_proc_param.addWidget(browse_sac2ncf_stametadir, 0,2)
+            lyo_proc_param.setAlignment(Qt.AlignVCenter)
+            lyo_proc_param.setAlignment(Qt.AlignHCenter)
+            lyo_proc_param.setContentsMargins(65,0,55,0)
+            # set parameters
+            le_sac2ncf_stametadir.setText(f"{params['le_sac2ncf_stametadir']}")
+        elif pid == [7,1]: # Remove channel - Method 1
             lbl_sac2ncf_similar_channels = QLabel("If all these channels were available:")
             le_sac2ncf_similar_channels = QLineEdit()
             le_sac2ncf_similar_channels.setObjectName("le_sac2ncf_similar_channels")
@@ -1944,7 +2186,7 @@ class SAC2NCF(QWidget):
             # set parameters
             le_sac2ncf_similar_channels.setText(f"{params['le_sac2ncf_similar_channels']}")
             le_sac2ncf_channels2keep.setText(f"{params['le_sac2ncf_channels2keep']}")
-        elif pid == [7,1]: # Spectral whitening - Method 1: SAC: whiten
+        elif pid == [9,1]: # Spectral whitening - Method 1: SAC: whiten
             lbl_sac2ncf_whiten_order = QLabel("Whitening order:")
             sb_sac2ncf_whiten_order = QSpinBox()
             sb_sac2ncf_whiten_order.setObjectName('sb_sac2ncf_whiten_order')
@@ -1959,7 +2201,7 @@ class SAC2NCF(QWidget):
             lyo_proc_param.setContentsMargins(65,0,55,0)
             # set parameters
             sb_sac2ncf_whiten_order.setValue(params['sb_sac2ncf_whiten_order'])
-        elif pid == [6,1] or pid == [8,1]: # Temporal normalization - Method 1 OR Cross-correlate - Method 1
+        elif pid == [8,1] or pid == [10,1]: # Temporal normalization - Method 1 OR Cross-correlate - Method 1
             lbl_sac2ncf_nothing_adjustable = QLabel("No parameter needs to be adjusted for this process")
             lbl_sac2ncf_nothing_adjustable.setObjectName("lbl_sac2ncf_nothing_adjustable")
             lbl_sac2ncf_nothing_adjustable.setStyleSheet("#lbl_sac2ncf_nothing_adjustable{ color: gray;}")
@@ -1968,14 +2210,14 @@ class SAC2NCF(QWidget):
             lbl_sac2ncf_last_process.setStyleSheet("#lbl_sac2ncf_last_process{ color: gray;}")
             # setup layout
             lyo_proc_param.addWidget(lbl_sac2ncf_nothing_adjustable, 0,0)
-            if pid == [8,1]:
+            if pid == [10,1]:
                 lyo_proc_param.addWidget(lbl_sac2ncf_last_process, 1,0)
             lyo_proc_param.setAlignment(Qt.AlignVCenter)
             lyo_proc_param.setAlignment(Qt.AlignHCenter)
             lyo_proc_param.setContentsMargins(65,0,55,0)
 
         # remove next process frames if process type "cross-correlation" is selected
-        if pid == [8,1]:
+        if pid == [10,1]:
             num_procs = self.get_num_procs()
             for  i in range(pframe_id, num_procs-1):
                 self.remove_proc_frame()
@@ -1996,7 +2238,7 @@ class SAC2NCF(QWidget):
             sac2ncf_proc_params["cmb_sac2ncf_final_sf"] = 0
         elif pid == [2,1]: # Remove response - Method 1
             sac2ncf_proc_params["pid"] = [2,1]
-            sac2ncf_proc_params["le_sac2ncf_stametadir"] = os.path.abspath("./metafiles")
+            sac2ncf_proc_params["le_sac2ncf_stametadir"] = os.path.abspath("./metadata")
             sac2ncf_proc_params["cmb_sac2ncf_resp_output"] = 1
             sac2ncf_proc_params["cmb_sac2ncf_resp_prefilter"] = 1
         elif pid == [3,1]: # Bandpass filter - Method 1
@@ -2009,17 +2251,23 @@ class SAC2NCF(QWidget):
             sac2ncf_proc_params["pid"] = [4,1]
             sac2ncf_proc_params["le_sac2ncf_cut_begin"] = ""
             sac2ncf_proc_params["le_sac2ncf_cut_end"] = ""
-        elif pid == [5,1]: # Remove extra channel - Method 1
-            sac2ncf_proc_params["pid"] = [5,1]
+        elif pid == [5,1]: # Detrend - Method 1
+            sac2ncf_proc_params["cmb_sac2ncf_detrend_method"] = 3
+            sac2ncf_proc_params["sb_sac2ncf_detrend_order"] = 4
+            sac2ncf_proc_params["le_sac2ncf_dspline"] = 864000
+        elif pid == [6,1]: # Write headers - Method 1
+            sac2ncf_proc_params["le_sac2ncf_stametadir"] = os.path.abspath("./metadata")
+        elif pid == [7,1]: # Remove extra channel - Method 1
+            sac2ncf_proc_params["pid"] = [7,1]
             sac2ncf_proc_params["le_sac2ncf_similar_channels"] = "BHZ HHZ"
             sac2ncf_proc_params["le_sac2ncf_channels2keep"] = "BHZ"
-        elif pid == [6,1]: # Temporal normalize - Method 1: one-bit
-            sac2ncf_proc_params["pid"] = [6,1]
-        elif pid == [7,1]: # Spectral whitening - Method 1
-            sac2ncf_proc_params["pid"] = [7,1]
-            sac2ncf_proc_params['sb_sac2ncf_whiten_order'] = 6
-        elif pid == [8,1]: # Cross-correlation - Method 1: sac correlate
+        elif pid == [8,1]: # Temporal normalize - Method 1: one-bit
             sac2ncf_proc_params["pid"] = [8,1]
+        elif pid == [9,1]: # Spectral whitening - Method 1
+            sac2ncf_proc_params["pid"] = [9,1]
+            sac2ncf_proc_params['sb_sac2ncf_whiten_order'] = 6
+        elif pid == [10,1]: # Cross-correlation - Method 1: sac correlate
+            sac2ncf_proc_params["pid"] = [10,1]
         return sac2ncf_proc_params
 
 
@@ -2062,12 +2310,22 @@ class SAC2NCF(QWidget):
                     le_sac2ncf_cut_end = proc_param.findChild(MyLineEdit, 'le_sac2ncf_cut_end').text()
                     proc['le_sac2ncf_cut_begin'] = le_sac2ncf_cut_begin
                     proc['le_sac2ncf_cut_end'] = le_sac2ncf_cut_end
-                elif pid == [5,1]: # Remove channel - Method 1
+                elif pid == [5,1]: # Detrend - Method 1
+                    cmb_sac2ncf_detrend_method = proc_param.findChild(QComboBox, 'cmb_sac2ncf_detrend_method').currentIndex()
+                    sb_sac2ncf_detrend_order = proc_param.findChild(QSpinBox, 'sb_sac2ncf_detrend_order').value()
+                    le_sac2ncf_dspline = proc_param.findChild(MyLineEdit, 'le_sac2ncf_dspline').text()
+                    proc["cmb_sac2ncf_detrend_method"] = cmb_sac2ncf_detrend_method
+                    proc["sb_sac2ncf_detrend_order"] = sb_sac2ncf_detrend_order
+                    proc["le_sac2ncf_dspline"] = le_sac2ncf_dspline
+                elif pid == [6,1]: # Write headers - Method 1
+                    le_sac2ncf_stametadir = proc_param.findChild(MyLineEdit, 'le_sac2ncf_stametadir').text()
+                    proc['le_sac2ncf_stametadir'] = le_sac2ncf_stametadir
+                elif pid == [7,1]: # Remove channel - Method 1
                     le_sac2ncf_similar_channels = proc_param.findChild(QLineEdit, 'le_sac2ncf_similar_channels').text()
                     le_sac2ncf_channels2keep = proc_param.findChild(QLineEdit, 'le_sac2ncf_channels2keep').text()
                     proc['le_sac2ncf_similar_channels'] = le_sac2ncf_similar_channels
                     proc['le_sac2ncf_channels2keep'] = le_sac2ncf_channels2keep
-                elif pid == [7,1]: # Spectral whitening
+                elif pid == [9,1]: # Spectral whitening
                     sb_sac2ncf_whiten_order = proc_param.findChild(QSpinBox, 'sb_sac2ncf_whiten_order').value()
                     proc['sb_sac2ncf_whiten_order'] = sb_sac2ncf_whiten_order
                 sac2ncf['sac2ncf_procs'].append(proc)

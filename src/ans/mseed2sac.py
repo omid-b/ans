@@ -42,13 +42,14 @@ def mseed2sac_run_all(maindir, input_mseeds_dir, output_sacs_dir):
                 pid = process['pid']
                 if success and pid == [1,1]:
                     print(f"    Process #{i+1}: MSEED to SAC")
-                    detrend = is_true(process['chb_mseed2sac_detrend'])
                     taper = is_true(process['chb_mseed2sac_taper'])
+                    taper_type = process['cmb_mseed2sac_taper_method']
+                    taper_max_perc = float(process['dsb_mseed2sac_max_taper'])
+                    
+                    detrend = is_true(process['chb_mseed2sac_detrend'])
                     detrend_method = process['cmb_mseed2sac_detrend_method']
                     detrend_order = int(process['sb_mseed2sac_detrend_order'])
                     dspline = int(process['le_mseed2sac_dspline'])
-                    taper_type = process['cmb_mseed2sac_taper_method']
-                    taper_max_perc = float(process['dsb_mseed2sac_max_taper'])
                     
                     if detrend_method == 0:
                         detrend_method = "demean"
@@ -165,8 +166,60 @@ def mseed2sac_run_all(maindir, input_mseeds_dir, output_sacs_dir):
 
                     success = proc.sac_cut_fillz(sacfile, sacfile, cut_begin, cut_end, SAC=SAC)
 
-
                 elif success and pid == [6,1]:
+                    print(f"    Process #{i+1}: Detrend seismograms")
+
+                    detrend_method = process['cmb_mseed2sac_detrend_method']
+                    detrend_order = int(process['sb_mseed2sac_detrend_order'])
+                    dspline = int(process['le_mseed2sac_dspline'])
+                    
+                    if detrend_method == 0:
+                        detrend_method = "demean"
+                    elif detrend_method == 1:
+                        detrend_method = "linear"
+                    elif detrend_method == 2:
+                        detrend_method = "polynomial"
+                    elif detrend_method == 3:
+                        detrend_method = "spline"
+
+
+                    success = proc.sac_detrend(sacfile, sacfile,
+                              detrend_method=detrend_method, detrend_order=detrend_order, dspline=dspline)
+
+                elif success and pid == [7,1]:
+                    print(f"    Process #{i+1}: Write SAC headers")
+
+                    xmldir = process['le_mseed2sac_stametadir']
+                    xmldir_2 = os.path.join(maindir, 'mseeds', get_event_name(mseed))
+
+                    st = obspy.read(sacfile, headonly=True)
+                    net = st[0].stats.network
+                    sta = st[0].stats.station
+                    chn = st[0].stats.channel
+                    xml_fname = f"{net}.{sta}.{chn}"
+                    if os.path.isfile(os.path.join(xmldir, xml_fname)):
+                        xml_file = os.path.join(xmldir, xml_fname)
+                    elif os.path.isfile(os.path.join(xmldir_2, xml_fname)):
+                        xml_file = os.path.join(xmldir_2, xml_fname)
+                    else:
+                        print(f"    Error! Meta data was not found: {xml_fname}")
+                        success = False
+                        continue
+
+                    inv = obspy.read_inventory(xml_file)
+                    headers = {}
+                    headers['knetwk'] = inv[0].code.split()[0]
+                    headers['kstnm'] = inv[0][0].code.split()[0]
+                    headers['kcmpnm'] = inv[0][0][0].code.split()[0]
+                    headers['stla'] = float(inv[0][0].latitude)
+                    headers['stlo'] = float(inv[0][0].longitude)
+                    headers['stel'] = float(inv[0][0].elevation)
+                    headers['cmpaz'] = float(inv[0][0][0].azimuth)
+                    headers['cmpinc'] = float(inv[0][0][0].dip)+90
+
+                    success = proc.write_sac_headers(sacfile, headers, SAC=SAC)
+
+                elif success and pid == [8,1]:
                     print(f"    Process #{i+1}: Remove extra channels")
 
                     event_folder = os.path.join(output_sacs_dir, get_event_name(mseed))

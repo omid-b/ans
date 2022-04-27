@@ -32,7 +32,7 @@ def download_stations(maindir):
     print(f"  #Stations: {nsta}\n\nDone!\n")
 
 
-def download_metafiles(maindir):
+def download_metadata(maindir):
     maindir = os.path.abspath(maindir)
     if not os.path.isdir(os.path.join(maindir, '.ans')):
         os.mkdir(os.path.join(maindir, '.ans'))
@@ -256,10 +256,10 @@ class STATIONS:
         stalist = self.read_stalist()
         download_list = self.gen_download_list(stalist)
         PERL = self.conf['setting']['le_perl']
-        # make metafilesdir
-        metafilesdir = self.conf['download']['le_stameta']
-        if not os.path.isdir(metafilesdir):
-            os.mkdir(metafilesdir)
+        # make metadatadir
+        metadatadir = self.conf['download']['le_stameta']
+        if not os.path.isdir(metadatadir):
+            os.mkdir(metadatadir)
 
         # start downloading
         starttime = f"{dates[0]},00:00:00"
@@ -270,7 +270,7 @@ class STATIONS:
             for j, netsta in enumerate(download_list[i]):
                 net = netsta.split('.')[0]
                 sta = netsta.split('.')[1]
-                outfile = os.path.join(metafilesdir, f"{net}.{sta}.{chn}")
+                outfile = os.path.join(metadatadir, f"{net}.{sta}.{chn}")
                 bash_cmd = f"{PERL} {fetch_data_script} -S {sta} -N {net} -C {chn} -s {starttime} -e {endtime} -X {outfile} -q\n"
                 print(f" meta data ({j+1} of {len(download_list[i])}):  {net}.{sta}.{chn}")
                 subprocess.call(bash_cmd, shell=True)
@@ -283,7 +283,7 @@ class STATIONS:
         dates = self.get_dates()
         region_lat = self.get_latitudes()
         region_lon = self.get_longitude()
-        metafilesdir = self.conf['download']['le_stameta']
+        metadatadir = self.conf['download']['le_stameta']
         download_list = [[] for i in range(len(channels))]
         for k, chn in enumerate(channels):
             for datacenter in datacenters:

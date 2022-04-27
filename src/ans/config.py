@@ -41,7 +41,8 @@ integer_params = ["chb_dc_service_iris_edu","chb_dc_service_ncedc_org","chb_dc_s
                   "cmb_sac2ncf_final_sf","cmb_sac2ncf_resp_output","cmb_sac2ncf_resp_prefilter",
                   "sb_sac2ncf_bp_poles","sb_sac2ncf_bp_passes", "le_sac2ncf_dspline", "sb_sac2ncf_whiten_order",
                   "chb_ncf2egf_symmetrize", "chb_ncf2egf_cut", "chb_ncf2egf_bp",
-                  "sb_ncf2egf_bp_poles", "sb_ncf2egf_bp_passes"]
+                  "sb_ncf2egf_bp_poles", "sb_ncf2egf_bp_passes",
+                  "cmb_sac2ncf_detrend_method", "sb_sac2ncf_detrend_order"]
 
 float_params = ["dsb_mseed2sac_max_taper", "le_minlat","le_maxlat","le_minlon","le_maxlon",
                 "le_mseed2sac_bp_cp1", "le_mseed2sac_bp_cp2", "le_sac2ncf_bp_cp1", "le_sac2ncf_bp_cp2",
@@ -315,7 +316,7 @@ class Defaults:
         download['chb_dc_auspass_edu_au'] = 0
         # download setting
         download['le_stalist'] = os.path.join(self.maindir, 'stations.dat')
-        download['le_stameta'] = os.path.join(self.maindir, 'metafiles')
+        download['le_stameta'] = os.path.join(self.maindir, 'metadata')
         download['le_mseeds'] = os.path.join(self.maindir, 'mseeds')
         download['le_stalocs'] = "00 10"
         download['le_stachns'] = "BHZ HHZ"
@@ -346,12 +347,12 @@ class Defaults:
         # process 3 
         mseed2sac_proc_3 = {}
         mseed2sac_proc_3['pid'] = [3,1] # Remove response
-        mseed2sac_proc_3['le_mseed2sac_stametadir'] = os.path.join(self.maindir, 'metafiles')
+        mseed2sac_proc_3['le_mseed2sac_stametadir'] = os.path.join(self.maindir, 'metadata')
         mseed2sac_proc_3['cmb_mseed2sac_resp_output'] = 1 # velocity
         mseed2sac_proc_3['cmb_mseed2sac_resp_prefilter'] = 1 # [0.001, 0.005, 45, 50]
         # process 4
         mseed2sac_proc_4 = {}
-        mseed2sac_proc_4['pid'] = [6,1] # Remove channel
+        mseed2sac_proc_4['pid'] = [8,1] # Remove channel
         mseed2sac_proc_4['le_mseed2sac_similar_channels'] = "BHZ HHZ"
         mseed2sac_proc_4['le_mseed2sac_channels2keep'] = "BHZ"
         # append processes to the list
@@ -366,14 +367,14 @@ class Defaults:
         sac2ncf['sac2ncf_procs'] = []
         # process 1: Temporal normalize
         sac2ncf_proc_1 = {}
-        sac2ncf_proc_1['pid'] = [6,1]
+        sac2ncf_proc_1['pid'] = [8,1]
         # process 2 
         sac2ncf_proc_2 = {}
-        sac2ncf_proc_2['pid'] = [7,1]
+        sac2ncf_proc_2['pid'] = [9,1]
         sac2ncf_proc_2['sb_sac2ncf_whiten_order'] = 6
         # process 3 
         sac2ncf_proc_3 = {}
-        sac2ncf_proc_3['pid'] = [8,1]
+        sac2ncf_proc_3['pid'] = [10,1]
         # append processes to the list
         sac2ncf['sac2ncf_procs'].append(sac2ncf_proc_1)
         sac2ncf['sac2ncf_procs'].append(sac2ncf_proc_2)

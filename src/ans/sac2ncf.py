@@ -149,6 +149,56 @@ def sac2ncf_run_all(maindir, input_sacs_dir, output_ncfs_dir):
                         os.remove(sacfile)
 
                 elif success and pid == [5,1]:
+                    print(f"    Process #{i+1}: Detrend seismograms")
+
+                    detrend_method = process['cmb_sac2ncf_detrend_method']
+                    detrend_order = int(process['sb_sac2ncf_detrend_order'])
+                    dspline = int(process['le_sac2ncf_dspline'])
+                    
+                    if detrend_method == 0:
+                        detrend_method = "demean"
+                    elif detrend_method == 1:
+                        detrend_method = "linear"
+                    elif detrend_method == 2:
+                        detrend_method = "polynomial"
+                    elif detrend_method == 3:
+                        detrend_method = "spline"
+
+
+                    success = proc.sac_detrend(sacfile, sacfile,
+                              detrend_method=detrend_method, detrend_order=detrend_order, dspline=dspline)
+
+                elif success and pid == [6,1]:
+                    print(f"    Process #{i+1}: Write SAC headers")
+
+                    xmldir = process['le_sac2ncf_stametadir']
+
+                    st = obspy.read(sacfile, headonly=True)
+                    net = st[0].stats.network
+                    sta = st[0].stats.station
+                    chn = st[0].stats.channel
+                    xml_fname = f"{net}.{sta}.{chn}"
+                    if os.path.isfile(os.path.join(xmldir, xml_fname)):
+                        xml_file = os.path.join(xmldir, xml_fname)
+                    else:
+                        print(f"    Error! Meta data was not found: {xml_fname}")
+                        success = False
+                        continue
+
+                    inv = obspy.read_inventory(xml_file)
+                    headers = {}
+                    headers['knetwk'] = inv[0].code.split()[0]
+                    headers['kstnm'] = inv[0][0].code.split()[0]
+                    headers['kcmpnm'] = inv[0][0][0].code.split()[0]
+                    headers['stla'] = float(inv[0][0].latitude)
+                    headers['stlo'] = float(inv[0][0].longitude)
+                    headers['stel'] = float(inv[0][0].elevation)
+                    headers['cmpaz'] = float(inv[0][0][0].azimuth)
+                    headers['cmpinc'] = float(inv[0][0][0].dip)+90
+
+                    success = proc.write_sac_headers(sacfile, headers, SAC=SAC)
+
+                elif success and pid == [7,1]:
                     print(f"    Process #{i+1}: Remove extra channels")
 
                     similar_channels = process['le_sac2ncf_similar_channels'].split()
@@ -158,7 +208,7 @@ def sac2ncf_run_all(maindir, input_sacs_dir, output_ncfs_dir):
                                                    similar_channels=similar_channels,
                                                    channels2keep=channels2keep)
 
-                elif success and pid == [6,1]:
+                elif success and pid == [8,1]:
                     print(f"    Process #{i+1}: One-bit normalization")
 
                     success = proc.sac_one_bit_normalize(sacfile, sacfile, SAC=SAC)
@@ -166,7 +216,7 @@ def sac2ncf_run_all(maindir, input_sacs_dir, output_ncfs_dir):
                     if not success and os.path.isfile(sacfile):
                         os.remove(sacfile)
 
-                elif success and pid == [7,1]:
+                elif success and pid == [9,1]:
                     print(f"    Process #{i+1}: Spectral whitening")
 
                     whiten_order = int(process['sb_sac2ncf_whiten_order'])
@@ -174,7 +224,7 @@ def sac2ncf_run_all(maindir, input_sacs_dir, output_ncfs_dir):
 
                     if not success and os.path.isfile(sacfile):
                         os.remove(sacfile)
-                elif success and pid == [8,1]:
+                elif success and pid == [10,1]:
                     proc_id_xcorr = i+1
                     xcorr =True
 
@@ -188,10 +238,10 @@ def sac2ncf_run_all(maindir, input_sacs_dir, output_ncfs_dir):
             # remove extra sac files
             sac_files = get_event_sacs(out_event)
             event_RTZs = get_event_RTZs(out_event)
-            for sac_file in sac_files:
-                os.remove(os.path.join(out_event, sac_file))
-            for rtz in event_RTZs:
-                os.remove(os.path.join(out_event, rtz))
+            # for sac_file in sac_files:
+            #     os.remove(os.path.join(out_event, sac_file))
+            # for rtz in event_RTZs:
+            #     os.remove(os.path.join(out_event, rtz))
 
 
     print("\nDone!\n")
@@ -323,6 +373,7 @@ def generate_xcorr_RTZ_files(event_dir, SAC='/usr/local/sac/bin/sac'):
                 sta1_stla = float(st_sta1[0].stats.sac.stla)
                 sta1_stlo = float(st_sta1[0].stats.sac.stlo)
                 sta1_stel = float(st_sta1[0].stats.sac.stel)
+
                 sta2_stla = float(st_sta2[0].stats.sac.stla)
                 sta2_stlo = float(st_sta2[0].stats.sac.stlo)
                 sta2_stel = float(st_sta2[0].stats.sac.stel)
@@ -396,6 +447,7 @@ def generate_xcorr_RTZ_files(event_dir, SAC='/usr/local/sac/bin/sac'):
                 sta1_stla = float(st_sta1[0].stats.sac.stla)
                 sta1_stlo = float(st_sta1[0].stats.sac.stlo)
                 sta1_stel = float(st_sta1[0].stats.sac.stel)
+                
                 sta2_stla = float(st_sta2[0].stats.sac.stla)
                 sta2_stlo = float(st_sta2[0].stats.sac.stlo)
                 sta2_stel = float(st_sta2[0].stats.sac.stel)
