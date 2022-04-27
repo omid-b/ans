@@ -1304,7 +1304,7 @@ class MSEED2SAC(QWidget):
             cmb_mseed2sac_resp_prefilter.setEditable(True)
             cmb_mseed2sac_resp_prefilter.lineEdit().setAlignment(Qt.AlignCenter)
             cmb_mseed2sac_resp_prefilter.addItem("None")
-            cmb_mseed2sac_resp_prefilter.addItem("[0.001, 0.005, 45, 50]")
+            cmb_mseed2sac_resp_prefilter.addItem("(0.005, 0.006, 30.0, 35.0)")
             # setup layout
             lyo_proc_param.addWidget(lbl_mseed2sac_stametadir, 0,0)
             lyo_proc_param.addWidget(le_mseed2sac_stametadir, 0,1)

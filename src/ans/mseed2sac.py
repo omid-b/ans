@@ -122,7 +122,7 @@ def mseed2sac_run_all(maindir, input_mseeds_dir, output_sacs_dir):
                     if prefilter == 0:
                         prefilter = None
                     elif prefilter == 1:
-                        prefilter = [0.001, 0.005, 45, 50]
+                        prefilter = (0.005, 0.006, 30.0, 35.0)
 
                     st = obspy.read(sacfile, headonly=True)
                     net = st[0].stats.network

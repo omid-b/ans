@@ -152,11 +152,11 @@ def sac_decimate(input_sacfile, output_sacfile, final_sampling_freq,
         subprocess.call(shell_cmd, shell=True)
         
         # check the output file
-        st = obspy.read(output_sacfile, format="SAC", headonly=True)
-        if float(st[0].stats.sampling_rate) == float(final_sampling_freq):
-            return True
-        else:
-            return False
+        # st = obspy.read(output_sacfile, format="SAC", headonly=True)
+        # if not float(st[0].stats.sampling_rate) == float(final_sampling_freq):
+        #     return False
+
+        return True
 
     except Exception as e:
         return False
@@ -187,7 +187,7 @@ def obspy_decimate(input_sacfile, output_sacfile, final_sampling_freq, SAC='/usr
 
 
 def sac_remove_response(input_sacfile, output_sacfile, xml_file,
-    unit='VEL', prefilter=[0.001, 0.005, 45, 50], SAC='/usr/local/sac/bin/sac', update_headers=True):
+    unit='VEL', prefilter=(0.005, 0.006, 30.0, 35.0), SAC='/usr/local/sac/bin/sac', update_headers=True):
     try:
         inv = obspy.read_inventory(xml_file)
         st = obspy.read(input_sacfile)
