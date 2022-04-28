@@ -14,6 +14,7 @@ from . import mseed2sac
 from . import sac2ncf
 
 # global variables
+# version 0.0.1 >> EGFs from zero to hero!
 version = "0.0.1"
 about = "ANS: ambient noise seismology, is a python wrapper \
 for a selection of ambient noise seismology codes and procedures. \
@@ -64,9 +65,8 @@ def main():
     init_cmd.add_argument(
         type=str,
         dest='maindir',
-        help='path to the main project directory (default=".")',
-        action='store',
-        default='.'
+        help='path to the main project directory',
+        action='store'
     )
     # MODULE 2: config
     config_cmd = commands.add_parser('config', help='configure project settings',

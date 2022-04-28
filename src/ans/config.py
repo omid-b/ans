@@ -54,7 +54,7 @@ intlist_params = ["pid"]
 
 def read_config(maindir):
     maindir = os.path.abspath(maindir)
-    config_file = os.path.join(maindir, 'ans.conf')
+    config_file = os.path.join(maindir, 'ans.config')
     try:
         config = configparser.ConfigParser()
         config.read(config_file)
@@ -62,7 +62,7 @@ def read_config(maindir):
         print(f"Error reading config file!\n{e}\n")
         return False
     if not os.path.isfile(config_file):
-        print("Error! Could not find 'ans.conf' in project directory.\n")
+        print("Error! Could not find 'ans.config' in project directory.\n")
         exit(1)
     # all main sections available?
     for section in ["setting","download","mseed2sac"]:
@@ -175,7 +175,7 @@ def read_config(maindir):
 
 def write_config(maindir, parameters):
     maindir = os.path.abspath(maindir)
-    config_file = os.path.join(maindir, 'ans.conf')
+    config_file = os.path.join(maindir, 'ans.config')
     if not parameters:
         return False
     fopen = open(config_file, "w") 

@@ -224,11 +224,22 @@ def sac_remove_response(input_sacfile, output_sacfile, xml_file,
             headers['knetwk'] = inv[0].code.split()[0]
             headers['kstnm'] = inv[0][0].code.split()[0]
             headers['kcmpnm'] = inv[0][0][0].code.split()[0]
-            headers['stla'] = np.float(inv[0][0].latitude)
-            headers['stlo'] = np.float(inv[0][0].longitude)
-            headers['stel'] = np.float(inv[0][0].elevation)
-            headers['cmpaz'] = np.float(inv[0][0][0].azimuth)
-            headers['cmpinc'] = np.float(inv[0][0][0].dip)+90
+            headers['stla'] = float(inv[0][0].latitude)
+            headers['stlo'] = float(inv[0][0].longitude)
+            headers['stel'] = float(inv[0][0].elevation)
+            cmpaz = float(inv[0][0][0].azimuth)
+            if cmpaz >= 350 or cmpaz <= 10:
+                cmpaz = 0.0
+            elif cmpaz >= 80 or cmpaz <= 100:
+                cmpaz = 90.0
+
+            cmpinc = float(inv[0][0][0].dip)+90
+            if cmpinc <= 10:
+                cmpinc = 0.0
+            elif cmpinc >= 80 or cmpinc <= 100:
+                cmpinc = 90.0
+            headers['cmpaz'] = cmpaz
+            headers['cmpinc'] = cmpinc
             write_sac_headers(output_sacfile, headers, SAC=SAC)
         return True
     except Exception as e:

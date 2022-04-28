@@ -2823,12 +2823,12 @@ class MainWindow(QMainWindow):
         self.btn_revert.clicked.connect(self.revert_button)
 
         #### EXTRA STEPS BEFORE RUNNIG THE APP ####
-        input_config = os.path.join(self.maindir,'ans.conf')
+        input_config = os.path.join(self.maindir,'ans.config')
         if os.path.isfile(input_config):
             parameters = config.read_config(self.maindir)
             self.set_UI_parameters(parameters)
         else:
-            print(f"\nError! Could not find 'ans.conf' in project directory.\n")
+            print(f"\nError! Could not find 'ans.config' in project directory.\n")
             sys.exit(0)
         
         # hide terminal button (for the first versions)
