@@ -11,9 +11,8 @@ from . import proc
 
 regex_events = re.compile('^[1-2][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]$')
 regex_sacs = re.compile('^[1-2][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]\_.*\..*$')
-regex_xcorr_PPH = re.compile('^.*\_.*\.(PP)(N|E)$') # xcorr preprocessing files: horizontal components
 regex_xcorr_RTZ = re.compile('^.*\_.*\.(R|T|Z)$') # xcorr, R, T, and Z components
-
+regex_xcorr = re.compile('^.*\_.*\.(RR|TT|ZZ)$')
 
 def sac2ncf_run_all(maindir, input_sacs_dir, output_ncfs_dir):
     input_sacs_dir = os.path.abspath(input_sacs_dir)
@@ -232,16 +231,9 @@ def sac2ncf_run_all(maindir, input_sacs_dir, output_ncfs_dir):
             print(f"\nProcess #{proc_id_xcorr}: Cross-correlation; Event dir: '{event}'\n")
 
             generate_xcorr_RTZ_files(out_event, SAC=SAC)
-
             perform_xcorr_RTZ(out_event, SAC=SAC)
-
-            # remove extra sac files
-            sac_files = get_event_sacs(out_event)
-            event_RTZs = get_event_RTZs(out_event)
-            # for sac_file in sac_files:
-            #     os.remove(os.path.join(out_event, sac_file))
-            # for rtz in event_RTZs:
-            #     os.remove(os.path.join(out_event, rtz))
+            # remove extra files after cross-correlation
+            remove_all_files_except_regex(out_event, regex_xcorr)
 
 
     print("\nDone!\n")
@@ -274,7 +266,21 @@ def perform_xcorr_RTZ(event_dir, SAC='/usr/local/sac/bin/sac'):
             shell_cmd.append('EOF')
             shell_cmd = '\n'.join(shell_cmd)
             subprocess.call(shell_cmd, shell=True)
-            os.remove(tempsac)
+            # update headers
+            st1 = obspy.read(sta1_sta2_R, format="SAC", headonly=True)
+            st2 = obspy.read(sta2_sta1_R, format="SAC", headonly=True)
+            headers = {}
+            headers['stla'] = f"{st2[0].stats.sac.stla}"
+            headers['stlo'] = f"{st2[0].stats.sac.stlo}"
+            headers['stel'] = f"{st2[0].stats.sac.stel}"
+            headers['evla'] = f"{st1[0].stats.sac.stla}"
+            headers['evlo'] = f"{st1[0].stats.sac.stlo}"
+            headers['evel'] = f"{st1[0].stats.sac.stel}"
+            headers['kstnm'] = f"{st1[0].stats.sac.kstnm[0:3]}-{st2[0].stats.sac.kstnm[0:3]}"
+            headers['knetwk'] = f"{st1[0].stats.sac.knetwk}-{st2[0].stats.sac.knetwk}"
+            headers['kcmpnm'] = "RR"
+            headers['kevnm'] = f"{st1[0].stats.sac.kstnm}_{st2[0].stats.sac.kstnm}_RR"
+            proc.write_sac_headers(sta1_sta2_RR, headers, SAC=SAC)
 
         # TT
         if os.path.isfile(sta1_sta2_T) and os.path.isfile(sta2_sta1_T):
@@ -286,7 +292,21 @@ def perform_xcorr_RTZ(event_dir, SAC='/usr/local/sac/bin/sac'):
             shell_cmd.append('EOF')
             shell_cmd = '\n'.join(shell_cmd)
             subprocess.call(shell_cmd, shell=True)
-            os.remove(tempsac)
+            # update headers
+            st1 = obspy.read(sta1_sta2_T, format="SAC", headonly=True)
+            st2 = obspy.read(sta2_sta1_T, format="SAC", headonly=True)
+            headers = {}
+            headers['stla'] = f"{st2[0].stats.sac.stla}"
+            headers['stlo'] = f"{st2[0].stats.sac.stlo}"
+            headers['stel'] = f"{st2[0].stats.sac.stel}"
+            headers['evla'] = f"{st1[0].stats.sac.stla}"
+            headers['evlo'] = f"{st1[0].stats.sac.stlo}"
+            headers['evel'] = f"{st1[0].stats.sac.stel}"
+            headers['kstnm'] = f"{st1[0].stats.sac.kstnm[0:3]}-{st2[0].stats.sac.kstnm[0:3]}"
+            headers['knetwk'] = f"{st1[0].stats.sac.knetwk}-{st2[0].stats.sac.knetwk}"
+            headers['kcmpnm'] = "TT"
+            headers['kevnm'] = f"{st1[0].stats.sac.kstnm}_{st2[0].stats.sac.kstnm}_TT"
+            proc.write_sac_headers(sta1_sta2_TT, headers, SAC=SAC)
 
         # ZZ
         if os.path.isfile(sta1_sta2_Z) and os.path.isfile(sta2_sta1_Z):
@@ -298,7 +318,21 @@ def perform_xcorr_RTZ(event_dir, SAC='/usr/local/sac/bin/sac'):
             shell_cmd.append('EOF')
             shell_cmd = '\n'.join(shell_cmd)
             subprocess.call(shell_cmd, shell=True)
-            os.remove(tempsac)
+            # update headers
+            st1 = obspy.read(sta1_sta2_Z, format="SAC", headonly=True)
+            st2 = obspy.read(sta2_sta1_Z, format="SAC", headonly=True)
+            headers = {}
+            headers['stla'] = f"{st2[0].stats.sac.stla}"
+            headers['stlo'] = f"{st2[0].stats.sac.stlo}"
+            headers['stel'] = f"{st2[0].stats.sac.stel}"
+            headers['evla'] = f"{st1[0].stats.sac.stla}"
+            headers['evlo'] = f"{st1[0].stats.sac.stlo}"
+            headers['evel'] = f"{st1[0].stats.sac.stel}"
+            headers['kstnm'] = f"{st1[0].stats.sac.kstnm[0:3]}-{st2[0].stats.sac.kstnm[0:3]}"
+            headers['knetwk'] = f"{st1[0].stats.sac.knetwk}-{st2[0].stats.sac.knetwk}"
+            headers['kcmpnm'] = "ZZ"
+            headers['kevnm'] = f"{st1[0].stats.sac.kstnm}_{st2[0].stats.sac.kstnm}_ZZ"
+            proc.write_sac_headers(sta1_sta2_ZZ, headers, SAC=SAC)
 
 
 
@@ -500,8 +534,6 @@ def generate_xcorr_RTZ_files(event_dir, SAC='/usr/local/sac/bin/sac'):
             shell_cmd.append('EOF')
             shell_cmd = '\n'.join(shell_cmd)
             subprocess.call(shell_cmd, shell=True)
-            os.remove(sta1_sta2_PPN)
-            os.remove(sta1_sta2_PPE)
 
         # sta2_sta1
         sta2_sta1_PPN = os.path.join(event_dir, f"{sta_pair[1]}_{sta_pair[0]}.PPN")
@@ -517,11 +549,6 @@ def generate_xcorr_RTZ_files(event_dir, SAC='/usr/local/sac/bin/sac'):
             shell_cmd.append('EOF')
             shell_cmd = '\n'.join(shell_cmd)
             subprocess.call(shell_cmd, shell=True)
-            os.remove(sta2_sta1_PPN)
-            os.remove(sta2_sta1_PPE)
-
-
-
     
 
 
@@ -560,8 +587,8 @@ def copy_event(src_event, dst_event):
         shutil.copyfile(src_sac, dst_sac)
 
 
-def remove_event_sacs(event_dir):
-    sac_files = get_event_sacs(event_dir)
-    for sac_file in sac_files:
-        os.remove(os.path.join(event_dir, sac_file))
+def remove_all_files_except_regex(directory, regex):
+    for f in os.listdir(directory):
+        if not regex.match(f):
+            os.remove(os.path.join(directory, f))
 
