@@ -136,6 +136,11 @@ def main():
         action='store',
     )
     mseed2sac_cmd.add_argument(
+        '--all',
+        help='output all and ignore station list',
+        action='store_true',
+    )
+    mseed2sac_cmd.add_argument(
         '--maindir',
         type=str,
         help='path to the main project directory (default=".")',
@@ -156,6 +161,11 @@ def main():
         type=str,
         help='path to the output NCF files dataset directory',
         action='store',
+    )
+    sac2ncf_cmd.add_argument(
+        '--all',
+        help='output all and ignore station list',
+        action='store_true',
     )
     sac2ncf_cmd.add_argument(
         '--maindir',
@@ -206,10 +216,10 @@ def main():
             download.download_mseeds(args.maindir)
     # mseed2sac
     if args.command == 'mseed2sac':
-        mseed2sac.mseed2sac_run_all(args.maindir, args.mseeds_dir, args.sacs_dir)
+        mseed2sac.mseed2sac_run_all(args.maindir, args.mseeds_dir, args.sacs_dir, args.all)
     # sac2ncf
     if args.command == 'sac2ncf':
-        sac2ncf.sac2ncf_run_all(args.maindir, args.sacs_dir, args.ncfs_dir)
+        sac2ncf.sac2ncf_run_all(args.maindir, args.sacs_dir, args.ncfs_dir, args.all)
     # ncf2egf
     if args.command == 'ncf2egf':
         print(dev)

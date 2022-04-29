@@ -350,16 +350,10 @@ class Defaults:
         mseed2sac_proc_3['le_mseed2sac_stametadir'] = os.path.join(self.maindir, 'metadata')
         mseed2sac_proc_3['cmb_mseed2sac_resp_output'] = 1 # velocity
         mseed2sac_proc_3['cmb_mseed2sac_resp_prefilter'] = 1 # [0.001, 0.005, 45, 50]
-        # process 4
-        mseed2sac_proc_4 = {}
-        mseed2sac_proc_4['pid'] = [8,1] # Remove channel
-        mseed2sac_proc_4['le_mseed2sac_similar_channels'] = "BHZ HHZ"
-        mseed2sac_proc_4['le_mseed2sac_channels2keep'] = "BHZ"
         # append processes to the list
         mseed2sac['mseed2sac_procs'].append(mseed2sac_proc_1)
         mseed2sac['mseed2sac_procs'].append(mseed2sac_proc_2)
         mseed2sac['mseed2sac_procs'].append(mseed2sac_proc_3)
-        mseed2sac['mseed2sac_procs'].append(mseed2sac_proc_4)
         return mseed2sac
 
     def sac2ncf(self):

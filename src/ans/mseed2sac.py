@@ -5,6 +5,7 @@ import re
 import shutil
 from . import config
 from . import proc
+from . import download
 
 #==== MAIN FUNCTION ====#
 
@@ -12,7 +13,7 @@ regex_mseeds = re.compile('^.*[1-2][0-9][0-9][0-9][0-1][0-9][0-3][0-9]T[0-2][0-9
 regex_events = re.compile('^[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]$')
 
 
-def mseed2sac_run_all(maindir, input_mseeds_dir, output_sacs_dir):
+def mseed2sac_run_all(maindir, input_mseeds_dir, output_sacs_dir, all=True):
     conf = config.read_config(maindir)
     SAC = conf['setting']['le_sac']
     if not os.path.isfile(SAC):
@@ -23,9 +24,10 @@ def mseed2sac_run_all(maindir, input_mseeds_dir, output_sacs_dir):
     if not os.path.isdir(output_sacs_dir):
         os.mkdir(output_sacs_dir)
 
-    # shutil.rmtree(output_sacs_dir) # REMOVE LATER!!!!!!!!!!!!!!
-
     mseeds = generate_mseed_list(input_mseeds_dir)
+
+    stations = download.STATIONS(maindir)
+    stalist = stations.read_stalist()
 
     num_outputs = 0
     num_deleted = 0
@@ -35,6 +37,10 @@ def mseed2sac_run_all(maindir, input_mseeds_dir, output_sacs_dir):
             os.mkdir(os.path.join(output_sacs_dir, event_name))
 
         sacfile = os.path.join(output_sacs_dir, event_name, get_sac_name(mseed))
+        sacfile_staname = get_sac_name(mseed).split('.')[0].split('_')[1]
+        if all == False and sacfile_staname not in stalist['sta']:
+            continue
+            
         if not os.path.isfile(sacfile):
             print(f"\nsac file: {os.path.split(sacfile)[1]}")
             success = True

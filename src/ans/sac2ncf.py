@@ -6,6 +6,7 @@ import shutil
 import subprocess
 from . import config
 from . import proc
+from . import download
 
 #==== MAIN FUNCTION ====#
 
@@ -14,11 +15,14 @@ regex_sacs = re.compile('^[1-2][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9
 regex_xcorr_RTZ = re.compile('^.*\_.*\.(R|T|Z)$') # xcorr, R, T, and Z components
 regex_xcorr = re.compile('^.*\_.*\.(RR|TT|ZZ)$')
 
-def sac2ncf_run_all(maindir, input_sacs_dir, output_ncfs_dir):
+def sac2ncf_run_all(maindir, input_sacs_dir, output_ncfs_dir, all=True):
     input_sacs_dir = os.path.abspath(input_sacs_dir)
     output_ncfs_dir = os.path.abspath(output_ncfs_dir)
     conf = config.read_config(maindir)
     SAC = conf['setting']['le_sac']
+
+    stations = download.STATIONS(maindir)
+    stalist = stations.read_stalist()
 
     if not os.path.isdir(output_ncfs_dir):
         os.mkdir(output_ncfs_dir)
@@ -30,6 +34,10 @@ def sac2ncf_run_all(maindir, input_sacs_dir, output_ncfs_dir):
         out_event = os.path.join(output_ncfs_dir, event)
         copy_event(inp_event, out_event)
         for sacfile in get_event_sacs(out_event):
+            sacfile_staname = sacfile.split('.')[0].split('_')[1]
+            if all == False and sacfile_staname not in stalist['sta']:
+                continue
+
             print(f"\nsac file: {sacfile}")
             sacfile = os.path.join(out_event, sacfile)
             success = True
