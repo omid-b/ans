@@ -32,12 +32,42 @@ def download_stations(maindir):
     print(f"  #Stations: {nsta}\n\nDone!\n")
 
 
-def download_metadata(maindir):
+def download_metadata(maindir,update_stations=False):
     maindir = os.path.abspath(maindir)
     if not os.path.isdir(os.path.join(maindir, '.ans')):
         os.mkdir(os.path.join(maindir, '.ans'))
     stations = STATIONS(maindir) 
     stations.download_xml_files()
+    if update_stations:
+        conf = config.read_config(maindir)
+        metadatadir = conf['download']['le_stameta']
+        datacenters = stations.get_datacenters()
+        current_stalist = stations.read_stalist()
+        new_stalist = {
+        'net':[],
+        'sta':[],
+        'lat':[],
+        'lon':[],
+        'elv':[],
+        'site':[],
+        'start':[],
+        'end':[]
+        }
+        xml_list_sta = []
+        for xml in sorted(os.listdir(metadatadir)):
+            xml_list_sta.append(xml.split('.')[1])
+        for i, sta in enumerate(current_stalist['sta']):
+            if sta in xml_list_sta:
+                new_stalist['net'].append(current_stalist['net'][i])
+                new_stalist['sta'].append(current_stalist['sta'][i])
+                new_stalist['lat'].append(current_stalist['lat'][i])
+                new_stalist['lon'].append(current_stalist['lon'][i])
+                new_stalist['elv'].append(current_stalist['elv'][i])
+                new_stalist['site'].append(current_stalist['site'][i])
+                new_stalist['start'].append(current_stalist['start'][i])
+                new_stalist['end'].append(current_stalist['end'][i])
+        stations.write_stalist(new_stalist, datacenters)
+
     print("\nDone!\n")
 
 
@@ -272,7 +302,7 @@ class STATIONS:
                 sta = netsta.split('.')[1]
                 outfile = os.path.join(metadatadir, f"{net}.{sta}.{chn}")
                 bash_cmd = f"{PERL} {fetch_data_script} -S {sta} -N {net} -C {chn} -s {starttime} -e {endtime} -X {outfile} -q\n"
-                print(f" meta data ({j+1} of {len(download_list[i])}):  {net}.{sta}.{chn}")
+                print(f" metadata ({j+1} of {len(download_list[i])}):  {net}.{sta}.{chn}")
                 subprocess.call(bash_cmd, shell=True)
 
 

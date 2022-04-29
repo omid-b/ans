@@ -106,6 +106,12 @@ def main():
         action='store',
         default='.'
     )
+    download_metadata.add_argument(
+        '--update_stations',
+        help='update the list of stations based on the content of metadata directory after download',
+        action='store_true',
+        default=False
+    )
     download_mseeds.add_argument(
         '--maindir',
         type=str,
@@ -136,16 +142,16 @@ def main():
         action='store',
     )
     mseed2sac_cmd.add_argument(
-        '--all',
-        help='output all and ignore station list',
-        action='store_true',
-    )
-    mseed2sac_cmd.add_argument(
         '--maindir',
         type=str,
         help='path to the main project directory (default=".")',
         action='store',
         default='.'
+    )
+    mseed2sac_cmd.add_argument(
+        '--all',
+        help='output all and ignore station list',
+        action='store_true',
     )
     # MODULE 5: sac2ncf
     sac2ncf_cmd = commands.add_parser('sac2ncf', help='sac2ncf processes module',
@@ -163,16 +169,16 @@ def main():
         action='store',
     )
     sac2ncf_cmd.add_argument(
-        '--all',
-        help='output all and ignore station list',
-        action='store_true',
-    )
-    sac2ncf_cmd.add_argument(
         '--maindir',
         type=str,
         help='path to the main project directory (default=".")',
         action='store',
         default='.'
+    )
+    sac2ncf_cmd.add_argument(
+        '--all',
+        help='output all and ignore station list',
+        action='store_true',
     )
     # MODULE 6: ncf2egf
     ncf2egf_cmd = commands.add_parser('ncf2egf', help='ncf2egf processes module',
@@ -211,7 +217,7 @@ def main():
         if args.subcommand == 'stations':
             download.download_stations(args.maindir)
         elif args.subcommand == 'metadata':
-            download.download_metadata(args.maindir)
+            download.download_metadata(args.maindir, args.update_stations)
         elif args.subcommand == 'mseeds':
             download.download_mseeds(args.maindir)
     # mseed2sac

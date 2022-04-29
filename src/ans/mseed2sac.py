@@ -220,19 +220,8 @@ def mseed2sac_run_all(maindir, input_mseeds_dir, output_sacs_dir, all=True):
                     headers['stla'] = float(inv[0][0].latitude)
                     headers['stlo'] = float(inv[0][0].longitude)
                     headers['stel'] = float(inv[0][0].elevation)
-                    cmpaz = float(inv[0][0][0].azimuth)
-                    if cmpaz >= 350 or cmpaz <= 10:
-                        cmpaz = 0.0
-                    elif cmpaz >= 80 or cmpaz <= 100:
-                        cmpaz = 90.0
-
-                    cmpinc = float(inv[0][0][0].dip)+90
-                    if cmpinc <= 10:
-                        cmpinc = 0.0
-                    elif cmpinc >= 80 or cmpinc <= 100:
-                        cmpinc = 90.0
-                    headers['cmpaz'] = cmpaz
-                    headers['cmpinc'] = cmpinc
+                    headers['cmpaz'] = float(inv[0][0][0].azimuth)
+                    headers['cmpinc'] = float(inv[0][0][0].dip)+90
 
                     success = proc.write_sac_headers(sacfile, headers, SAC=SAC)
 

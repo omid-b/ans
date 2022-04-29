@@ -42,6 +42,7 @@ from PyQt5.QtWidgets import (
     QFileDialog,
     QComboBox,
     QSpinBox,
+    QTextEdit,
     QDoubleSpinBox,
     QDateTimeEdit,
     QVBoxLayout,
@@ -2505,6 +2506,25 @@ class NCF2EGF(QWidget):
 
         
 
+class ABOUT(QWidget):
+    def __init__(self):
+        super().__init__()
+        about_html = open(os.path.join(pkg_dir, 'about.html'), 'r').read()
+        about_te = QTextEdit(self,
+            html=about_html,
+            readOnly=True,
+            )
+        about_te.setViewportMargins(10, 0, 30, 30)
+        about_te.setObjectName('about_te')
+        about_te.setStyleSheet("#%s {border: none; margin-right:20px;}" %('about_te'))
+
+        layout = QGridLayout()
+        layout.addWidget(about_te, 0, 0)
+        layout.setAlignment(Qt.AlignVCenter)
+        layout.setAlignment(Qt.AlignHCenter)
+        layout.setContentsMargins(50,50,50,50)
+        self.setLayout(layout)
+
 
 
 class MainWindow(QMainWindow):
@@ -2641,12 +2661,14 @@ class MainWindow(QMainWindow):
         self.mseed2sac = MSEED2SAC()
         self.sac2ncf = SAC2NCF()
         self.ncf2egf = NCF2EGF()
+        self.about = ABOUT()
 
         self.body_main.addWidget(self.setting)
         self.body_main.addWidget(self.download)
         self.body_main.addWidget(self.mseed2sac)
         self.body_main.addWidget(self.sac2ncf)
         self.body_main.addWidget(self.ncf2egf)
+        self.body_main.addWidget(self.about)
 
         # BODY: LAYOUT
         body = QFrame()
@@ -2768,11 +2790,13 @@ class MainWindow(QMainWindow):
             icon_terminal = icon_terminal.replace('\\','/')
             icon_terminal_hover = icon_terminal_hover.replace('\\','/')
         # about
-        icon_about = os.path.join(images_dir,"about.svg")
-        icon_about_hover = os.path.join(images_dir,"about_hover.svg")
+        self.icon_about = os.path.join(images_dir,"about.svg")
+        self.icon_about_hover = os.path.join(images_dir,"about_hover.svg")
+        self.icon_about_selected = os.path.join(images_dir,"about_selected.svg")
         if sys.platform == "win32":
-            icon_about = icon_about.replace('\\','/')
-            icon_about_hover = icon_about_hover.replace('\\','/')
+            self.icon_about = self.icon_about.replace('\\','/')
+            self.icon_about_hover = self.icon_about_hover.replace('\\','/')
+            self.icon_about_selected = self.icon_about_selected.replace('\\','/')
         # save
         icon_save = os.path.join(images_dir,"save.svg")
         icon_save_hover = os.path.join(images_dir,"save_hover.svg")
@@ -2801,7 +2825,7 @@ class MainWindow(QMainWindow):
         self.set_btn_qss(self.btn_sac2ncf, "btn_sac2ncf", (176,40), self.icon_sac2ncf, self.icon_sac2ncf_hover, 1,'#DDDDF9')
         self.set_btn_qss(self.btn_ncf2egf, "btn_ncf2egf", (176,40), self.icon_ncf2egf, self.icon_ncf2egf_hover, 1,'#DDDDF9')
         self.set_btn_qss(self.btn_terminal, "btn_terminal", (176,40), icon_terminal, icon_terminal_hover, 1,'#DDDDF9')
-        self.set_btn_qss(self.btn_about, "btn_about", (176,40), icon_about, icon_about_hover, 1,'#DDDDF9')
+        self.set_btn_qss(self.btn_about, "btn_about", (176,40), self.icon_about, self.icon_about_hover, 1,'#DDDDF9')
         self.set_btn_qss(self.btn_revert, "btn_revert", (167,35), icon_revert, icon_revert_hover,2,'#DDDDF9')
         self.set_btn_qss(self.btn_discard, "btn_discard", (167,35), icon_discard, icon_discard_hover,2,'#DDDDF9')
         self.set_btn_qss(self.btn_save, "btn_save", (167,35), icon_save, icon_save_hover,2,'#DDDDF9')
@@ -2812,11 +2836,13 @@ class MainWindow(QMainWindow):
         self.btn_mseed2sac.clicked.connect(lambda: self.body_main.setCurrentIndex(2))
         self.btn_sac2ncf.clicked.connect(lambda: self.body_main.setCurrentIndex(3))
         self.btn_ncf2egf.clicked.connect(lambda: self.body_main.setCurrentIndex(4))
+        self.btn_about.clicked.connect(lambda: self.body_main.setCurrentIndex(5))
         self.btn_setting.clicked.connect(lambda: self.selected_widget_tab(0))
         self.btn_download.clicked.connect(lambda: self.selected_widget_tab(1))
         self.btn_mseed2sac.clicked.connect(lambda: self.selected_widget_tab(2))
         self.btn_sac2ncf.clicked.connect(lambda: self.selected_widget_tab(3))
         self.btn_ncf2egf.clicked.connect(lambda: self.selected_widget_tab(4))
+        self.btn_about.clicked.connect(lambda: self.selected_widget_tab(5))
         self.btn_menu.clicked.connect(self.toggle_menu)
         self.btn_save.clicked.connect(self.save_button)
         self.btn_discard.clicked.connect(self.discard_button)
@@ -2962,30 +2988,43 @@ class MainWindow(QMainWindow):
             self.set_btn_qss(self.btn_mseed2sac, "btn_mseed2sac", (176,40), self.icon_mseed2sac, self.icon_mseed2sac_hover, 1,'#DDDDF9')
             self.set_btn_qss(self.btn_sac2ncf, "btn_sac2ncf", (176,40), self.icon_sac2ncf, self.icon_sac2ncf_hover, 1,'#DDDDF9')
             self.set_btn_qss(self.btn_ncf2egf, "btn_ncf2egf", (176,40), self.icon_ncf2egf, self.icon_ncf2egf_hover, 1,'#DDDDF9')
+            self.set_btn_qss(self.btn_about, "btn_about", (176,40), self.icon_about, self.icon_about_hover, 1,'#DDDDF9')
         elif widget_index == 1:
             self.set_btn_qss(self.btn_setting, "btn_setting", (176,40), self.icon_setting, self.icon_setting_hover, 1,'#DDDDF9')
             self.set_btn_qss(self.btn_download, "btn_download", (176,40), self.icon_download_selected, self.icon_download_hover, 1,'#DDDDF9')
             self.set_btn_qss(self.btn_mseed2sac, "btn_mseed2sac", (176,40), self.icon_mseed2sac, self.icon_mseed2sac_hover, 1,'#DDDDF9')
             self.set_btn_qss(self.btn_sac2ncf, "btn_sac2ncf", (176,40), self.icon_sac2ncf, self.icon_sac2ncf_hover, 1,'#DDDDF9')
             self.set_btn_qss(self.btn_ncf2egf, "btn_ncf2egf", (176,40), self.icon_ncf2egf, self.icon_ncf2egf_hover, 1,'#DDDDF9')
+            self.set_btn_qss(self.btn_about, "btn_about", (176,40), self.icon_about, self.icon_about_hover, 1,'#DDDDF9')
         elif widget_index == 2:
             self.set_btn_qss(self.btn_setting, "btn_setting", (176,40), self.icon_setting, self.icon_setting_hover, 1,'#DDDDF9')
             self.set_btn_qss(self.btn_download, "btn_download", (176,40), self.icon_download, self.icon_download_hover, 1,'#DDDDF9')
             self.set_btn_qss(self.btn_mseed2sac, "btn_mseed2sac", (176,40), self.icon_mseed2sac_selected, self.icon_mseed2sac_hover, 1,'#DDDDF9')
             self.set_btn_qss(self.btn_sac2ncf, "btn_sac2ncf", (176,40), self.icon_sac2ncf, self.icon_sac2ncf_hover, 1,'#DDDDF9')
             self.set_btn_qss(self.btn_ncf2egf, "btn_ncf2egf", (176,40), self.icon_ncf2egf, self.icon_ncf2egf_hover, 1,'#DDDDF9')
+            self.set_btn_qss(self.btn_about, "btn_about", (176,40), self.icon_about, self.icon_about_hover, 1,'#DDDDF9')
         elif widget_index == 3:
             self.set_btn_qss(self.btn_setting, "btn_setting", (176,40), self.icon_setting, self.icon_setting_hover, 1,'#DDDDF9')
             self.set_btn_qss(self.btn_download, "btn_download", (176,40), self.icon_download, self.icon_download_hover, 1,'#DDDDF9')
             self.set_btn_qss(self.btn_mseed2sac, "btn_mseed2sac", (176,40), self.icon_mseed2sac, self.icon_mseed2sac_hover, 1,'#DDDDF9')
             self.set_btn_qss(self.btn_sac2ncf, "btn_sac2ncf", (176,40), self.icon_sac2ncf_selected, self.icon_sac2ncf_hover, 1,'#DDDDF9')
             self.set_btn_qss(self.btn_ncf2egf, "btn_ncf2egf", (176,40), self.icon_ncf2egf, self.icon_ncf2egf_hover, 1,'#DDDDF9')
+            self.set_btn_qss(self.btn_about, "btn_about", (176,40), self.icon_about, self.icon_about_hover, 1,'#DDDDF9')
         elif widget_index == 4:
             self.set_btn_qss(self.btn_setting, "btn_setting", (176,40), self.icon_setting, self.icon_setting_hover, 1,'#DDDDF9')
             self.set_btn_qss(self.btn_download, "btn_download", (176,40), self.icon_download, self.icon_download_hover, 1,'#DDDDF9')
             self.set_btn_qss(self.btn_mseed2sac, "btn_mseed2sac", (176,40), self.icon_mseed2sac, self.icon_mseed2sac_hover, 1,'#DDDDF9')
             self.set_btn_qss(self.btn_sac2ncf, "btn_sac2ncf", (176,40), self.icon_sac2ncf, self.icon_sac2ncf_hover, 1,'#DDDDF9')
             self.set_btn_qss(self.btn_ncf2egf, "btn_ncf2egf", (176,40), self.icon_ncf2egf_selected, self.icon_ncf2egf_hover, 1,'#DDDDF9')
+            self.set_btn_qss(self.btn_about, "btn_about", (176,40), self.icon_about, self.icon_about_hover, 1,'#DDDDF9')
+        elif widget_index == 5:
+            self.set_btn_qss(self.btn_setting, "btn_setting", (176,40), self.icon_setting, self.icon_setting_hover, 1,'#DDDDF9')
+            self.set_btn_qss(self.btn_download, "btn_download", (176,40), self.icon_download, self.icon_download_hover, 1,'#DDDDF9')
+            self.set_btn_qss(self.btn_mseed2sac, "btn_mseed2sac", (176,40), self.icon_mseed2sac, self.icon_mseed2sac_hover, 1,'#DDDDF9')
+            self.set_btn_qss(self.btn_sac2ncf, "btn_sac2ncf", (176,40), self.icon_sac2ncf, self.icon_sac2ncf_hover, 1,'#DDDDF9')
+            self.set_btn_qss(self.btn_ncf2egf, "btn_ncf2egf", (176,40), self.icon_ncf2egf, self.icon_ncf2egf_hover, 1,'#DDDDF9')
+            self.set_btn_qss(self.btn_about, "btn_about", (176,40), self.icon_about_selected, self.icon_about_hover, 1,'#DDDDF9')
+
 
 
     def set_btn_qss(self, btn_obj, btn_obj_name,\

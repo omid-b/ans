@@ -200,19 +200,8 @@ def sac2ncf_run_all(maindir, input_sacs_dir, output_ncfs_dir, all=True):
                     headers['stla'] = float(inv[0][0].latitude)
                     headers['stlo'] = float(inv[0][0].longitude)
                     headers['stel'] = float(inv[0][0].elevation)
-                    cmpaz = float(inv[0][0][0].azimuth)
-                    if cmpaz >= 350 or cmpaz <= 10:
-                        cmpaz = 0.0
-                    elif cmpaz >= 80 or cmpaz <= 100:
-                        cmpaz = 90.0
-
-                    cmpinc = float(inv[0][0][0].dip)+90
-                    if cmpinc <= 10:
-                        cmpinc = 0.0
-                    elif cmpinc >= 80 or cmpinc <= 100:
-                        cmpinc = 90.0
-                    headers['cmpaz'] = cmpaz
-                    headers['cmpinc'] = cmpinc
+                    headers['cmpaz'] = float(inv[0][0][0].azimuth)
+                    headers['cmpinc'] = float(inv[0][0][0].dip)+90
 
                     success = proc.write_sac_headers(sacfile, headers, SAC=SAC)
 
@@ -368,6 +357,12 @@ def get_event_sta_components(event_dir):
                 event_sta_components[f'{kstnm}'] = [[], [], []]
         except Exception as e:
             pass
+
+        # for ??1 and ??2 components
+        if cmpaz> 315 or cmpaz< 45:
+            cmpaz = 0
+        if cmpaz> 45 and cmpaz< 135:
+            cmpaz = 90
 
         if cmpaz == 0 and cmpinc == 90:
             event_sta_components[f'{kstnm}'][0].append(sacfile)
@@ -545,14 +540,22 @@ def generate_xcorr_RTZ_files(event_dir, SAC='/usr/local/sac/bin/sac'):
         sta1_sta2_R = os.path.join(event_dir, f"{sta_pair[0]}_{sta_pair[1]}.R")
         sta1_sta2_T = os.path.join(event_dir, f"{sta_pair[0]}_{sta_pair[1]}.T")
         if os.path.isfile(sta1_sta2_PPN) and os.path.isfile(sta1_sta2_PPE):
-            shell_cmd = ["export SAC_DISPLAY_COPYRIGHT=0", f"{SAC}<<EOF"]
-            shell_cmd.append(f"r {sta1_sta2_PPN} {sta1_sta2_PPE}")
-            shell_cmd.append("rotate to gcarc")
-            shell_cmd.append(f"w {sta1_sta2_R} {sta1_sta2_T}")
-            shell_cmd.append('quit')
-            shell_cmd.append('EOF')
-            shell_cmd = '\n'.join(shell_cmd)
-            subprocess.call(shell_cmd, shell=True)
+            st_PPN = obspy.read(sta1_sta2_PPN, headonly=True)
+            st_PPE = obspy.read(sta1_sta2_PPE, headonly=True)
+            cmpaz_PPN = float(st_PPN[0].stats.sac.cmpaz)
+            cmpaz_PPE = float(st_PPE[0].stats.sac.cmpaz)
+            cmpaz_dif = int(round(abs(cmpaz_PPN - cmpaz_PPE), 0))
+            if cmpaz_dif in [90, 270]:
+                shell_cmd = ["export SAC_DISPLAY_COPYRIGHT=0", f"{SAC}<<EOF"]
+                shell_cmd.append(f"r {sta1_sta2_PPN} {sta1_sta2_PPE}")
+                shell_cmd.append("rotate to gcp")
+                shell_cmd.append(f"w {sta1_sta2_R} {sta1_sta2_T}")
+                shell_cmd.append('quit')
+                shell_cmd.append('EOF')
+                shell_cmd = '\n'.join(shell_cmd)
+                subprocess.call(shell_cmd, shell=True)
+            else:
+                print(f"ERROR! Horizontal component azimuths are not 90 degrees apart for '{sta_pair[0]}' >> {cmpaz_dif}")
 
         # sta2_sta1
         sta2_sta1_PPN = os.path.join(event_dir, f"{sta_pair[1]}_{sta_pair[0]}.PPN")
@@ -560,14 +563,22 @@ def generate_xcorr_RTZ_files(event_dir, SAC='/usr/local/sac/bin/sac'):
         sta2_sta1_R = os.path.join(event_dir, f"{sta_pair[1]}_{sta_pair[0]}.R")
         sta2_sta1_T = os.path.join(event_dir, f"{sta_pair[1]}_{sta_pair[0]}.T")
         if os.path.isfile(sta2_sta1_PPN) and os.path.isfile(sta2_sta1_PPE):
-            shell_cmd = ["export SAC_DISPLAY_COPYRIGHT=0", f"{SAC}<<EOF"]
-            shell_cmd.append(f"r {sta2_sta1_PPN} {sta2_sta1_PPE}")
-            shell_cmd.append("rotate to gcarc")
-            shell_cmd.append(f"w {sta2_sta1_R} {sta2_sta1_T}")
-            shell_cmd.append('quit')
-            shell_cmd.append('EOF')
-            shell_cmd = '\n'.join(shell_cmd)
-            subprocess.call(shell_cmd, shell=True)
+            st_PPN = obspy.read(sta2_sta1_PPN, headonly=True)
+            st_PPE = obspy.read(sta2_sta1_PPE, headonly=True)
+            cmpaz_PPN = float(st_PPN[0].stats.sac.cmpaz)
+            cmpaz_PPE = float(st_PPE[0].stats.sac.cmpaz)
+            cmpaz_dif = int(round(abs(cmpaz_PPN - cmpaz_PPE), 0))
+            if cmpaz_dif in [90, 270]:
+                shell_cmd = ["export SAC_DISPLAY_COPYRIGHT=0", f"{SAC}<<EOF"]
+                shell_cmd.append(f"r {sta2_sta1_PPN} {sta2_sta1_PPE}")
+                shell_cmd.append("rotate to gcp")
+                shell_cmd.append(f"w {sta2_sta1_R} {sta2_sta1_T}")
+                shell_cmd.append('quit')
+                shell_cmd.append('EOF')
+                shell_cmd = '\n'.join(shell_cmd)
+                subprocess.call(shell_cmd, shell=True)
+            else:
+                print(f"ERROR! Horizontal component azimuths are not 90 degrees apart for '{sta_pair[1]}' >> {cmpaz_dif}")
     
 
 
