@@ -378,7 +378,7 @@ class Defaults:
     def ncf2egf(self):
         ncf2egf = {}
         ncf2egf['chb_ncf2egf_symmetrize'] = 0
-        ncf2egf['chb_ncf2egf_cut'] = 2
+        ncf2egf['chb_ncf2egf_cut'] = 0
         ncf2egf['le_ncf2egf_cut_begin'] = -3000
         ncf2egf['le_ncf2egf_cut_end'] = 3000
         ncf2egf['chb_ncf2egf_bp'] = 0

@@ -12,6 +12,8 @@ from . import dependency
 from . import download
 from . import mseed2sac
 from . import sac2ncf
+from . import ncf2egf
+from . import plot
 
 # global variables
 # version 0.0.1 >> EGFs from zero to hero!
@@ -183,11 +185,52 @@ def main():
     # MODULE 6: ncf2egf
     ncf2egf_cmd = commands.add_parser('ncf2egf', help='ncf2egf processes module',
     description="ncf2egf processes module.")
+    ncf2egf_cmd.add_argument(
+        'ncfs_dir',
+        type=str,
+        help='path to the input NCF files dataset directory',
+        action='store',
+    )
+    ncf2egf_cmd.add_argument(
+        'egfs_dir',
+        type=str,
+        help='path to the output EGF files dataset directory',
+        action='store',
+    )
+    ncf2egf_cmd.add_argument(
+        '--cmp',
+        nargs='*',
+        type=str,
+        action='store',
+        default=['ZZ','TT'],
+        help='cross-correlation component(s) (default: ZZ TT)')
+    ncf2egf_cmd.add_argument(
+        '--maindir',
+        type=str,
+        help='path to the main project directory (default=".")',
+        action='store',
+        default='.'
+    )
 
-    # MODULE 7: egf2fan
-    egf2fan_cmd = commands.add_parser('egf2fan', help='ncf2egf processes module',
-    description="ncf2egf processes module.")
 
+    # MODULE 7: plot
+    plot_cmd = commands.add_parser('plot', help='plot module',
+    description="Plot module.")
+    plot_subcmd = plot_cmd.add_subparsers(dest='subcommand')
+    plot_stations = plot_subcmd.add_parser('stations', help="plot station list",
+        description="Plot station list using GMT")
+    plot_stations.add_argument(
+        '--maindir',
+        type=str,
+        help='path to the main project directory (default=".")',
+        action='store',
+        default='.'
+    )
+    plot_stations.add_argument('--labels', action='store_true',help='print station labels on the output map')
+
+    # MODULE N: egf2fan
+    # egf2fan_cmd = commands.add_parser('egf2fan', help='ncf2egf processes module',
+    # description="ncf2egf processes module.")
 
     #########################
     #    PARSE ARGUMENTS
@@ -228,7 +271,12 @@ def main():
         sac2ncf.sac2ncf_run_all(args.maindir, args.sacs_dir, args.ncfs_dir, args.all)
     # ncf2egf
     if args.command == 'ncf2egf':
-        print(dev)
+        ncf2egf.ncf2egf_run_all(args.maindir, args.ncfs_dir, args.egfs_dir, args.cmp)
+    # plot
+    if args.command == 'plot':
+        if args.subcommand == 'stations':
+            plot.plot_stations(args.maindir, labels=args.labels)
+
 
 if __name__ == "__main__":
     main(**vars(args))
