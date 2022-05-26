@@ -2,6 +2,7 @@ import os
 import sys
 import numpy as np
 import subprocess
+import shutil
 from . import config
 from . import download
 
