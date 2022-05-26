@@ -24,21 +24,23 @@ sudo apt install texlive-font-utils
 
 This version include all the necessary commands and tools required for generating Rayleigh wave (ZZ and RR cross-correlations) and Love wave (TT cross-correlation component) Empirical Green's Functions (EGFs). A brief description of most useful CLI commands is given below:
 
+## Workflow / Procedure
+
 ```bash
 ans init <maindir>
 ```
-> **Description:** initialize ans project at project main directory i.e. <maindir>
+> **Description:** initialize ans project at project main directory i.e. \<maindir\>
 
 ```bash
 ans config
 ans config --maindir <maindir>
 ```
-> **Description:** open the program GUI to configure the ans project. Note: default <maindir> is current working directory
+> **Description:** open the program GUI to configure the ans project. Note: default \<maindir\> is current working directory
 
 ```bash
 ans download stations
 ```
-> **Description:** download list of available stations at the given region boundary and dates that was previously set using the GUI. Datacenters, desired station components etc should also be set using '$> ans config'.
+> **Description:** download list of available stations at the given region boundary and dates that was previously set using the GUI. Datacenters, desired station components etc should also be set using '$ ans config'.
 
 ```bash
 ans download metadata
@@ -53,8 +55,8 @@ ans download mseeds
 ```bash
 ans mseed2sac <mseeds_dir> <sacs_dir>
 ```
-> **Description:** convert mseed to sac files while applying the listed processing steps in project configuration mseed2sac tab (i.e., '$> ans config').
-	  <mseeds_dir>: input mseed dataset directory <sacs_dir>: output sac files dataset directory
+> **Description:** convert mseed to sac files while applying the listed processing steps in project configuration mseed2sac tab (i.e., '$ ans config').
+	  \<mseeds_dir\>: input mseed dataset directory \<sacs_dir\>: output sac files dataset directory
 	
 ```bash
 ans sac2ncf <sacs_dir> <ncfs_dir>
@@ -64,6 +66,6 @@ ans sac2ncf <sacs_dir> <ncfs_dir>
 ```bash
 ans ncf2egf <ncfs> <egfs_dir>
 ```
-> **Description:** <ncfs>: either path to the <ncfs_dir> (full stack EGFs) or an ASCII datalist containing a one-column data format list of paths to event directories (seasonal EGFs; e.g., "14001000000" i.e. 2014/01/01) <egfs_dir>: path to output stacked EGF
+> **Description:** \<ncfs\>: either path to the \<ncfs_dir\> (full stack EGFs) or an ASCII datalist containing a one-column data format list of paths to event directories (seasonal EGFs; e.g., "14001000000" i.e. 2014/01/01) \<egfs_dir\>: path to output stacked EGF
 		  
 
