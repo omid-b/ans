@@ -14,6 +14,8 @@ sudo apt-get install '^libxcb.*-dev' libx11-xcb-dev libglu1-mesa-dev libxrender-
 ### Convert to pdf file after plotting (Debian Linux)
 
 ```bash
+sudo apt-get update
+sudo apt-get -y install ghostscript
 sudo apt install texlive-font-utils
 ```
 
