@@ -17,7 +17,7 @@ from . import plot
 
 # global variables
 # version 0.0.1 >> EGFs from zero to hero!
-version = "0.0.1"
+version = "0.0.2"
 about = "ANS: ambient noise seismology, is a python wrapper \
 for a selection of ambient noise seismology codes and procedures. \
 \n\nContact information:\

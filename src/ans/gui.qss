@@ -1,9 +1,4 @@
 
-QFrame{
-    background-color: #EEE;
-    /*border: 1px dashed red;*/
-}
-
 
 #header *, #body_menu *, #footer * {
 /*    make sure that same color is set 
@@ -49,15 +44,7 @@ for border-color of buttons in self.set_btn_qss()*/
 
 /*----MAIN WIDGETS----*/
 
-QLineEdit {
-    min-height: 20px;
-    margin: 0;
-    padding: 0;
-    padding-left: 5px;
-    padding-right: 5px;
-    margin-left: 5px;
-    margin-right: 5px;
-}
+
 
 #le_startdate {
     max-width: 110px;
@@ -110,7 +97,69 @@ QLineEdit {
     padding-bottom: 5px;
 }
 
-QScrollArea {
+
+QFrame{
+    background-color: #EEE;
+/*    border: 5px dashed red;*/
+}
+
+QWidget{
+    background-color: #EEE;
+}
+
+QLabel {
+    color: #000;
+    min-height: 18px;
+}
+
+QLineEdit {
+    min-height: 20px;
+    margin: 0;
+    padding: 0;
+    padding-left: 5px;
+    padding-right: 5px;
+    margin-left: 5px;
+    margin-right: 5px;
+    background-color: #FFF;
+    color: #000;
+    border: 1px solid #AAA;
+}
+
+
+QPushButton {
+    color: #999;
+    margin-left: 2px;
+    margin-right: 2px;
+    padding-right: 5px;
+    padding-left: 5px;
+    padding-bottom: 2px;
+}
+
+#btn_sac2ncf_add, #btn_sac2ncf_remove,
+#btn_mseed2sac_add, #btn_mseed2sac_remove{
+    border: none;
+    padding: 0;
+}
+
+QComboBox, QSpinBox, QDoubleSpinBox {
+    color: #000;
+    background-color: #FFF;
+}
+
+QSpinBox, QDoubleSpinBox{
+    border: 1px solid #AAA;
+    min-height: 18px;
+}
+
+
+QAbstractItemView, QListView {
+    color: #FFF;
+    background-color : #333;
+}
+
+#scroll_mseed2sac, #scroll_sac2ncf {
     border: none;
 }
+
+
 

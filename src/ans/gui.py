@@ -231,17 +231,23 @@ class MyCheckBox(QCheckBox):
             painter.drawRoundedRect(0, 0, rect.width(), rect.height(),
                                     rect.height() / 2, rect.height() / 2)
             painter.setBrush(QColor(self.circle_color))
-            # painter.drawEllipse(self.width() - self.height() + 2, 2,
-            #                     self.height() - 4, self.height() - 4)
-            painter.drawEllipse(self._circle_position, 2,
-                                self.height() - 4, self.height() - 4)
+            try:
+                painter.drawEllipse(self._circle_position, 2,
+                                    self.height() - 4, self.height() - 4)
+            except:
+                painter.drawEllipse(self.width() - self.height() + 2, 2,
+                                    self.height() - 4, self.height() - 4)
         else:
             painter.setBrush(QColor(self.bg_color))
             painter.drawRoundedRect(0, 0, rect.width(), rect.height(),
                                     rect.height() / 2, rect.height() / 2)
             painter.setBrush(QColor(self.circle_color))
-            painter.drawEllipse(self._circle_position, 2,
-                                self.height() - 4, self.height() - 4)
+            try:
+                painter.drawEllipse(self._circle_position, 2,
+                                    self.height() - 4, self.height() - 4)
+            except:
+                painter.drawEllipse(self.width() - self.height() - 10, 2,
+                                    self.height() - 4, self.height() - 4)
         painter.end()
 
 
@@ -564,6 +570,7 @@ class OrthoMap(QMainWindow):
         m.drawcoastlines()
         m.drawcountries()
         m.drawmapboundary(fill_color='aqua')
+        m.drawlsmask(ocean_color='white', land_color='white')
         m.fillcontinents(color='coral',lake_color='aqua')
         
         if (maxlat - minlat) > 40:
@@ -853,6 +860,7 @@ class MSEED2SAC(QWidget):
         self.mseed2sac_proc_frames = []
 
         self.scroll = QScrollArea()
+        self.scroll.setObjectName("scroll_mseed2sac")
         self.scroll.setFrameShape(QFrame.Box)
         self.scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -1661,11 +1669,13 @@ class SAC2NCF(QWidget):
         self.sac2ncf_proc_frames = []
 
         self.scroll = QScrollArea()
+        self.scroll.setObjectName("scroll_sac2ncf")
         self.scroll.setFrameShape(QFrame.Box)
         self.scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.scroll.setWidgetResizable(True)
         self.scroll_widget = QWidget()
+        self.scroll_widget.setObjectName("scroll_widget")
         self.lyo_sac2ncf_proc_frames = QVBoxLayout(self.scroll_widget)
         self.lyo_sac2ncf_proc_frames.setAlignment(Qt.AlignTop)
         self.scroll.setWidget(self.scroll_widget)
@@ -2516,7 +2526,7 @@ class ABOUT(QWidget):
             )
         about_te.setViewportMargins(10, 0, 30, 30)
         about_te.setObjectName('about_te')
-        about_te.setStyleSheet("#%s {border: none; margin-right:20px;}" %('about_te'))
+        about_te.setStyleSheet("#%s {border: none; margin-right:20px; color: black}" %('about_te'))
 
         layout = QGridLayout()
         layout.addWidget(about_te, 0, 0)
