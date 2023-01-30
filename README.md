@@ -1,6 +1,6 @@
 # ANS: Ambient Noise Seismology
 
-ans is a python wrapper for ambient noise seismology tasks and it has a GUI for easier configuration of ambient-noise seismology projects. In its backend, this package depends on Perl interpreter, GMT (Generic Mapping Tools), and SAC (Seismic Analysis Code) as well as python modules including ObsPy etc. ans is successfully tested on Python 3.6.* and 3.8.* versions.
+ans is a python wrapper for ambient noise seismology tasks and it has a GUI for easier configuration of ambient-noise seismology projects. In its backend, this package depends on Perl interpreter, GMT (Generic Mapping Tools), and SAC (Seismic Analysis Code) as well as python modules including ObsPy etc. ans is successfully tested on Python versions 3.6-3.11.
 
 ## Pre-requisites 
 
